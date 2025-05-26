@@ -7,5 +7,5 @@ func (app *application) routes() http.Handler {
 
 	mux.HandleFunc("GET /{$}", app.home)
 
-	return commonHeaders(mux)
+	return app.logRequest(commonHeaders(mux))
 }
