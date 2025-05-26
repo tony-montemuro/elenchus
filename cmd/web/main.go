@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -24,11 +23,9 @@ func main() {
 		logger: logger,
 	}
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /{$}", app.home)
-
 	logger.Info("starting server", slog.String("addr", *config.Addr), slog.String("minLoggingLevel", config.MinLogLevel.String()))
 
-	err := http.ListenAndServe(*config.Addr, mux)
-	log.Fatal(err)
+	err := http.ListenAndServe(*config.Addr, app.routes())
+	logger.Error(err.Error())
+	os.Exit(1)
 }
