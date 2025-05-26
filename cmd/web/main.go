@@ -1,20 +1,34 @@
 package main
 
 import (
-	"flag"
 	"log"
+	"log/slog"
 	"net/http"
+	"os"
+
+	"github.com/tony-montemuro/elenchus/internal/config"
 )
 
+type application struct {
+	logger *slog.Logger
+}
+
 func main() {
-	addr := flag.String("addr", ":4000", "HTTP network address")
-	flag.Parse()
+	config := config.LoadConfig()
+
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		AddSource: true,
+		Level:     config.MinLogLevel,
+	}))
+	app := &application{
+		logger: logger,
+	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /{$}", home)
+	mux.HandleFunc("GET /{$}", app.home)
 
-	log.Printf("starting server on %s", *addr)
+	logger.Info("starting server", slog.String("addr", *config.Addr), slog.String("minLoggingLevel", config.MinLogLevel.String()))
 
-	err := http.ListenAndServe(*addr, mux)
+	err := http.ListenAndServe(*config.Addr, mux)
 	log.Fatal(err)
 }
