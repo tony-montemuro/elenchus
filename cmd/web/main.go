@@ -24,8 +24,13 @@ func main() {
 	}
 
 	logger.Info("starting server", slog.String("addr", *config.Addr), slog.String("minLoggingLevel", config.MinLogLevel.String()))
+	srv := &http.Server{
+		Addr:     *config.Addr,
+		Handler:  app.routes(),
+		ErrorLog: slog.NewLogLogger(logger.Handler(), slog.LevelError),
+	}
 
-	err := http.ListenAndServe(*config.Addr, app.routes())
+	err := srv.ListenAndServe()
 	logger.Error(err.Error())
 	os.Exit(1)
 }
