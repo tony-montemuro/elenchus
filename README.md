@@ -8,7 +8,7 @@
     git clone https://github.com/tony-montemuro/elenchus.git
 
     # or, if you are using ssh:
-    git clone git@github.com:tony-montemuro/dev-blog.git
+    git clone git@github.com:tony-montemuro/elenchus.git
     ```
 
 2. Run the project initialization script:
