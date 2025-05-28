@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log/slog"
+	"os"
 	"strings"
 )
 
@@ -16,15 +17,19 @@ type Config struct {
 // See `flag.Parse()` for details on why
 func LoadConfig() *Config {
 	config := &Config{}
-	config.parseFlags()
+
+	flags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	config.parseFlags(flags)
+	flags.Parse(os.Args[1:])
+
 	return config
 }
 
-func (c *Config) parseFlags() {
-	c.Addr = flag.String("addr", ":4000", "HTTP network address")
+func (c *Config) parseFlags(flags *flag.FlagSet) {
+	c.Addr = flags.String("addr", ":4000", "HTTP network address")
 
 	c.MinLogLevel = slog.LevelInfo
-	flag.Func("minLogLevel", "Minimum logging level (see slog.Level; default \"INFO\")", func(level string) error {
+	flags.Func("minLogLevel", "Minimum logging level (see slog.Level; default \"INFO\")", func(level string) error {
 		levels := []slog.Level{slog.LevelDebug, slog.LevelInfo, slog.LevelWarn, slog.LevelError}
 
 		for _, l := range levels {
@@ -37,5 +42,4 @@ func (c *Config) parseFlags() {
 		return fmt.Errorf("invalid log level: %s", level)
 	})
 
-	flag.Parse()
 }
