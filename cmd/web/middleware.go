@@ -17,7 +17,7 @@ func commonHeaders(next http.Handler) http.Handler {
 		w.Header().Set("Cross-Origin-Embedder-Policy", "require-corp")
 		w.Header().Set("Cross-Origin-Resource-Policy", "same-site")
 		w.Header().Set("Permissions-Policy", "camera=(), geolocation=(), microphone=()")
-		// w.Header().Set("Strict-Transport-Security", "max-age=6307200; includeSubDomains; preload")
+		w.Header().Set("Strict-Transport-Security", "max-age=6307200; includeSubDomains; preload")
 
 		next.ServeHTTP(w, r)
 	})
