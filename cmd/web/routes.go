@@ -23,6 +23,7 @@ func (app *application) routes() http.Handler {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /{$}", app.home)
+	mux.HandleFunc("GET /ping", ping)
 
 	globalChain := chain{app.recoverPanic, app.logRequest, commonHeaders}
 	return globalChain.then(mux)
