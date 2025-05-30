@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"net/http"
 	"testing"
 
@@ -8,7 +9,7 @@ import (
 )
 
 func TestPing(t *testing.T) {
-	app := newTestApplication()
+	app := newTestApplication(io.Discard)
 
 	ts := newTestServer(app.routes())
 	defer ts.Close()

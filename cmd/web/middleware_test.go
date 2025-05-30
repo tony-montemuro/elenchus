@@ -2,26 +2,27 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
+	"log/slog"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/tony-montemuro/elenchus/internal/assert"
 )
 
+type LogOutput struct {
+	Time    string `json:"time"`
+	Level   string `json:"level"`
+	Message string `json:"msg"`
+	Ip      string `json:"ip"`
+	Proto   string `json:"proto"`
+	Method  string `json:"method"`
+	Uri     string `json:"uri"`
+}
+
 func TestCommonHeaders(t *testing.T) {
-	rr := httptest.NewRecorder()
-	r, err := http.NewRequest(http.MethodGet, "/", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	next := http.HandlerFunc(ping)
-
-	commonHeaders(next).ServeHTTP(rr, r)
-
-	rs := rr.Result()
+	rs := executeMiddleware(t, commonHeaders, http.HandlerFunc(ping))
 
 	expectedValue := "default-src 'self'"
 	assert.Equal(t, rs.Header.Get("Content-Security-Policy"), expectedValue)
@@ -63,4 +64,76 @@ func TestCommonHeaders(t *testing.T) {
 	body = bytes.TrimSpace(body)
 
 	assert.Equal(t, string(body), "OK")
+}
+
+func TestRecoverPanic(t *testing.T) {
+	middleware := newTestApplication(io.Discard).recoverPanic
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		panic("Panic handler")
+	})
+
+	rs := executeMiddleware(t, middleware, next)
+
+	assert.Equal(t, rs.StatusCode, http.StatusInternalServerError)
+	assert.Equal(t, rs.Header.Get("Connection"), "Closed")
+}
+
+func TestLogRequest(t *testing.T) {
+	tests := []struct {
+		name   string
+		method string
+		uri    string
+		ip     string
+	}{
+		{
+			name:   "GET request",
+			method: http.MethodGet,
+			uri:    "/",
+			ip:     "127.0.0.1:8080",
+		},
+		{
+			name:   "POST request",
+			method: http.MethodPost,
+			uri:    "/post",
+			ip:     "248.247.196.20:4000",
+		},
+		{
+			name:   "DELETE request",
+			method: http.MethodDelete,
+			uri:    "/delete",
+			ip:     "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			buf := new(bytes.Buffer)
+			middleware := newTestApplication(buf).logRequest
+			handler := http.HandlerFunc(ping)
+
+			rs := executeMiddlewareWithOptions(t, middleware, handler, tt.method, tt.uri, tt.ip)
+
+			var output LogOutput
+			err := json.Unmarshal(buf.Bytes(), &output)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			expectedValue := slog.LevelInfo.String()
+			assert.Equal(t, output.Level, expectedValue)
+
+			expectedValue = "receieved request"
+			assert.Equal(t, output.Message, expectedValue)
+
+			assert.Equal(t, output.Method, tt.method)
+			assert.Equal(t, output.Uri, tt.uri)
+			assert.Equal(t, output.Ip, tt.ip)
+
+			expectedValue = "HTTP/1.1"
+			assert.Equal(t, output.Proto, expectedValue)
+
+			assert.Equal(t, rs.StatusCode, http.StatusOK)
+
+		})
+	}
 }

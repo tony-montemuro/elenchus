@@ -9,10 +9,28 @@ import (
 	"testing"
 )
 
-func newTestApplication() *application {
+func newTestApplication(logWriter io.Writer) *application {
 	return &application{
-		logger: slog.New(slog.NewJSONHandler(io.Discard, nil)),
+		logger: slog.New(slog.NewJSONHandler(logWriter, nil)),
 	}
+}
+
+func executeMiddleware(t *testing.T, middleware func(http.Handler) http.Handler, next http.Handler) *http.Response {
+	return executeMiddlewareWithOptions(t, middleware, next, "GET", "/", "")
+}
+
+func executeMiddlewareWithOptions(t *testing.T, middleware func(http.Handler) http.Handler, next http.Handler, method, uri, ip string) *http.Response {
+	rr := httptest.NewRecorder()
+	r, err := http.NewRequest(method, uri, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	r.RemoteAddr = ip
+
+	middleware(next).ServeHTTP(rr, r)
+
+	return rr.Result()
 }
 
 type testServer struct {
