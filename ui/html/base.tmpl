@@ -1,0 +1,20 @@
+{{define "base"}}
+<!doctype html>
+<html lang='en'>
+	<head>
+		<meta charset='utf-8'>
+		<title>{{template "title" .}} - elenchus</title>
+	</head>
+	<body>
+		<header>
+			<nav>
+				<a href='/'>elenchus</a>
+			</nav>
+		</header>
+		<main>
+			{{template "main" .}}
+		</main>
+		<footer>Tony Montemuro</footer>
+	</body>
+</html>
+{{end}}
