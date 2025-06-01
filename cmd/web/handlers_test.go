@@ -9,7 +9,7 @@ import (
 )
 
 func TestPing(t *testing.T) {
-	app := newTestApplication(io.Discard)
+	app := newTestApplication(t, io.Discard)
 
 	ts := newTestServer(app.routes())
 	defer ts.Close()

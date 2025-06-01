@@ -9,9 +9,15 @@ import (
 	"testing"
 )
 
-func newTestApplication(logWriter io.Writer) *application {
+func newTestApplication(t *testing.T, logWriter io.Writer) *application {
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	return &application{
-		logger: slog.New(slog.NewJSONHandler(logWriter, nil)),
+		templateCache: templateCache,
+		logger:        slog.New(slog.NewJSONHandler(logWriter, nil)),
 	}
 }
 

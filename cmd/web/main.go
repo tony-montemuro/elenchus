@@ -1,6 +1,7 @@
 package main
 
 import (
+	"html/template"
 	"log/slog"
 	"net/http"
 	"os"
@@ -9,7 +10,8 @@ import (
 )
 
 type application struct {
-	logger *slog.Logger
+	logger        *slog.Logger
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -19,8 +21,15 @@ func main() {
 		AddSource: true,
 		Level:     config.MinLogLevel,
 	}))
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
 	app := &application{
-		logger: logger,
+		logger:        logger,
+		templateCache: templateCache,
 	}
 
 	logger.Info("starting server", slog.String("addr", *config.Addr), slog.String("minLoggingLevel", config.MinLogLevel.String()))
@@ -30,7 +39,7 @@ func main() {
 		ErrorLog: slog.NewLogLogger(logger.Handler(), slog.LevelError),
 	}
 
-	err := srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
+	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	logger.Error(err.Error())
 	os.Exit(1)
 }

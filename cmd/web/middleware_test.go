@@ -67,7 +67,7 @@ func TestCommonHeaders(t *testing.T) {
 }
 
 func TestRecoverPanic(t *testing.T) {
-	middleware := newTestApplication(io.Discard).recoverPanic
+	middleware := newTestApplication(t, io.Discard).recoverPanic
 	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		panic("Panic handler")
 	})
@@ -108,7 +108,7 @@ func TestLogRequest(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			buf := new(bytes.Buffer)
-			middleware := newTestApplication(buf).logRequest
+			middleware := newTestApplication(t, buf).logRequest
 			handler := http.HandlerFunc(ping)
 
 			rs := executeMiddlewareWithOptions(t, middleware, handler, tt.method, tt.uri, tt.ip)
