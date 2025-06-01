@@ -1,21 +1,28 @@
 {{define "base"}}
 <!doctype html>
 <html lang='en'>
-	<head>
-		<meta charset='utf-8'>
-		<title>{{template "title" .}} - elenchus</title>
-		<link rel='stylesheet' href='/static/css/main.css'>
-	</head>
-	<body>
-		<header>
-			<nav>
-				<a href='/'>elenchus</a>
-			</nav>
-		</header>
-		<main>
-			{{template "main" .}}
-		</main>
-		<footer>Tony Montemuro</footer>
-	</body>
+
+<head>
+	<meta charset='utf-8'>
+	<title>{{template "title" .}} - elenchus</title>
+	<link rel='stylesheet' href='/static/css/main.css'>
+</head>
+
+<body>
+	<header>
+		<nav>
+			<a href='/'>elenchus</a>
+			<a href='/quizzes'>Quizzes</a>
+			<a href='/login'>Login</a>
+		</nav>
+	</header>
+	<main>
+		{{template "main" .}}
+	</main>
+	<footer>
+		<div>© 2025 Tony Montemuro</div>
+	</footer>
+</body>
+
 </html>
 {{end}}

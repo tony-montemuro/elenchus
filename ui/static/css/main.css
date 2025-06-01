@@ -1,3 +1,10 @@
+:root {
+	--body-height: 100vh;
+	--nav-height: 4rem;
+	--footer-height: 4rem;
+	--app-padding: 0.5rem;
+}
+
 *,
 *::before,
 *::after {
@@ -19,5 +26,30 @@ video {
 }
 
 body {
-	min-height: 100vh;
+	min-height: var(--body-height);
+}
+
+nav {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: var(--nav-height);
+	position: -webkit-sticky;
+	position: sticky;
+	top: 0;
+	background-color: red;
+	padding: 0 var(--app-padding);
+}
+
+main {
+	min-height: calc(var(--body-height) - var(--nav-height) - var(--footer-height));
+	padding: var(--app-padding);
+}
+
+footer {
+	display: flex;
+	align-items: center;
+	height: var(--footer-height);
+	background-color: blue;
+	padding: 0 var(--app-padding);
 }
