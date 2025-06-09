@@ -70,7 +70,7 @@ mariadb -u root -p"$ROOT_PASS" << EOF
 $sql
 EOF
 
-echo "$dbconfig" > .dbconfig
+echo "$dbconfig" > dbconfig.yml
 
 go install github.com/rubenv/sql-migrate/...@latest
 
