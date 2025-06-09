@@ -36,7 +36,7 @@ CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED BY '$MARIADB_USER_PA
 GRANT SELECT, INSERT, UPDATE, DELETE ON $DB_NAME.* TO '$DB_USER'@'localhost';
 "
 
-dbconfig="mysql:
+dbconfig="development:
     dialect: mysql
     datasource: $DB_USER:$MARIADB_USER_PASS@/$DB_NAME?parseTime=true
     dir: migrations
@@ -56,7 +56,7 @@ if [[ $ENVIRONMENT == "local" ]]; then
     "
 
     dbconfig="$dbconfig
-mysql:
+test:
     dialect: mysql
     datasource: test_$DB_USER:$MARIADB_TEST_USER_PASS@/test_$DB_NAME?parseTime=true
     dir: migrations 
@@ -72,7 +72,9 @@ EOF
 
 echo "$dbconfig" > .dbconfig
 
-echo "✅ MariaDB database(s), user(s), and migration config (.dbconfig) generated!"
+go install github.com/rubenv/sql-migrate/...@latest
+
+echo "✅ MariaDB database(s), user(s), and migration config (.dbconfig) generated! sql-migrate installed!"
 echo -e "\n"
 
 echo "📦 Installing project dependencies..."
