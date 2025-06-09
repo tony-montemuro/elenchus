@@ -36,6 +36,12 @@ CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED BY '$MARIADB_USER_PA
 GRANT SELECT, INSERT, UPDATE, DELETE ON $DB_NAME.* TO '$DB_USER'@'localhost';
 "
 
+dbconfig="mysql:
+    dialect: mysql
+    datasource: $DB_USER:$MARIADB_USER_PASS@/$DB_NAME?parseTime=true
+    dir: migrations
+"
+
 if [[ $ENVIRONMENT == "local" ]]; then
     read -s -p "Enter password for new MariaDB user 'test_$DB_USER' (Press enter to use default '$MARIADB_TEST_USER_PASS'): "
     echo
@@ -48,6 +54,13 @@ if [[ $ENVIRONMENT == "local" ]]; then
     CREATE USER IF NOT EXISTS 'test_$DB_USER'@'localhost' IDENTIFIED BY '$MARIADB_TEST_USER_PASS';
     GRANT SELECT, INSERT, UPDATE, DELETE on test_$DB_NAME.* TO 'test_$DB_USER'@'localhost';
     "
+
+    dbconfig="$dbconfig
+mysql:
+    dialect: mysql
+    datasource: test_$DB_USER:$MARIADB_TEST_USER_PASS@/test_$DB_NAME?parseTime=true
+    dir: migrations 
+    "
 fi
 
 read -s -p "Enter MariaDB root password: " ROOT_PASS
@@ -56,7 +69,10 @@ echo
 mariadb -u root -p"$ROOT_PASS" << EOF
 $sql
 EOF
-echo "✅ MariaDB database(s) and user(s) generated!"
+
+echo "$dbconfig" > .dbconfig
+
+echo "✅ MariaDB database(s), user(s), and migration config (.dbconfig) generated!"
 echo -e "\n"
 
 echo "📦 Installing project dependencies..."
