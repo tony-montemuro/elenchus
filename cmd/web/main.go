@@ -9,11 +9,13 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/tony-montemuro/elenchus/internal/config"
+	"github.com/tony-montemuro/elenchus/internal/models"
 )
 
 type application struct {
 	logger        *slog.Logger
 	templateCache map[string]*template.Template
+	profiles      *models.ProfileModel
 }
 
 func main() {
@@ -40,6 +42,7 @@ func main() {
 	app := &application{
 		logger:        logger,
 		templateCache: templateCache,
+		profiles:      &models.ProfileModel{DB: db},
 	}
 
 	logger.Info("starting server", slog.String("addr", *config.Addr), slog.String("minLoggingLevel", config.MinLogLevel.String()))
