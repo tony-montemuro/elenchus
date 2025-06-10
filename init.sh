@@ -2,12 +2,14 @@
 
 set -e
 
-DEFAULT_PASS="pass"
+DB_DEFAULT_PASS="pass"
 ENVIRONMENT="local"
-MARIADB_USER_PASS=$DEFAULT_PASS
-MARIADB_TEST_USER_PASS=$DEFAULT_PASS
+DB_USER_PASS=$DB_DEFAULT_PASS
+DB_MIGRATION_PASS=$DB_DEFAULT_PASS
+DB_TEST_USER_PASS=$DB_DEFAULT_PASS
 DB_NAME="elenchus"
 DB_USER="web"
+DB_MIGRATION_USER="migration"
 
 echo "⚠️ Please ensure the following conditions are met:"
 echo -e "\t- MariaDB is installed and running."
@@ -24,41 +26,49 @@ echo -e "\n"
 
 echo "🗃️ Setting up database(s)..."
 
-read -s -p "Enter password for new MariaDB user '$DB_USER' (Press enter to use default '$MARIADB_USER_PASS'): "
+read -s -p "Enter password for new MariaDB user '$DB_USER' (Press enter to use default '$DB_DEFAULT_PASS'): "
 echo
 if [[ -n $REPLY ]]; then
-    MARIADB_USER_PASS=$REPLY
+    DB_USER_PASS=$REPLY
+fi
+
+read -s -p "Enter password for new MariaDB migration user '$DB_MIGRATION_USER' (Press enter to use default '$DB_DEFAULT_PASS'): "
+echo
+if [[ -n $REPLY ]]; then
+    DB_MIGRATION_PASS=$REPLY
 fi
 
 sql="
 CREATE DATABASE IF NOT EXISTS $DB_NAME;
-CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED BY '$MARIADB_USER_PASS';
+CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED BY '$DB_USER_PASS';
 GRANT SELECT, INSERT, UPDATE, DELETE ON $DB_NAME.* TO '$DB_USER'@'localhost';
+CREATE USER IF NOT EXISTS '$DB_MIGRATION_USER'@'localhost' IDENTIFIED BY '$DB_MIGRATION_PASS';
+GRANT CREATE, DROP, ALTER, INDEX, REFERENCES, SELECT, INSERT, UPDATE, DELETE ON $DB_NAME.* TO '$DB_MIGRATION_USER'@'localhost';
 "
 
 dbconfig="development:
     dialect: mysql
-    datasource: $DB_USER:$MARIADB_USER_PASS@/$DB_NAME?parseTime=true
+    datasource: $DB_MIGRATION_USER:$DB_MIGRATION_PASS@/$DB_NAME?parseTime=true
     dir: migrations
 "
 
 if [[ $ENVIRONMENT == "local" ]]; then
-    read -s -p "Enter password for new MariaDB user 'test_$DB_USER' (Press enter to use default '$MARIADB_TEST_USER_PASS'): "
+    read -s -p "Enter password for new MariaDB user 'test_$DB_USER' (Press enter to use default '$DB_TEST_USER_PASS'): "
     echo
     if [[ -n $REPLY ]]; then
-	MARIADB_TEST_USER_PASS=$REPLY
+	DB_TEST_USER_PASS=$REPLY
     fi
 
     sql="$sql
     CREATE DATABASE IF NOT EXISTS test_$DB_NAME;
-    CREATE USER IF NOT EXISTS 'test_$DB_USER'@'localhost' IDENTIFIED BY '$MARIADB_TEST_USER_PASS';
-    GRANT SELECT, INSERT, UPDATE, DELETE on test_$DB_NAME.* TO 'test_$DB_USER'@'localhost';
+    CREATE USER IF NOT EXISTS 'test_$DB_USER'@'localhost' IDENTIFIED BY '$DB_TEST_USER_PASS';
+    GRANT CREATE, DROP, ALTER, INDEX, REFERENCES, SELECT, INSERT, UPDATE, DELETE on test_$DB_NAME.* TO 'test_$DB_USER'@'localhost';
     "
 
     dbconfig="$dbconfig
 test:
     dialect: mysql
-    datasource: test_$DB_USER:$MARIADB_TEST_USER_PASS@/test_$DB_NAME?parseTime=true
+    datasource: test_$DB_USER:$DB_TEST_USER_PASS@/test_$DB_NAME?parseTime=true
     dir: migrations 
     "
 fi
@@ -119,19 +129,26 @@ echo -e "Database credentials:\n"
 
 echo -e "\tDatabase name: $DB_NAME"
 echo -e "\tUsername: $DB_USER"
-if [[ $MARIADB_USER_PASS != $DEFAULT_PASS ]]; then
+if [[ $DB_USER_PASS != $DB_DEFAULT_PASS ]]; then
     echo -e "\tPassword set by yourself."
 else
-    echo -e "\tPassword: $DEFAULT_PASS"
+    echo -e "\tPassword: $DB_DEFAULT_PASS"
+fi
+echo
+echo -e "\tMigration username: $DB_MIGRATION_USER"
+if [[ $DB_MIGRATION_PASS != $DB_DEFAULT_PASS ]]; then
+    echo -e "\tPassword set by yourself."
+else
+    echo -e "\tPassword: $DB_DEFAULT_PASS"
 fi
 if [[ $ENVIRONMENT == "local" ]]; then
     echo
     echo -e "\tTest database name: test_$DB_NAME"
     echo -e "\tTest username: test_$DB_USER" 
-    if [[ $MARIADB_TEST_USER_PASS != $DEFAULT_PASS ]]; then
+    if [[ $DB_TEST_USER_PASS != $DB_DEFAULT_PASS ]]; then
 	echo -e "\tTest user password set by yourself."
     else
-	echo -e "\tTest user password: $DEFAULT_PASS"
+	echo -e "\tTest user password: $DB_DEFAULT_PASS"
     fi
 fi
 
