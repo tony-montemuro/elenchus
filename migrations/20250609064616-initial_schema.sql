@@ -20,10 +20,12 @@ CREATE TABLE quiz (
     description VARCHAR(1024) NOT NULL,
     created DATETIME NOT NULL,
     updated DATETIME NOT NULL,
-    deleted DATETIME NULL,
-    FOREIGN KEY(profile_id)
-	REFERENCES profile(id)
+    deleted DATETIME NULL
 );
+
+ALTER TABLE quiz
+ADD CONSTRAINT fk_quiz_profile
+FOREIGN KEY (profile_id) REFERENCES profile(id);
 
 CREATE TABLE question_type (
     id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -39,14 +41,19 @@ CREATE TABLE question (
     content VARCHAR(2048) NOT NULL,
     created DATETIME NOT NULL,
     updated DATETIME NOT NULL,
-    deleted DATETIME NULL,
-    FOREIGN KEY(quiz_id)
-	REFERENCES quiz(id),
-    FOREIGN KEY(type_id)
-	REFERENCES question_type(id)
+    deleted DATETIME NULL
 );
 
+ALTER TABLE question
+ADD CONSTRAINT fk_question_quiz
+FOREIGN KEY (quiz_id) REFERENCES quiz(id);
+
+ALTER TABLE question
+ADD CONSTRAINT fk_question_type
+FOREIGN KEY (type_id) REFERENCES question_type(id);
+
 CREATE INDEX idx_question_quiz_id ON question(quiz_id);
+
 CREATE INDEX idx_question_type_id ON question(type_id);
 
 CREATE TABLE answer (
@@ -56,21 +63,27 @@ CREATE TABLE answer (
     correct BOOLEAN NOT NULL,
     created DATETIME NOT NULL,
     updated DATETIME NOT NULL,
-    deleted DATETIME NULL,
-    FOREIGN KEY(question_id)
-	REFERENCES question(id)
+    deleted DATETIME NULL
 );
+
+ALTER TABLE answer
+ADD CONSTRAINT fk_answer_question
+FOREIGN KEY(question_id) REFERENCES question(id);
 
 CREATE INDEX idx_answer_question_id ON answer(question_id);
 
 
 -- +migrate Down
-DROP TABLE question_type;
+ALTER TABLE answer DROP FOREIGN KEY fk_answer_question;
 DROP INDEX idx_answer_question_id ON answer;
 DROP TABLE answer;
+ALTER TABLE question DROP FOREIGN KEY fk_question_type;
+ALTER TABLE question DROP FOREIGN KEY fk_question_quiz;
 DROP INDEX idx_question_quiz_id ON question;
 DROP INDEX idx_question_type_id ON question;
 DROP TABLE question;
+DROP TABLE question_type;
+ALTER TABLE quiz DROP FOREIGN KEY fk_quiz_profile;
 DROP TABLE quiz;
 DROP INDEX profile_uc_email ON profile;
 DROP TABLE profile;
