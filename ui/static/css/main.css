@@ -53,3 +53,14 @@ footer {
 	background-color: blue;
 	padding: 0 var(--app-padding);
 }
+
+.nav-items {
+	display: flex;
+	gap: 1rem;
+}
+
+.auth-form {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}

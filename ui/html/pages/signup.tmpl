@@ -1,0 +1,22 @@
+{{define "title"}}Sign Up{{end}}
+
+{{define "main"}}
+<form action="/signup" method="post">
+	<h1>Sign Up</h1>
+	<div class="auth-form">
+		<div class="auth-input">
+			<input id="first-name" type="text" name="first-name" placeholder="First Name" title="First Name" required>
+		</div>
+		<div class="auth-input">
+			<input id="last-name" type="text" name="last-name" placeholder="Last Name" title="Last Name" required>
+		</div>
+		<div class="auth-input">
+			<input id="email" type="email" name="email" placeholder="Email" title="Email" required>
+		</div>
+		<div class="auth-input">
+			<input id="password" type="password" name="password" placeholder="Password" title="Password" required>
+		</div>
+	</div>
+	<button type="submit">Sign Up</button>
+</form>
+{{end}}

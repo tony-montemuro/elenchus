@@ -26,6 +26,8 @@ func (app *application) routes() http.Handler {
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
 	mux.HandleFunc("GET /{$}", app.home)
+	mux.HandleFunc("GET /login", app.login)
+	mux.HandleFunc("GET /signup", app.signup)
 	mux.HandleFunc("GET /ping", ping)
 
 	globalChain := chain{app.recoverPanic, app.logRequest, commonHeaders}

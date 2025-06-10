@@ -1,0 +1,16 @@
+{{define "title"}}Login{{end}}
+
+{{define "main"}}
+<form action="/login" method="post">
+	<h1>Login</h1>
+	<div class="auth-form">
+		<div class="auth-input">
+			<input id="email" type="email" name="email" placeholder="Email" title="Email" required>
+		</div>
+		<div class="auth-input">
+			<input id="password" type="password" name="password" placeholder="Password" title="Password" required>
+		</div>
+	</div>
+	<button type="submit">Login</button>
+</form>
+{{end}}
