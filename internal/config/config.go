@@ -10,6 +10,7 @@ import (
 
 type Config struct {
 	Addr        *string
+	Dsn         *string
 	MinLogLevel slog.Level
 }
 
@@ -27,6 +28,7 @@ func LoadConfig() *Config {
 
 func (c *Config) parseFlags(flags *flag.FlagSet) {
 	c.Addr = flags.String("addr", ":4000", "HTTP network address")
+	c.Dsn = flags.String("dsn", "web:pass@/elenchus?parseTime=true", "MySQL data source name (might need to change password)")
 
 	c.MinLogLevel = slog.LevelInfo
 	flags.Func("minLogLevel", "Minimum logging level (see slog.Level; default \"INFO\")", func(level string) error {

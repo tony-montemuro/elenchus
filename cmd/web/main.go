@@ -1,11 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"html/template"
 	"log/slog"
 	"net/http"
 	"os"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/tony-montemuro/elenchus/internal/config"
 )
 
@@ -27,6 +29,14 @@ func main() {
 		os.Exit(1)
 	}
 
+	db, err := openDB(*config.Dsn)
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
+	defer db.Close()
+
 	app := &application{
 		logger:        logger,
 		templateCache: templateCache,
@@ -42,4 +52,18 @@ func main() {
 	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	logger.Error(err.Error())
 	os.Exit(1)
+}
+
+func openDB(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Ping()
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
 }

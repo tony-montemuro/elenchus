@@ -18,6 +18,9 @@ func TestLoadConfig(t *testing.T) {
 	defaultMinLogLevel := slog.LevelInfo
 	customMinLogLevel := slog.LevelDebug
 
+	defaultDsn := "web:pass@/elenchus?parseTime=true"
+	customDsn := "migration:foobar@/elenchus?parseTime=true"
+
 	tests := []struct {
 		name        string
 		args        []string
@@ -27,25 +30,31 @@ func TestLoadConfig(t *testing.T) {
 		{
 			name:        "No args",
 			args:        []string{},
-			want:        Config{Addr: &defaultAddr, MinLogLevel: defaultMinLogLevel},
+			want:        Config{Addr: &defaultAddr, Dsn: &defaultDsn, MinLogLevel: defaultMinLogLevel},
 			expectError: false,
 		},
 		{
 			name:        "All args specificed",
-			args:        []string{fmt.Sprintf("-addr=%s", customAddr), fmt.Sprintf("-minLogLevel=%s", customMinLogLevel.String())},
-			want:        Config{Addr: &customAddr, MinLogLevel: customMinLogLevel},
+			args:        []string{fmt.Sprintf("-addr=%s", customAddr), fmt.Sprintf("-dsn=%s", customDsn), fmt.Sprintf("-minLogLevel=%s", customMinLogLevel.String())},
+			want:        Config{Addr: &customAddr, Dsn: &customDsn, MinLogLevel: customMinLogLevel},
 			expectError: false,
 		},
 		{
 			name:        "Specified addr arg",
 			args:        []string{fmt.Sprintf("-addr=%s", customAddr)},
-			want:        Config{Addr: &customAddr, MinLogLevel: defaultMinLogLevel},
+			want:        Config{Addr: &customAddr, Dsn: &defaultDsn, MinLogLevel: defaultMinLogLevel},
 			expectError: false,
 		},
 		{
 			name:        "Specified minLogLevel arg",
 			args:        []string{fmt.Sprintf("-minLogLevel=%s", customMinLogLevel.String())},
 			want:        Config{Addr: &defaultAddr, MinLogLevel: customMinLogLevel},
+			expectError: false,
+		},
+		{
+			name:        "Specified dsn arg",
+			args:        []string{fmt.Sprintf("-dsn=%s", customDsn)},
+			want:        Config{Addr: &defaultAddr, Dsn: &customDsn, MinLogLevel: defaultMinLogLevel},
 			expectError: false,
 		},
 		{
