@@ -19,3 +19,7 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 func (app *application) signup(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, http.StatusOK, "signup.tmpl")
 }
+
+func (app *application) signupPost(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Creating a new user..."))
+}
