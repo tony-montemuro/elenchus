@@ -7,6 +7,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
+
+	"github.com/alexedwards/scs/v2"
+	"github.com/tony-montemuro/elenchus/internal/models/mocks"
 )
 
 func newTestApplication(t *testing.T, logWriter io.Writer) *application {
@@ -15,9 +19,14 @@ func newTestApplication(t *testing.T, logWriter io.Writer) *application {
 		t.Fatal(err)
 	}
 
+	sessionManager := scs.New()
+	sessionManager.Lifetime = 12 * time.Hour
+
 	return &application{
-		templateCache: templateCache,
-		logger:        slog.New(slog.NewJSONHandler(logWriter, nil)),
+		templateCache:  templateCache,
+		logger:         slog.New(slog.NewJSONHandler(logWriter, nil)),
+		profiles:       &mocks.ProfileModel{},
+		sessionManager: sessionManager,
 	}
 }
 

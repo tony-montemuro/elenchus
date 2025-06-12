@@ -7,16 +7,20 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
+	"github.com/alexedwards/scs/mysqlstore"
+	"github.com/alexedwards/scs/v2"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/tony-montemuro/elenchus/internal/config"
 	"github.com/tony-montemuro/elenchus/internal/models"
 )
 
 type application struct {
-	logger        *slog.Logger
-	templateCache map[string]*template.Template
-	profiles      *models.ProfileModel
+	logger         *slog.Logger
+	templateCache  map[string]*template.Template
+	profiles       models.ProfileModelInterface
+	sessionManager *scs.SessionManager
 }
 
 func main() {
@@ -38,12 +42,17 @@ func main() {
 		os.Exit(1)
 	}
 
+	sessionManager := scs.New()
+	sessionManager.Store = mysqlstore.New(db)
+	sessionManager.Lifetime = 12 * time.Hour
+
 	defer db.Close()
 
 	app := &application{
-		logger:        logger,
-		templateCache: templateCache,
-		profiles:      &models.ProfileModel{DB: db},
+		logger:         logger,
+		templateCache:  templateCache,
+		profiles:       &models.ProfileModel{DB: db},
+		sessionManager: sessionManager,
 	}
 
 	tlsConfig := &tls.Config{

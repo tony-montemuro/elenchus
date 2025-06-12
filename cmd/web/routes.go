@@ -7,9 +7,9 @@ import (
 
 type chain []func(http.Handler) http.Handler
 
-// func (c chain) thenFunc(h http.HandlerFunc) http.Handler {
-// 	return c.then(h)
-// }
+func (c chain) thenFunc(h http.HandlerFunc) http.Handler {
+	return c.then(h)
+}
 
 func (c chain) then(h http.Handler) http.Handler {
 	for _, mw := range slices.Backward(c) {
@@ -25,10 +25,12 @@ func (app *application) routes() http.Handler {
 	fileServer := http.FileServer(http.Dir("./ui/static"))
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
-	mux.HandleFunc("GET /{$}", app.home)
-	mux.HandleFunc("GET /login", app.login)
-	mux.HandleFunc("GET /signup", app.signup)
-	mux.HandleFunc("GET /ping", ping)
+	dynamicChain := chain{app.sessionManager.LoadAndSave}
+
+	mux.Handle("GET /{$}", dynamicChain.thenFunc(app.home))
+	mux.Handle("GET /login", dynamicChain.thenFunc(app.login))
+	mux.Handle("GET /signup", dynamicChain.thenFunc(app.signup))
+	mux.Handle("GET /ping", dynamicChain.thenFunc(ping))
 
 	globalChain := chain{app.recoverPanic, app.logRequest, commonHeaders}
 	return globalChain.then(mux)
