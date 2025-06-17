@@ -19,15 +19,18 @@ func ping(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	app.render(w, r, http.StatusOK, "home.tmpl")
+	data := app.newTemplateData()
+	app.render(w, r, http.StatusOK, "home.tmpl", data)
 }
 
 func (app *application) login(w http.ResponseWriter, r *http.Request) {
-	app.render(w, r, http.StatusOK, "login.tmpl")
+	data := app.newTemplateData()
+	app.render(w, r, http.StatusOK, "login.tmpl", data)
 }
 
 func (app *application) signup(w http.ResponseWriter, r *http.Request) {
-	app.render(w, r, http.StatusOK, "signup.tmpl")
+	data := app.newTemplateData()
+	app.render(w, r, http.StatusOK, "signup.tmpl", data)
 }
 
 func (app *application) signupPost(w http.ResponseWriter, r *http.Request) {

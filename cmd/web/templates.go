@@ -7,6 +7,10 @@ import (
 	"path/filepath"
 )
 
+type templateData struct {
+	Form any
+}
+
 func newTemplateCache() (map[string]*template.Template, error) {
 	cache := map[string]*template.Template{}
 
@@ -34,7 +38,11 @@ func newTemplateCache() (map[string]*template.Template, error) {
 	return cache, nil
 }
 
-func (app *application) render(w http.ResponseWriter, r *http.Request, status int, page string) {
+func (app *application) newTemplateData() templateData {
+	return templateData{}
+}
+
+func (app *application) render(w http.ResponseWriter, r *http.Request, status int, page string, data templateData) {
 	ts, ok := app.templateCache[page]
 	if !ok {
 		err := fmt.Errorf("template %s does not exist", page)
@@ -44,7 +52,7 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 
 	w.WriteHeader(status)
 
-	err := ts.ExecuteTemplate(w, "base", nil)
+	err := ts.ExecuteTemplate(w, "base", data)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
