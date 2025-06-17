@@ -2,7 +2,17 @@ package main
 
 import (
 	"net/http"
+
+	"github.com/tony-montemuro/elenchus/internal/validator"
 )
+
+type signupForm struct {
+	FirstName string
+	LastName  string
+	Email     string
+	Password  string
+	validator.Validator
+}
 
 func ping(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("OK"))
