@@ -42,6 +42,7 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 func (app *application) signup(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData()
 	data.Form = signupForm{}
+	data.RangeRules = validator.RangeRules[validator.SignUpForm]
 	app.render(w, r, http.StatusOK, "signup.tmpl", data)
 }
 
