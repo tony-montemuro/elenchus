@@ -2,19 +2,38 @@
 
 {{define "main"}}
 <form action="/signup" method="post">
+	<input type="hidden" name="formName" value="signup" />
 	<h1>Sign Up</h1>
 	<div class="auth-form">
 		<div class="auth-input">
-			<input id="first-name" type="text" name="first-name" placeholder="First Name" title="First Name" required>
+			<input id="first-name" type="text" name="first-name" placeholder="First Name" title="First Name"
+				maxlength="{{(index .RangeRules " first-name").MaxLength}}" required>
+			{{with .Form.FieldErrors.firstName}}
+			<label class='error'>{{.}}</label>
+			{{end}}
 		</div>
 		<div class="auth-input">
-			<input id="last-name" type="text" name="last-name" placeholder="Last Name" title="Last Name" required>
+			<input id="last-name" type="text" name="last-name" placeholder="Last Name" title="Last Name"
+				maxlength="{{.RangeRules.firstName.MaxLength}}" required>
+			{{with .Form.FieldErrors.lastName}}
+			<label class='error'>{{.}}</label>
+			{{end}}
+
 		</div>
 		<div class="auth-input">
-			<input id="email" type="email" name="email" placeholder="Email" title="Email" required>
+			<input id="email" maxlength="{{(index .RangeRules " email").MaxLength}}" type="email" name="email"
+				placeholder="Email" title="Email" required>
+			{{with .Form.FieldErrors.email}}
+			<label class='error'>{{.}}</label>
+			{{end}}
 		</div>
 		<div class="auth-input">
-			<input id="password" type="password" name="password" placeholder="Password" title="Password" required>
+			<input id="password" maxlength="{{(index .RangeRules " password" ).MaxLength}}" type="password" name="password"
+				placeholder="Password" title="Password" required>
+
+			{{with .Form.FieldErrors.password}}
+			<label class='error'>{{.}}</label>
+			{{end}}
 		</div>
 	</div>
 	<button type="submit">Sign Up</button>

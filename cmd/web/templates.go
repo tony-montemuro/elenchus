@@ -5,10 +5,13 @@ import (
 	"html/template"
 	"net/http"
 	"path/filepath"
+
+	"github.com/tony-montemuro/elenchus/internal/validator"
 )
 
 type templateData struct {
-	Form any
+	Form       any
+	RangeRules validator.FormRangeRules
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {
