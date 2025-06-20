@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/tony-montemuro/elenchus/internal/validator"
@@ -60,10 +61,16 @@ func (app *application) signupPost(w http.ResponseWriter, r *http.Request) {
 		Password:  r.PostForm.Get("password"),
 	}
 
-	err = validator.InputsInRange(form, validator.SignUpForm)
-	if err != nil {
-		app.logger.Warn(err.Error())
+	errs := validator.GetRangeErrors(form, validator.SignUpForm)
+	app.logger.Debug(fmt.Sprintf("num errs: %d", len(errs)))
+	for _, err := range errs {
+		form.CheckField(false, err.Key, err.Error())
 	}
+
+	// err = validator.InputsInRange(form, validator.SignUpForm)
+	// if err != nil {
+	// 	app.logger.Warn(err.Error())
+	// }
 
 	if !form.Valid() {
 		data := app.newTemplateData()
