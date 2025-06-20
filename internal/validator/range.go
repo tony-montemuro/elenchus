@@ -52,54 +52,15 @@ func getError(rule RangeRule, formKey, formValue string) *RangeError {
 	mn, mx := rule.MinLength, rule.MaxLength
 
 	if mn > 0 {
-		if mn == 1 && NotBlank(formValue) {
+		if mn == 1 && !NotBlank(formValue) {
 			return &RangeError{Key: formKey, message: "This field cannot be blank."}
-		} else if MinChars(formValue, mn) {
+		} else if !MinChars(formValue, mn) {
 			return &RangeError{Key: formKey, message: fmt.Sprintf("This field must be at least %d characters long.", mn)}
 		}
 	}
-	if mx > 0 && MaxChars(formValue, mx) {
+	if mx > 0 && !MaxChars(formValue, mx) {
 		return &RangeError{Key: formKey, message: fmt.Sprintf("This field cannot be more than %d characters long.", mx)}
 	}
 
 	return nil
 }
-
-// func InputsInRange(form Form, name string) error {
-// 	rules := RangeRules[name]
-// 	missed := []string{}
-//
-// 	for key, val := range form.GetStringVals() {
-// 		rule, exists := rules[key]
-// 		if exists {
-// 			checkFields(form, rule, key, val)
-// 		}
-//
-// 		if !exists {
-// 			missed = append(missed, key)
-// 		}
-// 	}
-//
-// 	if len(missed) > 0 {
-// 		return fmt.Errorf("The following range checks failed: %s", strings.Join(missed, ", "))
-// 	}
-//
-// 	return nil
-// }
-//
-// func checkFields(form Form, rule RangeRule, formKey, formValue string) {
-// 	mn, mx := rule.MinLength, rule.MaxLength
-// 	fmt.Println(mx, len(formValue))
-// 	if mn > 0 {
-// 		if mn == 1 {
-// 			form.CheckField(NotBlank(formValue), formKey, "This field cannot be blank.")
-// 		} else {
-// 			form.CheckField(MinChars(formValue, mn), formKey, fmt.Sprintf("This field must be at least %d characters long.", mn))
-// 		}
-// 	}
-// 	if mx > 0 {
-// 		form.CheckField(MaxChars(formValue, mx), formKey, fmt.Sprintf("This field cannot be more than %d characters long.", mx))
-// 	}
-// 	fmt.Println("max result: ", MaxChars(formValue, mx))
-// 	fmt.Println("is form valid:", form.Valid())
-// }

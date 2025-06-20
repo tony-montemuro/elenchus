@@ -9,16 +9,11 @@ type Validator struct {
 	FieldErrors map[string]string
 }
 
-type ValidatorInterface interface {
-	Valid() bool
-	CheckField(ok bool, key, message string)
-}
-
 func (v Validator) Valid() bool {
 	return len(v.FieldErrors) == 0
 }
 
-func (v Validator) CheckField(ok bool, key, message string) {
+func (v *Validator) CheckField(ok bool, key, message string) {
 	if !ok {
 		v.addFieldError(key, message)
 	}

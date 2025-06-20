@@ -59,8 +59,19 @@ footer {
 	gap: 1rem;
 }
 
-.auth-form {
+.flex-col {
 	display: flex;
 	flex-direction: column;
+}
+
+.auth-form {
 	gap: 1rem;
+}
+
+.auth-input {
+	gap: 0.25rem;
+}
+
+.error {
+	color: red;
 }
