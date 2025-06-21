@@ -6,4 +6,5 @@ type Form interface {
 
 var (
 	SignUpForm = "signupForm"
+	LoginForm  = "loginForm"
 )

@@ -27,6 +27,10 @@ var RangeRules = map[string]FormRangeRules{
 		"email":     {MinLength: 1, MaxLength: 255},
 		"password":  {MinLength: 8, MaxLength: 72},
 	},
+	LoginForm: {
+		"email":    {MinLength: 1, MaxLength: 255},
+		"password": {MinLength: 8, MaxLength: 72},
+	},
 }
 
 func GetRangeErrors(form Form, name string) []RangeError {

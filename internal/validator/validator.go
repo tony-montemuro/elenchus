@@ -19,6 +19,10 @@ func (v *Validator) CheckField(ok bool, key, message string) {
 	}
 }
 
+func (v *Validator) AddError(key, message string) {
+	v.CheckField(false, key, message)
+}
+
 func (v *Validator) addFieldError(key, message string) {
 	if v.FieldErrors == nil {
 		v.FieldErrors = make(map[string]string)

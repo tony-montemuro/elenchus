@@ -5,8 +5,8 @@
 	<input type="hidden" name="formName" value="signup" />
 	<h1>Sign Up</h1>
 	<div class="flex-col auth-form">
+		{{ $rule := .RangeRules.firstName }}
 		<div class="flex-col auth-input">
-			{{ $rule := .RangeRules.firstName }}
 			<input id="first-name" type="text" name="first-name" placeholder="First Name" title="First Name" {{ if gt
 				$rule.MinLength 1 }}minlength="{{ $rule.MinLength }}" {{ end }} {{ if gt $rule.MaxLength 0
 				}}maxlength="{{ $rule.MaxLength }}" {{ end }} {{ if gt $rule.MinLength 0 }}required{{ end }} value="{{
@@ -15,6 +15,7 @@
 			<label class='error'>{{.}}</label>
 			{{end}}
 		</div>
+
 		{{ $rule := .RangeRules.lastName }}
 		<div class="flex-col auth-input">
 			<input id="last-name" type="text" name="last-name" placeholder="Last Name" title="Last Name" {{ if gt
@@ -25,6 +26,7 @@
 			<label class='error'>{{.}}</label>
 			{{end}}
 		</div>
+
 		{{ $rule := .RangeRules.email }}
 		<div class="flex-col auth-input">
 			<input id="email" type="email" name="email" placeholder="Email" title="Email" {{ if gt $rule.MinLength 1
@@ -34,6 +36,7 @@
 			<label class='error'>{{.}}</label>
 			{{end}}
 		</div>
+
 		{{ $rule := .RangeRules.password }}
 		<div class="flex-col auth-input">
 			<input id="password" type="password" name="password" placeholder="Password" title="Password" {{ if gt
@@ -45,6 +48,7 @@
 			{{end}}
 		</div>
 	</div>
+
 	<button type="submit">Sign Up</button>
 </form>
 {{end}}

@@ -29,6 +29,7 @@ func (app *application) routes() http.Handler {
 
 	mux.Handle("GET /{$}", dynamicChain.thenFunc(app.home))
 	mux.Handle("GET /login", dynamicChain.thenFunc(app.login))
+	mux.Handle("POST /login", dynamicChain.thenFunc(app.loginPost))
 	mux.Handle("GET /signup", dynamicChain.thenFunc(app.signup))
 	mux.Handle("POST /signup", dynamicChain.thenFunc(app.signupPost))
 	mux.Handle("GET /ping", dynamicChain.thenFunc(ping))

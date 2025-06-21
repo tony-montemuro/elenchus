@@ -6,25 +6,6 @@ import (
 	"github.com/tony-montemuro/elenchus/internal/validator"
 )
 
-type signupForm struct {
-	FirstName string
-	LastName  string
-	Email     string
-	Password  string
-	validator.Validator
-}
-
-func (f signupForm) GetStringVals() map[string]string {
-	vals := make(map[string]string)
-
-	vals["firstName"] = f.FirstName
-	vals["lastName"] = f.LastName
-	vals["email"] = f.Email
-	vals["password"] = f.Password
-
-	return vals
-}
-
 func ping(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("OK"))
 }
@@ -36,6 +17,8 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) login(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData()
+	data.Form = loginForm{}
+	data.RangeRules = validator.RangeRules[validator.LoginForm]
 	app.render(w, r, http.StatusOK, "login.tmpl", data)
 }
 
@@ -60,18 +43,48 @@ func (app *application) signupPost(w http.ResponseWriter, r *http.Request) {
 		Password:  r.PostForm.Get("password"),
 	}
 
-	errs := validator.GetRangeErrors(form, validator.SignUpForm)
+	formName := validator.SignUpForm
+	errs := validator.GetRangeErrors(form, formName)
 	for _, err := range errs {
-		form.CheckField(false, err.Key, err.Error())
+		form.AddError(err.Key, err.Error())
 	}
 
 	if !form.Valid() {
 		data := app.newTemplateData()
 		data.Form = form
-		data.RangeRules = validator.RangeRules[validator.SignUpForm]
+		data.RangeRules = validator.RangeRules[formName]
 		app.render(w, r, http.StatusUnprocessableEntity, "signup.tmpl", data)
 		return
 	}
 
 	w.Write([]byte("Creating a new user..."))
+}
+
+func (app *application) loginPost(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form := loginForm{
+		Email:    r.PostForm.Get("email"),
+		Password: r.PostForm.Get("password"),
+	}
+
+	formName := validator.LoginForm
+	errs := validator.GetRangeErrors(form, formName)
+	for _, err := range errs {
+		form.AddError(err.Key, err.Error())
+	}
+
+	if !form.Valid() {
+		data := app.newTemplateData()
+		data.Form = form
+		data.RangeRules = validator.RangeRules[formName]
+		app.render(w, r, http.StatusUnprocessableEntity, "login.tmpl", data)
+		return
+	}
+
+	w.Write([]byte("Logging in a user..."))
 }
