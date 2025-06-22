@@ -12,6 +12,7 @@ import (
 type templateData struct {
 	Form       any
 	RangeRules validator.FormRangeRules
+	Flash      string
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {
