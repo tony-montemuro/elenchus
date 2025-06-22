@@ -54,6 +54,11 @@ footer {
 	padding: 0 var(--app-padding);
 }
 
+button {
+	width: fit-content;
+	padding: 0.25rem;
+}
+
 .nav-items {
 	display: flex;
 	gap: 1rem;
@@ -66,6 +71,7 @@ footer {
 
 .auth-form {
 	gap: 1rem;
+	max-width: 20rem;
 }
 
 .auth-input {

@@ -48,6 +48,7 @@ func (app *application) signupPost(w http.ResponseWriter, r *http.Request) {
 	for _, err := range errs {
 		form.AddError(err.Key, err.Error())
 	}
+	form.CheckField(validator.Matches(form.Email, validator.EmailRX), "email", "This field must be a valid email address.")
 
 	if !form.Valid() {
 		data := app.newTemplateData()
