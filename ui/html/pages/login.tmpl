@@ -2,8 +2,8 @@
 
 {{define "main"}}
 <form action="/login" method="post">
-	<h1>Login</h1>
 	<div class="flex-col auth-form">
+		<h1>Login</h1>
 		{{ $rule := .RangeRules.email }}
 		<div class="flex-col auth-input">
 			<input id="email" type="email" name="email" placeholder="Email" title="Email" {{ if gt $rule.MinLength 1

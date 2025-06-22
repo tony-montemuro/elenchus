@@ -3,6 +3,8 @@
 	--nav-height: 4rem;
 	--footer-height: 4rem;
 	--app-padding: 0.5rem;
+	--app-color-primary: rgb(249 115 22);
+	--app-color-text: rgb(250, 249, 246);
 }
 
 *,
@@ -37,26 +39,55 @@ nav {
 	position: -webkit-sticky;
 	position: sticky;
 	top: 0;
-	background-color: red;
+	background-color: var(--app-color-primary);
 	padding: 0 var(--app-padding);
+}
+
+nav a {
+	color: var(--app-color-text);
+	text-decoration: none;
+}
+
+nav button {
+	background-color: transparent;
+	padding: 0;
+	border: none;
+	color: var(--app-color-text);
 }
 
 main {
 	min-height: calc(var(--body-height) - var(--nav-height) - var(--footer-height));
 	padding: var(--app-padding);
+	background-color: #181818;
+	color: var(--app-color-text);
 }
 
 footer {
 	display: flex;
 	align-items: center;
 	height: var(--footer-height);
-	background-color: blue;
+	background-color: var(--app-color-primary);
 	padding: 0 var(--app-padding);
+	color: var(--app-color-text);
 }
 
 button {
 	width: fit-content;
 	padding: 0.25rem;
+}
+
+button:hover {
+	cursor: pointer;
+}
+
+
+h1 {
+	font-size: 2em;
+}
+
+textarea:focus,
+input:focus {
+	outline: none;
 }
 
 .nav-items {
@@ -72,6 +103,28 @@ button {
 .auth-form {
 	gap: 1rem;
 	max-width: 20rem;
+}
+
+.auth-form input {
+	padding: 0.25rem;
+	background-color: #4f4f4f;
+	border-radius: 0.25rem;
+	color: var(--app-color-text);
+}
+
+.auth-form button {
+	background-color: var(--app-color-primary);
+	color: var(--app-color-text);
+	border: 1px solid transparent;
+	border-radius: 0.25rem;
+	padding: 0.5rem;
+	transition-property: border-color;
+	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	transition-duration: 200ms;
+}
+
+.auth-form button:hover {
+	border: 1px solid var(--app-color-text);
 }
 
 .auth-input {
