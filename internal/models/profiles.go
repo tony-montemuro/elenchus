@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -12,7 +13,7 @@ import (
 
 type ProfileModelInterface interface {
 	Insert(firstName, lastName, email, password string) error
-	Authenticate(email, password string) (int, error)
+	Authenticate(email, password string) (Profile, error)
 	Exists(id int) (bool, error)
 }
 
@@ -55,8 +56,31 @@ func (m *ProfileModel) Insert(firstName, lastName, email, password string) error
 	return nil
 }
 
-func (m *ProfileModel) Authenticate(email, password string) (int, error) {
-	return 0, nil
+func (m *ProfileModel) Authenticate(email, password string) (Profile, error) {
+	var p Profile
+
+	stmt := `SELECT id, first_name, last_name, email, hashed_password, created, updated, deleted 
+	FROM profile WHERE email = ?`
+	err := m.DB.QueryRow(stmt, email).Scan(&p.ID, &p.FirstName, &p.LastName, &p.Email, &p.HashedPassword, &p.Created, &p.Updated, &p.Deleted)
+	if err != nil {
+		fmt.Println(err.Error())
+		if errors.Is(err, sql.ErrNoRows) {
+			return Profile{}, ErrInvalidCredentials
+		} else {
+			return Profile{}, err
+		}
+	}
+
+	err = bcrypt.CompareHashAndPassword(p.HashedPassword, []byte(password))
+	if err != nil {
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+			return Profile{}, ErrInvalidCredentials
+		} else {
+			return Profile{}, err
+		}
+	}
+
+	return p, nil
 }
 
 func (m *ProfileModel) Exists(id int) (bool, error) {

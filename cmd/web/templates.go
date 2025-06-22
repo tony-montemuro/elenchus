@@ -10,9 +10,10 @@ import (
 )
 
 type templateData struct {
-	Form       any
-	RangeRules validator.FormRangeRules
-	Flash      string
+	Form            any
+	RangeRules      validator.FormRangeRules
+	Flash           string
+	IsAuthenticated bool
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {
@@ -42,8 +43,11 @@ func newTemplateCache() (map[string]*template.Template, error) {
 	return cache, nil
 }
 
-func (app *application) newTemplateData() templateData {
-	return templateData{}
+func (app *application) newTemplateData(r *http.Request) templateData {
+	return templateData{
+		Flash:           app.sessionManager.PopString(r.Context(), "flash"),
+		IsAuthenticated: app.isAuthenticated(r),
+	}
 }
 
 func (app *application) render(w http.ResponseWriter, r *http.Request, status int, page string, data templateData) {

@@ -14,8 +14,14 @@
 			<a href='/'>elenchus</a>
 			<a href='/quizzes'>Quizzes</a>
 			<div class="nav-items">
+				{{if .IsAuthenticated}}
+				<form action='/logout' method='POST'>
+					<button type="submit">Logout</button>
+				</form>
+				{{else}}
 				<a href='/login'>Login</a>
 				<a href='/signup'>Sign Up</a>
+				{{end}}
 			</div>
 		</nav>
 	</header>

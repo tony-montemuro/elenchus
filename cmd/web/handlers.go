@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/tony-montemuro/elenchus/internal/models"
@@ -13,21 +14,19 @@ func ping(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	data := app.newTemplateData()
+	data := app.newTemplateData(r)
 	app.render(w, r, http.StatusOK, "home.tmpl", data)
 }
 
 func (app *application) login(w http.ResponseWriter, r *http.Request) {
-	data := app.newTemplateData()
-	flash := app.sessionManager.PopString(r.Context(), "flash")
+	data := app.newTemplateData(r)
 	data.Form = loginForm{}
 	data.RangeRules = validator.RangeRules[validator.LoginForm]
-	data.Flash = flash
 	app.render(w, r, http.StatusOK, "login.tmpl", data)
 }
 
 func (app *application) signup(w http.ResponseWriter, r *http.Request) {
-	data := app.newTemplateData()
+	data := app.newTemplateData(r)
 	data.Form = signupForm{}
 	data.RangeRules = validator.RangeRules[validator.SignUpForm]
 	app.render(w, r, http.StatusOK, "signup.tmpl", data)
@@ -51,12 +50,12 @@ func (app *application) signupPost(w http.ResponseWriter, r *http.Request) {
 	rangeRules := validator.RangeRules[formName]
 	errs := validator.GetRangeErrors(form, formName)
 	for _, err := range errs {
-		form.AddError(err.Key, err.Error())
+		form.AddFieldError(err.Key, err.Error())
 	}
 	form.CheckField(validator.Matches(form.Email, validator.EmailRX), "email", "This field must be a valid email address.")
 
 	if !form.Valid() {
-		data := app.newTemplateData()
+		data := app.newTemplateData(r)
 		data.Form = form
 		data.RangeRules = rangeRules
 		app.render(w, r, http.StatusUnprocessableEntity, "signup.tmpl", data)
@@ -66,8 +65,8 @@ func (app *application) signupPost(w http.ResponseWriter, r *http.Request) {
 	err = app.profiles.Insert(form.FirstName, form.LastName, form.Email, form.Password)
 	if err != nil {
 		if errors.Is(err, models.ErrDuplicateEmail) {
-			form.AddError("email", "Email address already in use.")
-			data := app.newTemplateData()
+			form.AddFieldError("email", "Email address already in use.")
+			data := app.newTemplateData(r)
 			data.Form = form
 			data.RangeRules = rangeRules
 			app.render(w, r, http.StatusUnprocessableEntity, "signup.tmpl", data)
@@ -99,16 +98,53 @@ func (app *application) loginPost(w http.ResponseWriter, r *http.Request) {
 	formName := validator.LoginForm
 	errs := validator.GetRangeErrors(form, formName)
 	for _, err := range errs {
-		form.AddError(err.Key, err.Error())
+		form.AddFieldError(err.Key, err.Error())
 	}
+	form.CheckField(validator.Matches(form.Email, validator.EmailRX), "email", "This field must be a valid email address.")
 
+	rangeRules := validator.RangeRules[formName]
 	if !form.Valid() {
-		data := app.newTemplateData()
+		data := app.newTemplateData(r)
 		data.Form = form
-		data.RangeRules = validator.RangeRules[formName]
+		data.RangeRules = rangeRules
 		app.render(w, r, http.StatusUnprocessableEntity, "login.tmpl", data)
 		return
 	}
 
-	w.Write([]byte("Logging in a user..."))
+	profile, err := app.profiles.Authenticate(form.Email, form.Password)
+	if err != nil {
+		if errors.Is(err, models.ErrInvalidCredentials) {
+			form.AddNonFieldError("Email or password is incorrect.")
+
+			data := app.newTemplateData(r)
+			data.Form = form
+			data.RangeRules = rangeRules
+			app.render(w, r, http.StatusUnprocessableEntity, "login.tmpl", data)
+		} else {
+			app.serverError(w, r, err)
+		}
+		return
+	}
+
+	err = app.sessionManager.RenewToken(r.Context())
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	app.sessionManager.Put(r.Context(), "authenticatedUserID", profile.ID)
+	app.sessionManager.Put(r.Context(), "flash", fmt.Sprintf("Login successful! Welcome, %s!", profile.FirstName))
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (app *application) logoutPost(w http.ResponseWriter, r *http.Request) {
+	err := app.sessionManager.RenewToken(r.Context())
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	app.sessionManager.Remove(r.Context(), "authenticatedUserID")
+	app.sessionManager.Put(r.Context(), "flash", "You've been logged out successfully!")
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

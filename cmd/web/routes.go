@@ -32,6 +32,7 @@ func (app *application) routes() http.Handler {
 	mux.Handle("POST /login", dynamicChain.thenFunc(app.loginPost))
 	mux.Handle("GET /signup", dynamicChain.thenFunc(app.signup))
 	mux.Handle("POST /signup", dynamicChain.thenFunc(app.signupPost))
+	mux.Handle("POST /logout", dynamicChain.thenFunc(app.logoutPost))
 	mux.Handle("GET /ping", dynamicChain.thenFunc(ping))
 
 	globalChain := chain{app.recoverPanic, app.logRequest, commonHeaders}
