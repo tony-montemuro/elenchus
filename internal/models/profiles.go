@@ -3,7 +3,6 @@ package models
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"strings"
 	"time"
 
@@ -60,10 +59,9 @@ func (m *ProfileModel) Authenticate(email, password string) (Profile, error) {
 	var p Profile
 
 	stmt := `SELECT id, first_name, last_name, email, hashed_password, created, updated, deleted 
-	FROM profile WHERE email = ?`
+	FROM profile WHERE email = ? AND deleted IS NULL`
 	err := m.DB.QueryRow(stmt, email).Scan(&p.ID, &p.FirstName, &p.LastName, &p.Email, &p.HashedPassword, &p.Created, &p.Updated, &p.Deleted)
 	if err != nil {
-		fmt.Println(err.Error())
 		if errors.Is(err, sql.ErrNoRows) {
 			return Profile{}, ErrInvalidCredentials
 		} else {
