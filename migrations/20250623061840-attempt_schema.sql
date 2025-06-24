@@ -9,6 +9,9 @@ ADD unpublished DATETIME;
 ALTER TABLE question
 ADD points INTEGER UNSIGNED NOT NULL;
 
+ALTER TABLE question_type
+ADD default_points INTEGER UNSIGNED NOT NULL;
+
 CREATE TABLE attempt (
     id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
     profile_id INTEGER NOT NULL,
@@ -86,6 +89,7 @@ ALTER TABLE attempt DROP FOREIGN KEY fk_attempt_profile;
 ALTER TABLE attempt DROP FOREIGN KEY fk_attempt_quiz;
 DROP INDEX idx_attempt_profile_quiz ON attempt;
 DROP TABLE attempt;
+ALTER TABLE question_type DROP COLUMN default_points;
 ALTER TABLE question DROP COLUMN points;
 ALTER TABLE quiz DROP COLUMN published;
 ALTER TABLE quiz DROP COLUMN unpublished;
