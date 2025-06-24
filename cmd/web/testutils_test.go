@@ -26,6 +26,7 @@ func newTestApplication(t *testing.T, logWriter io.Writer) *application {
 		templateCache:  templateCache,
 		logger:         slog.New(slog.NewJSONHandler(logWriter, nil)),
 		profiles:       &mocks.ProfileModel{},
+		quizzes:        &mocks.QuizModel{},
 		sessionManager: sessionManager,
 	}
 }

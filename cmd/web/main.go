@@ -20,6 +20,7 @@ type application struct {
 	logger         *slog.Logger
 	templateCache  map[string]*template.Template
 	profiles       models.ProfileModelInterface
+	quizzes        models.QuizModelInterface
 	sessionManager *scs.SessionManager
 }
 
@@ -52,6 +53,7 @@ func main() {
 		logger:         logger,
 		templateCache:  templateCache,
 		profiles:       &models.ProfileModel{DB: db},
+		quizzes:        &models.QuizModel{DB: db},
 		sessionManager: sessionManager,
 	}
 
