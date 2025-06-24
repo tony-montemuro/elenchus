@@ -5,15 +5,17 @@ import (
 	"time"
 )
 
-type Answer struct {
+type Question struct {
 	ID      int
+	Type    QuestionType
+	Answers []Answer
 	Content string
-	Correct bool
+	Points  uint32
 	Created time.Time
 	Update  time.Time
 	Deleted *time.Time
 }
 
-type AnswerModel struct {
+type QuestionModel struct {
 	DB *sql.DB
 }
