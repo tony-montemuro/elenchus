@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"github.com/tony-montemuro/elenchus/internal/models"
 	"github.com/tony-montemuro/elenchus/internal/validator"
 )
 
@@ -14,6 +15,7 @@ type templateData struct {
 	RangeRules      validator.FormRangeRules
 	Flash           string
 	IsAuthenticated bool
+	QuizList        []models.QuizMetadata
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {

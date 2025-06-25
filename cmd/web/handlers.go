@@ -150,6 +150,12 @@ func (app *application) logoutPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) quizList(w http.ResponseWriter, r *http.Request) {
+	quizzes, err := app.quizzes.Latest()
+	if err != nil {
+		app.serverError(w, r, err)
+	}
+
 	data := app.newTemplateData(r)
+	data.QuizList = quizzes
 	app.render(w, r, http.StatusOK, "quizzes.tmpl", data)
 }

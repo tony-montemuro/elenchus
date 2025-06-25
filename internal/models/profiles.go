@@ -27,6 +27,13 @@ type Profile struct {
 	Deleted        *time.Time
 }
 
+type PublicProfile struct {
+	ID        int
+	FirstName string
+	LastName  string
+	Deleted   *time.Time
+}
+
 type ProfileModel struct {
 	DB *sql.DB
 }
