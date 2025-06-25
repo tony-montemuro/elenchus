@@ -2,15 +2,15 @@
 
 {{define "main"}}
 <h1>Quizzes</h1>
-<div class="quiz-list">
+<div class="quiz-list flex-col">
 	{{ range .QuizList }}
-	<div class="quiz-option">
+	<a href="/quizzes/{{ .ID }}" class="quiz-option flex-col">
 		<h2>{{ .Title }}</h2>
 		<span>{{ .Description }}</span>
-		<span>Created by <a href="/profile/{{ .Profile.ID }}">{{ .Profile.FirstName }} {{ .Profile.LastName }}</a></span>
+		<span>Created by {{ .Profile.FirstName }} {{ .Profile.LastName }}</span>
 		<span>{{ .QuestionCount }} questions</span>
 		<span>Published {{ .Published }}</span>
-	</div>
+	</a>
 	{{end}}
 </div>
 {{end}}

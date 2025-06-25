@@ -80,9 +80,12 @@ button:hover {
 	cursor: pointer;
 }
 
-
 h1 {
 	font-size: 2em;
+}
+
+h2 {
+	font-size: 1.5em;
 }
 
 textarea:focus,
@@ -133,4 +136,11 @@ input:focus {
 
 .error {
 	color: red;
+}
+
+.quiz-option {
+	border: 1px solid white;
+	padding: 0.25rem;
+	color: inherit;
+	text-decoration: none;
 }
