@@ -1,0 +1,10 @@
+{{define "title"}}Create Quiz{{end}}
+
+{{define "main"}}
+<h1>Create</h1>
+<form action="/create" method="post" class="flex-col">
+	<label for="notes">Paste your notes here:</label>
+	<textarea id="notes" name="notes" rows="20" required></textarea>
+	<button type="submit">Submit</button>
+</form>
+{{end}}

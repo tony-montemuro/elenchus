@@ -12,7 +12,12 @@
 	<header>
 		<nav>
 			<a href='/'>elenchus</a>
-			<a href='/quizzes'>Quizzes</a>
+			<div class="nav-items">
+				{{if .IsAuthenticated}}
+				<a href='/create'>Create</a>
+				{{end}}
+				<a href='/quizzes'>Quizzes</a>
+			</div>
 			<div class="nav-items">
 				{{if .IsAuthenticated}}
 				<form action='/logout' method='POST'>

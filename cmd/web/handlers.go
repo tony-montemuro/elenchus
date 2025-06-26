@@ -159,3 +159,12 @@ func (app *application) quizList(w http.ResponseWriter, r *http.Request) {
 	data.QuizList = quizzes
 	app.render(w, r, http.StatusOK, "quizzes.tmpl", data)
 }
+
+func (app *application) create(w http.ResponseWriter, r *http.Request) {
+	data := app.newTemplateData(r)
+	app.render(w, r, http.StatusOK, "create.tmpl", data)
+}
+
+func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Generating a quiz..."))
+}
