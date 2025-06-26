@@ -132,7 +132,7 @@ func (app *application) loginPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.sessionManager.Put(r.Context(), "authenticatedUserID", profile.ID)
+	app.sessionManager.Put(r.Context(), authenticatedUserIdKey, profile.ID)
 	app.sessionManager.Put(r.Context(), "flash", fmt.Sprintf("Login successful! Welcome, %s!", profile.FirstName))
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
@@ -144,7 +144,7 @@ func (app *application) logoutPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.sessionManager.Remove(r.Context(), "authenticatedUserID")
+	app.sessionManager.Remove(r.Context(), authenticatedUserIdKey)
 	app.sessionManager.Put(r.Context(), "flash", "You've been logged out successfully!")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
