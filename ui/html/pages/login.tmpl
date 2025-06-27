@@ -2,13 +2,14 @@
 
 {{define "main"}}
 <form action="/login" method="post">
+	<input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
 	<div class="flex-col auth-form">
 		<h1>Login</h1>
 		{{ $rule := .RangeRules.email }}
 		<div class="flex-col auth-input">
 			<input id="email" type="email" name="email" placeholder="Email" title="Email" {{ if gt $rule.MinLength 1
 				}}minlength="{{ $rule.MinLength }}" {{ end }} {{ if gt $rule.MaxLength 0 }}maxlength="{{ $rule.MaxLength }}" {{
-				end }} {{ if gt $rule.MinLength 0 }}required{{ end }} value="{{ .Form.Email }}">
+				end }} {{ if gt $rule.MinLength 0 }}required{{ end }} value="{{ .Form.Email }}" autocomplete="email">
 			{{with .Form.FieldErrors.email}}
 			<label class='error'>{{.}}</label>
 			{{end}}
@@ -18,7 +19,8 @@
 		<div class="flex-col auth-input">
 			<input id="password" type="password" name="password" placeholder="Password" title="Password" {{ if gt
 				$rule.MinLength 1 }}minlength="{{ $rule.MinLength }}" {{ end }} {{ if gt $rule.MaxLength 0
-				}}maxlength="{{ $rule.MaxLength }}" {{ end }} {{ if gt $rule.MinLength 0 }}required{{ end }}>
+				}}maxlength="{{ $rule.MaxLength }}" {{ end }} {{ if gt $rule.MinLength 0 }}required{{ end }}
+				autocomplete="current-password">
 
 			{{with .Form.FieldErrors.password}}
 			<label class='error'>{{.}}</label>

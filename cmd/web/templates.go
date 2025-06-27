@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"github.com/justinas/nosurf"
 	"github.com/tony-montemuro/elenchus/internal/models"
 	"github.com/tony-montemuro/elenchus/internal/validator"
 )
@@ -16,6 +17,7 @@ type templateData struct {
 	Flash           string
 	IsAuthenticated bool
 	QuizList        []models.QuizMetadata
+	CSRFToken       string
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {
@@ -49,6 +51,7 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 	return templateData{
 		Flash:           app.sessionManager.PopString(r.Context(), "flash"),
 		IsAuthenticated: app.isAuthenticated(r),
+		CSRFToken:       nosurf.Token(r),
 	}
 }
 

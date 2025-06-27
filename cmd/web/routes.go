@@ -25,7 +25,7 @@ func (app *application) routes() http.Handler {
 	fileServer := http.FileServer(http.Dir("./ui/static"))
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
-	dynamicChain := chain{app.sessionManager.LoadAndSave, app.authenticate}
+	dynamicChain := chain{app.sessionManager.LoadAndSave, noSurf, app.authenticate}
 
 	mux.Handle("GET /{$}", dynamicChain.thenFunc(app.home))
 	mux.Handle("GET /login", dynamicChain.thenFunc(app.login))
