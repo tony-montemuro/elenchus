@@ -89,5 +89,10 @@ func (m *ProfileModel) Authenticate(email, password string) (Profile, error) {
 }
 
 func (m *ProfileModel) Exists(id int) (bool, error) {
-	return false, nil
+	var exists bool
+
+	stmt := `SELECT EXISTS(SELECT id FROM profile WHERE id = ?)`
+	err := m.DB.QueryRow(stmt, id).Scan(&exists)
+
+	return exists, err
 }

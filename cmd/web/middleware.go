@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -23,16 +24,18 @@ func commonHeaders(next http.Handler) http.Handler {
 	})
 }
 
+func (app *application) logRequestInfo(r *http.Request, message string, level slog.Level) {
+	app.logger.LogAttrs(r.Context(), level, message,
+		slog.String("ip", r.RemoteAddr),
+		slog.String("proto", r.Proto),
+		slog.String("method", r.Method),
+		slog.String("uri", r.URL.RequestURI()),
+	)
+}
+
 func (app *application) logRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var (
-			ip     = r.RemoteAddr
-			proto  = r.Proto
-			method = r.Method
-			uri    = r.URL.RequestURI()
-		)
-
-		app.logger.Info("receieved request", slog.String("ip", ip), slog.String("proto", proto), slog.String("method", method), slog.String("uri", uri))
+		app.logRequestInfo(r, "receieved request", slog.LevelInfo)
 
 		next.ServeHTTP(w, r)
 	})
@@ -46,6 +49,43 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 				app.serverError(w, r, fmt.Errorf("%s", err))
 			}
 		}()
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) requireAuthentication(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !app.isAuthenticated(r) {
+			app.logRequestInfo(r, "unauthenticated user attempted to access a protected route", slog.LevelWarn)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+
+		w.Header().Add("Cache-Control", "no-store")
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) authenticate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		id := app.sessionManager.GetInt(r.Context(), authenticatedUserIdKey)
+		if id == 0 {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		exists, err := app.profiles.Exists(id)
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
+
+		if exists {
+			ctx := context.WithValue(r.Context(), isAuthenticatedKey, true)
+			r = r.WithContext(ctx)
+		}
 
 		next.ServeHTTP(w, r)
 	})

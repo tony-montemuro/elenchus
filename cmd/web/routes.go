@@ -25,7 +25,7 @@ func (app *application) routes() http.Handler {
 	fileServer := http.FileServer(http.Dir("./ui/static"))
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
-	dynamicChain := chain{app.sessionManager.LoadAndSave}
+	dynamicChain := chain{app.sessionManager.LoadAndSave, app.authenticate}
 
 	mux.Handle("GET /{$}", dynamicChain.thenFunc(app.home))
 	mux.Handle("GET /login", dynamicChain.thenFunc(app.login))
@@ -34,9 +34,12 @@ func (app *application) routes() http.Handler {
 	mux.Handle("POST /signup", dynamicChain.thenFunc(app.signupPost))
 	mux.Handle("POST /logout", dynamicChain.thenFunc(app.logoutPost))
 	mux.Handle("GET /quizzes", dynamicChain.thenFunc(app.quizList))
-	mux.Handle("GET /create", dynamicChain.thenFunc(app.create))
-	mux.Handle("POST /create", dynamicChain.thenFunc(app.createPost))
 	mux.Handle("GET /ping", dynamicChain.thenFunc(ping))
+
+	protectedChain := append(dynamicChain, app.requireAuthentication)
+
+	mux.Handle("GET /create", protectedChain.thenFunc(app.create))
+	mux.Handle("POST /create", protectedChain.thenFunc(app.createPost))
 
 	globalChain := chain{app.recoverPanic, app.logRequest, commonHeaders}
 	return globalChain.then(mux)
