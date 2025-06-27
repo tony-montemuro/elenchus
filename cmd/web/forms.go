@@ -7,6 +7,7 @@ type signupForm struct {
 	LastName  string
 	Email     string
 	Password  string
+	Password2 string
 	validator.Validator
 }
 

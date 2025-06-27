@@ -44,6 +44,7 @@ func (app *application) signupPost(w http.ResponseWriter, r *http.Request) {
 		LastName:  r.PostForm.Get("last-name"),
 		Email:     r.PostForm.Get("email"),
 		Password:  r.PostForm.Get("password"),
+		Password2: r.PostForm.Get("password2"),
 	}
 
 	formName := validator.SignUpForm
@@ -53,6 +54,7 @@ func (app *application) signupPost(w http.ResponseWriter, r *http.Request) {
 		form.AddFieldError(err.Key, err.Error())
 	}
 	form.CheckField(validator.Matches(form.Email, validator.EmailRX), "email", "This field must be a valid email address.")
+	form.CheckField(form.Password == form.Password2, "password", "Passwords do not match.")
 
 	if !form.Valid() {
 		data := app.newTemplateData(r)

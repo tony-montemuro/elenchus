@@ -42,6 +42,13 @@
 			<input id="password" type="password" name="password" placeholder="Password" title="Password" {{ if gt
 				$rule.MinLength 1 }}minlength="{{ $rule.MinLength }}" {{ end }} {{ if gt $rule.MaxLength 0
 				}}maxlength="{{ $rule.MaxLength }}" {{ end }} {{ if gt $rule.MinLength 0 }}required{{ end }}>
+		</div>
+
+		{{ $rule := .RangeRules.password }}
+		<div class="flex-col auth-input">
+			<input id="password2" type="password" name="password2" placeholder="Confirm password" title="Password" {{ if gt
+				$rule.MinLength 1 }}minlength="{{ $rule.MinLength }}" {{ end }} {{ if gt $rule.MaxLength 0
+				}}maxlength="{{ $rule.MaxLength }}" {{ end }} {{ if gt $rule.MinLength 0 }}required{{ end }}>
 
 			{{with .Form.FieldErrors.password}}
 			<label class='error'>{{.}}</label>
