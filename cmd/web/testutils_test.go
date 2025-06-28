@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/v2"
+	"github.com/openai/openai-go"
 	"github.com/tony-montemuro/elenchus/internal/models/mocks"
 )
 
@@ -18,6 +19,8 @@ func newTestApplication(t *testing.T, logWriter io.Writer) *application {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	openAIClient := openai.NewClient()
 
 	sessionManager := scs.New()
 	sessionManager.Lifetime = 12 * time.Hour
@@ -28,6 +31,7 @@ func newTestApplication(t *testing.T, logWriter io.Writer) *application {
 		profiles:       &mocks.ProfileModel{},
 		quizzes:        &mocks.QuizModel{},
 		sessionManager: sessionManager,
+		openAIClient:   openAIClient,
 	}
 }
 

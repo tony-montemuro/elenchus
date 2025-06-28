@@ -12,6 +12,7 @@ import (
 	"github.com/alexedwards/scs/mysqlstore"
 	"github.com/alexedwards/scs/v2"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/openai/openai-go"
 	"github.com/tony-montemuro/elenchus/internal/config"
 	"github.com/tony-montemuro/elenchus/internal/models"
 )
@@ -22,6 +23,7 @@ type application struct {
 	profiles       models.ProfileModelInterface
 	quizzes        models.QuizModelInterface
 	sessionManager *scs.SessionManager
+	openAIClient   openai.Client
 }
 
 func main() {
@@ -31,6 +33,7 @@ func main() {
 		AddSource: true,
 		Level:     config.MinLogLevel,
 	}))
+
 	templateCache, err := newTemplateCache()
 	if err != nil {
 		logger.Error(err.Error())
@@ -47,6 +50,8 @@ func main() {
 	sessionManager.Store = mysqlstore.New(db)
 	sessionManager.Lifetime = 12 * time.Hour
 
+	openAIClient := openai.NewClient()
+
 	defer db.Close()
 
 	app := &application{
@@ -55,6 +60,7 @@ func main() {
 		profiles:       &models.ProfileModel{DB: db},
 		quizzes:        &models.QuizModel{DB: db},
 		sessionManager: sessionManager,
+		openAIClient:   openAIClient,
 	}
 
 	tlsConfig := &tls.Config{

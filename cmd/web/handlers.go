@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
 
+	"github.com/openai/openai-go"
 	"github.com/tony-montemuro/elenchus/internal/models"
 	"github.com/tony-montemuro/elenchus/internal/validator"
 )
@@ -168,5 +170,16 @@ func (app *application) create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Generating a quiz..."))
+	chatCompletion, err := app.openAIClient.Chat.Completions.New(
+		context.TODO(),
+		openai.ChatCompletionNewParams{
+			Messages: []openai.ChatCompletionMessageParamUnion{
+				openai.UserMessage("Say this is a test"),
+			},
+			Model: openai.ChatModelGPT4o,
+		})
+	if err != nil {
+		app.serverError(w, r, err)
+	}
+	w.Write([]byte(chatCompletion.Choices[0].Message.Content))
 }
