@@ -3,12 +3,14 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"io/fs"
 	"net/http"
 	"path/filepath"
 
 	"github.com/justinas/nosurf"
 	"github.com/tony-montemuro/elenchus/internal/models"
 	"github.com/tony-montemuro/elenchus/internal/validator"
+	"github.com/tony-montemuro/elenchus/ui"
 )
 
 type templateData struct {
@@ -23,7 +25,7 @@ type templateData struct {
 func newTemplateCache() (map[string]*template.Template, error) {
 	cache := map[string]*template.Template{}
 
-	pages, err := filepath.Glob("./ui/html/pages/*.tmpl")
+	pages, err := fs.Glob(ui.Files, "html/pages/*.tmpl")
 	if err != nil {
 		return nil, err
 	}
@@ -31,12 +33,12 @@ func newTemplateCache() (map[string]*template.Template, error) {
 	for _, page := range pages {
 		name := filepath.Base(page)
 
-		files := []string{
-			"./ui/html/base.tmpl",
+		patterns := []string{
+			"html/base.tmpl",
 			page,
 		}
 
-		ts, err := template.ParseFiles(files...)
+		ts, err := template.ParseFS(ui.Files, patterns...)
 		if err != nil {
 			return nil, err
 		}
