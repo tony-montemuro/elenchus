@@ -36,3 +36,16 @@ func (f loginForm) GetStringVals() map[string]string {
 
 	return vals
 }
+
+type createForm struct {
+	Notes string
+	validator.Validator
+}
+
+func (f createForm) GetStringVals() map[string]string {
+	vals := make(map[string]string)
+
+	vals["notes"] = f.Notes
+
+	return vals
+}

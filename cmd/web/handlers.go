@@ -1,12 +1,10 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"net/http"
 
-	"github.com/openai/openai-go"
 	"github.com/tony-montemuro/elenchus/internal/models"
 	"github.com/tony-montemuro/elenchus/internal/validator"
 )
@@ -166,20 +164,41 @@ func (app *application) quizList(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) create(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
+	data.Form = createForm{}
+	data.RangeRules = validator.RangeRules[validator.CreateForm]
 	app.render(w, r, http.StatusOK, "create.tmpl", data)
 }
 
 func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
-	chatCompletion, err := app.openAIClient.Chat.Completions.New(
-		context.TODO(),
-		openai.ChatCompletionNewParams{
-			Messages: []openai.ChatCompletionMessageParamUnion{
-				openai.UserMessage("Say this is a test"),
-			},
-			Model: openai.ChatModelGPT4o,
-		})
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form := createForm{
+		Notes: r.PostForm.Get("notes"),
+	}
+
+	formName := validator.CreateForm
+	errs := validator.GetRangeErrors(form, formName)
+	for _, err := range errs {
+		form.AddFieldError(err.Key, err.Error())
+	}
+
+	rangeRules := validator.RangeRules[formName]
+	if !form.Valid() {
+		data := app.newTemplateData(r)
+		data.Form = form
+		data.RangeRules = rangeRules
+		app.render(w, r, http.StatusUnprocessableEntity, "create.tmpl", data)
+		return
+	}
+
+	quiz, err := app.generateQuiz(form.Notes, r.Context())
 	if err != nil {
 		app.serverError(w, r, err)
 	}
-	w.Write([]byte(chatCompletion.Choices[0].Message.Content))
+
+	fmt.Fprintf(w, "%v", quiz)
 }

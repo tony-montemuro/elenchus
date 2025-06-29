@@ -5,7 +5,14 @@
 <form action="/create" method="post" class="flex-col">
 	<input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
 	<label for="notes">Paste your notes here:</label>
-	<textarea id="notes" name="notes" rows="20" required></textarea>
+	{{ $rule := .RangeRules.notes }}
+	<textarea id="notes" name="notes" rows="20" {{ if gt $rule.MinLength 1 }}minlength="{{ $rule.MinLength }}" {{ end }}
+		{{ if gt $rule.MaxLength 0 }}maxlength="{{ $rule.MaxLength }}" {{ end }} {{ if gt $rule.MinLength 0 }}required{{ end
+		}}></textarea>
+	{{with .Form.FieldErrors.notes}}
+	<label class='error'>{{.}}</label>
+	{{end}}
+
 	<button type="submit">Submit</button>
 </form>
 {{end}}
