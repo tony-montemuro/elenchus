@@ -13,6 +13,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/openai/openai-go"
+	"github.com/openai/openai-go/option"
 	"github.com/tony-montemuro/elenchus/internal/config"
 	"github.com/tony-montemuro/elenchus/internal/models"
 )
@@ -50,8 +51,6 @@ func main() {
 	sessionManager.Store = mysqlstore.New(db)
 	sessionManager.Lifetime = 12 * time.Hour
 
-	openAIClient := openai.NewClient()
-
 	defer db.Close()
 
 	app := &application{
@@ -60,8 +59,14 @@ func main() {
 		profiles:       &models.ProfileModel{DB: db},
 		quizzes:        &models.QuizModel{DB: db},
 		sessionManager: sessionManager,
-		openAIClient:   openAIClient,
 	}
+
+	openAIClient := openai.NewClient(
+		option.WithMaxRetries(0),
+		option.WithMiddleware(app.LogOpenAIRequest),
+	)
+
+	app.openAIClient = openAIClient
 
 	tlsConfig := &tls.Config{
 		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},

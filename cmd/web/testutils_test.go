@@ -11,6 +11,7 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/openai/openai-go"
+	"github.com/openai/openai-go/option"
 	"github.com/tony-montemuro/elenchus/internal/models/mocks"
 )
 
@@ -20,19 +21,25 @@ func newTestApplication(t *testing.T, logWriter io.Writer) *application {
 		t.Fatal(err)
 	}
 
-	openAIClient := openai.NewClient()
-
 	sessionManager := scs.New()
 	sessionManager.Lifetime = 12 * time.Hour
 
-	return &application{
+	app := &application{
 		templateCache:  templateCache,
 		logger:         slog.New(slog.NewJSONHandler(logWriter, nil)),
 		profiles:       &mocks.ProfileModel{},
 		quizzes:        &mocks.QuizModel{},
 		sessionManager: sessionManager,
-		openAIClient:   openAIClient,
 	}
+
+	openAIClient := openai.NewClient(
+		option.WithMaxRetries(0),
+		option.WithMiddleware(app.LogOpenAIRequest),
+	)
+
+	app.openAIClient = openAIClient
+
+	return app
 }
 
 func executeMiddleware(t *testing.T, middleware func(http.Handler) http.Handler, next http.Handler) *http.Response {

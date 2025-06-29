@@ -42,6 +42,6 @@ func (app *application) routes() http.Handler {
 	mux.Handle("GET /create", protectedChain.thenFunc(app.create))
 	mux.Handle("POST /create", protectedChain.thenFunc(app.createPost))
 
-	globalChain := chain{app.recoverPanic, app.logRequest, commonHeaders}
+	globalChain := chain{app.recoverPanic, app.addRequestID, app.logRequest, commonHeaders}
 	return globalChain.then(mux)
 }

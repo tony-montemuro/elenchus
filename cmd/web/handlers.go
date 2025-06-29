@@ -187,16 +187,23 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rangeRules := validator.RangeRules[formName]
+	data := app.newTemplateData(r)
+	data.Form = form
+	data.RangeRules = rangeRules
+
 	if !form.Valid() {
-		data := app.newTemplateData(r)
-		data.Form = form
-		data.RangeRules = rangeRules
 		app.render(w, r, http.StatusUnprocessableEntity, "create.tmpl", data)
 		return
 	}
 
 	quiz, err := app.generateQuiz(form.Notes, r.Context())
 	if err != nil {
+		if errors.Is(err, ErrGenerationRefusal) {
+			form.AddFieldError("notes", err.Error())
+			data.Form = form
+			app.render(w, r, http.StatusUnprocessableEntity, "create.tmpl", data)
+			return
+		}
 		app.serverError(w, r, err)
 	}
 

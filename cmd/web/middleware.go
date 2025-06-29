@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/justinas/nosurf"
+	"github.com/openai/openai-go/option"
 )
 
 func commonHeaders(next http.Handler) http.Handler {
@@ -26,8 +28,9 @@ func commonHeaders(next http.Handler) http.Handler {
 	})
 }
 
-func (app *application) logRequestInfo(r *http.Request, message string, level slog.Level) {
+func (app *application) logRequestInfo(r *http.Request, requestID string, message string, level slog.Level) {
 	app.logger.LogAttrs(r.Context(), level, message,
+		slog.String("request_id", requestID),
 		slog.String("ip", r.RemoteAddr),
 		slog.String("proto", r.Proto),
 		slog.String("method", r.Method),
@@ -35,9 +38,38 @@ func (app *application) logRequestInfo(r *http.Request, message string, level sl
 	)
 }
 
+func (app *application) logResponseInfo(res *http.Response, err error, requestID string, elapsed time.Duration, message string, level slog.Level) {
+	attrs := []slog.Attr{
+		slog.String("request_id", requestID),
+		slog.Any("error", err),
+		slog.Int64("time_ms", elapsed.Milliseconds()),
+	}
+
+	if res != nil {
+		attrs = append(attrs,
+			slog.Int("status_code", res.StatusCode),
+			slog.String("status", res.Status),
+			slog.String("proto", res.Proto),
+		)
+	}
+
+	app.logger.LogAttrs(context.Background(), level, message, attrs...)
+}
+
 func (app *application) logRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		app.logRequestInfo(r, "receieved request", slog.LevelInfo)
+		app.logRequestInfo(r, getRequestID(r), "receieved request", slog.LevelInfo)
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) addRequestID(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestID := generateRequestID()
+
+		ctx := context.WithValue(r.Context(), requestIDKey, requestID)
+		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)
 	})
@@ -59,7 +91,7 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 func (app *application) requireAuthentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !app.isAuthenticated(r) {
-			app.logRequestInfo(r, "unauthenticated user attempted to access a protected route", slog.LevelWarn)
+			app.logRequestInfo(r, getRequestID(r), "unauthenticated user attempted to access a protected route", slog.LevelWarn)
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
@@ -102,4 +134,15 @@ func noSurf(next http.Handler) http.Handler {
 	})
 
 	return csrfHandler
+}
+
+func (app *application) LogOpenAIRequest(r *http.Request, next option.MiddlewareNext) (res *http.Response, err error) {
+	start := time.Now()
+	requestID := getRequestID(r)
+	app.logRequestInfo(r, requestID, "Begin OpenAI Request", slog.LevelInfo)
+
+	res, err = next(r)
+
+	app.logResponseInfo(res, err, requestID, time.Since(start), "Stop OpenAI Response", slog.LevelInfo)
+	return res, err
 }

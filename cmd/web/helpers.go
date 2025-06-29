@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"log/slog"
 	"net/http"
 	"runtime/debug"
@@ -28,4 +30,17 @@ func (app *application) isAuthenticated(r *http.Request) bool {
 	}
 
 	return isAuthenticated
+}
+
+func generateRequestID() string {
+	bytes := make([]byte, 4)
+	rand.Read(bytes)
+	return hex.EncodeToString(bytes)
+}
+
+func getRequestID(r *http.Request) string {
+	if id, ok := r.Context().Value(requestIDKey).(string); ok {
+		return id
+	}
+	return "unknown"
 }

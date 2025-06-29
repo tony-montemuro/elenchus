@@ -3,9 +3,13 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"log/slog"
+	"net/http"
 
 	"github.com/invopop/jsonschema"
 	"github.com/openai/openai-go"
+	"github.com/openai/openai-go/option"
 )
 
 type Quiz struct {
@@ -35,8 +39,13 @@ func generateSchema[T any]() any {
 }
 
 var QuizResponseSchema = generateSchema[Quiz]()
+var ErrGenerationRefusal = errors.New("Quiz creation unavailable: The submitted content doesn't meet our safety standards for educational content.")
 
 func (app *application) generateQuiz(notes string, ctx context.Context) (Quiz, error) {
+	max_attempts := 3
+	var quiz Quiz
+	var err error
+
 	schemaParam := openai.ResponseFormatJSONSchemaJSONSchemaParam{
 		Name:        "quiz",
 		Description: openai.String("Quiz generated strictly on the notes provided by the user"),
@@ -44,21 +53,45 @@ func (app *application) generateQuiz(notes string, ctx context.Context) (Quiz, e
 		Strict:      openai.Bool(true),
 	}
 
-	chat, err := app.openAIClient.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
-		Messages: []openai.ChatCompletionMessageParamUnion{
-			openai.UserMessage(notes),
-		},
-		ResponseFormat: openai.ChatCompletionNewParamsResponseFormatUnion{
-			OfJSONSchema: &openai.ResponseFormatJSONSchemaParam{JSONSchema: schemaParam},
-		},
-		Model: openai.ChatModelGPT4o2024_08_06,
-	})
+	for range max_attempts {
+		var response *http.Response
+		chat, err := app.openAIClient.Chat.Completions.New(
+			ctx,
+			openai.ChatCompletionNewParams{
+				Messages: []openai.ChatCompletionMessageParamUnion{
+					openai.UserMessage(notes),
+				},
+				ResponseFormat: openai.ChatCompletionNewParamsResponseFormatUnion{
+					OfJSONSchema: &openai.ResponseFormatJSONSchemaParam{JSONSchema: schemaParam},
+				},
+				Model: openai.ChatModelGPT4o2024_08_06,
+			},
+			option.WithResponseInto(&response),
+		)
 
-	var quiz Quiz
-	if err != nil {
-		return quiz, err
+		if err != nil {
+			status := response.StatusCode
+
+			// to be consistent with openAI sdk: https://github.com/openai/openai-go?tab=readme-ov-file#retries
+			// for now, not worrying about "connection errors"
+			if status == http.StatusRequestTimeout || status == http.StatusConflict || status == http.StatusTooManyRequests || status >= 500 {
+				continue
+			}
+
+			return quiz, err
+		}
+
+		if chat.Choices[0].Message.Refusal != "" {
+			app.logger.Warn("quiz generation refused", slog.String("message", chat.Choices[0].Message.Refusal))
+			return quiz, ErrGenerationRefusal
+		}
+
+		// if we can successfully unmarshal the response, we can say the request was successful -- break out of loop
+		err = json.Unmarshal([]byte(chat.Choices[0].Message.Content), &quiz)
+		if err == nil {
+			break
+		}
 	}
 
-	err = json.Unmarshal([]byte(chat.Choices[0].Message.Content), &quiz)
 	return quiz, err
 }
