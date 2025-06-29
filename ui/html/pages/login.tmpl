@@ -11,7 +11,7 @@
 				}}minlength="{{ $rule.MinLength }}" {{ end }} {{ if gt $rule.MaxLength 0 }}maxlength="{{ $rule.MaxLength }}" {{
 				end }} {{ if gt $rule.MinLength 0 }}required{{ end }} value="{{ .Form.Email }}" autocomplete="email">
 			{{with .Form.FieldErrors.email}}
-			<label class='error'>{{.}}</label>
+			<span class='error'>{{.}}</span>
 			{{end}}
 		</div>
 
@@ -23,11 +23,11 @@
 				autocomplete="current-password">
 
 			{{with .Form.FieldErrors.password}}
-			<label class='error'>{{.}}</label>
+			<span class='error'>{{.}}</span>
 			{{end}}
 		</div>
 		{{range .Form.NonFieldErrors}}
-		<label class='error'>{{.}}</label>
+		<span class='error'>{{.}}</span>
 		{{end}}
 
 		<button type="submit">Login</button>

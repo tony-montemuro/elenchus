@@ -10,7 +10,7 @@
 		{{ if gt $rule.MaxLength 0 }}maxlength="{{ $rule.MaxLength }}" {{ end }} {{ if gt $rule.MinLength 0 }}required{{ end
 		}}></textarea>
 	{{with .Form.FieldErrors.notes}}
-	<label class='error'>{{.}}</label>
+	<span class='error'>{{.}}</span>
 	{{end}}
 
 	<button type="submit">Submit</button>
