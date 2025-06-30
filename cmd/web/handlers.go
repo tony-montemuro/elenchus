@@ -209,3 +209,8 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(w, "%v", quiz)
 }
+
+func (app *application) quiz(w http.ResponseWriter, r *http.Request) {
+	data := app.newTemplateData(r)
+	app.render(w, r, http.StatusOK, "quiz.tmpl", data)
+}
