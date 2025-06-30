@@ -64,7 +64,7 @@ func (app *application) generateQuiz(notes string, ctx context.Context) (Quiz, e
 				ResponseFormat: openai.ChatCompletionNewParamsResponseFormatUnion{
 					OfJSONSchema: &openai.ResponseFormatJSONSchemaParam{JSONSchema: schemaParam},
 				},
-				Model: openai.ChatModelGPT4o2024_08_06,
+				Model: openai.ChatModelO4Mini2025_04_16,
 			},
 			option.WithResponseInto(&response),
 		)
