@@ -13,6 +13,11 @@ type QuestionType struct {
 	Update        time.Time
 }
 
+type QuestionTypePublic struct {
+	Name          string
+	DefaultPoints uint32
+}
+
 type QuestionTypeModel struct {
 	DB *sql.DB
 }

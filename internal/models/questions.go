@@ -16,6 +16,14 @@ type Question struct {
 	Deleted *time.Time
 }
 
+type QuestionPublic struct {
+	ID      int
+	Type    QuestionTypePublic
+	Content string
+	Points  int
+	Answers []AnswerPublic
+}
+
 type QuestionModel struct {
 	DB *sql.DB
 }

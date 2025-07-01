@@ -27,7 +27,7 @@ type Profile struct {
 	Deleted        *time.Time
 }
 
-type PublicProfile struct {
+type ProfilePublic struct {
 	ID        int
 	FirstName string
 	LastName  string

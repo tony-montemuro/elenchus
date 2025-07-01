@@ -14,6 +14,11 @@ type Answer struct {
 	Deleted *time.Time
 }
 
+type AnswerPublic struct {
+	Content string
+	Correct bool
+}
+
 type AnswerModel struct {
 	DB *sql.DB
 }

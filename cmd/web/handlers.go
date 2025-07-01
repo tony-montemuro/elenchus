@@ -3,7 +3,9 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/tony-montemuro/elenchus/internal/models"
 	"github.com/tony-montemuro/elenchus/internal/validator"
@@ -211,6 +213,27 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) quiz(w http.ResponseWriter, r *http.Request) {
-	data := app.newTemplateData(r)
-	app.render(w, r, http.StatusOK, "quiz.tmpl", data)
+	quizID, err := strconv.Atoi(r.PathValue("quizID"))
+	if err != nil {
+		app.sessionManager.Put(r.Context(), "flash", "This page does not exist.")
+		app.logger.Warn("user attempted to access a quiz that does not exist", slog.String("error", err.Error()))
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	quiz, err := app.quizzes.GetQuizByID(quizID)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.sessionManager.Put(r.Context(), "flash", "This page does not exist.")
+			app.logger.Warn("user attempted to access a quiz that does not exist", slog.String("error", err.Error()))
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+		app.serverError(w, r, err)
+	}
+
+	fmt.Fprintf(w, "%v", quiz)
+
+	// data := app.newTemplateData(r)
+	// app.render(w, r, http.StatusOK, "quiz.tmpl", data)
 }
