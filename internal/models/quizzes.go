@@ -170,7 +170,7 @@ func (m *QuizModel) getQuestionsByQuizID(id int) ([]QuestionPublic, error) {
 func (m *QuizModel) getAnswersByQuestionIDs(ids []int) (map[int][]AnswerPublic, error) {
 	answersByQuestionID := make(map[int][]AnswerPublic)
 	placeholders, args := buildInClause(ids)
-	stmt := fmt.Sprintf(`SELECT a.content, a.correct, a.question_id
+	stmt := fmt.Sprintf(`SELECT a.id, a.content, a.correct, a.question_id
 	FROM answer a
 	WHERE a.question_id IN (%s)
 	ORDER BY a.question_id, a.id`, placeholders)
@@ -189,7 +189,7 @@ func (m *QuizModel) getAnswersByQuestionIDs(ids []int) (map[int][]AnswerPublic, 
 		var answer AnswerPublic
 		var questionID int
 
-		err = rows.Scan(&answer.Content, &answer.Correct, &questionID)
+		err = rows.Scan(&answer.ID, &answer.Content, &answer.Correct, &questionID)
 		if err != nil {
 			return answersByQuestionID, err
 		}

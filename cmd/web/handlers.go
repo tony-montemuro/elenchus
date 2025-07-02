@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"strconv"
 
@@ -157,6 +156,7 @@ func (app *application) quizList(w http.ResponseWriter, r *http.Request) {
 	quizzes, err := app.quizzes.Latest()
 	if err != nil {
 		app.serverError(w, r, err)
+		return
 	}
 
 	data := app.newTemplateData(r)
@@ -204,9 +204,10 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 			form.AddFieldError("notes", err.Error())
 			data.Form = form
 			app.render(w, r, http.StatusUnprocessableEntity, "create.tmpl", data)
-			return
+		} else {
+			app.serverError(w, r, err)
 		}
-		app.serverError(w, r, err)
+		return
 	}
 
 	fmt.Fprintf(w, "%v", quiz)
@@ -215,25 +216,21 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 func (app *application) quiz(w http.ResponseWriter, r *http.Request) {
 	quizID, err := strconv.Atoi(r.PathValue("quizID"))
 	if err != nil {
-		app.sessionManager.Put(r.Context(), "flash", "This page does not exist.")
-		app.logger.Warn("user attempted to access a quiz that does not exist", slog.String("error", err.Error()))
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		app.redirectNotFound(w, r, "user attempted to access a quiz that does not exist", err)
 		return
 	}
 
 	quiz, err := app.quizzes.GetQuizByID(quizID)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord) {
-			app.sessionManager.Put(r.Context(), "flash", "This page does not exist.")
-			app.logger.Warn("user attempted to access a quiz that does not exist", slog.String("error", err.Error()))
-			http.Redirect(w, r, "/", http.StatusSeeOther)
-			return
+			app.redirectNotFound(w, r, "user attempted to access a quiz that does not exist", err)
+		} else {
+			app.serverError(w, r, err)
 		}
-		app.serverError(w, r, err)
+		return
 	}
 
-	fmt.Fprintf(w, "%v", quiz)
-
-	// data := app.newTemplateData(r)
-	// app.render(w, r, http.StatusOK, "quiz.tmpl", data)
+	data := app.newTemplateData(r)
+	data.Quiz = quiz
+	app.render(w, r, http.StatusOK, "quiz.tmpl", data)
 }

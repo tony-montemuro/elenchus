@@ -15,6 +15,7 @@ type Answer struct {
 }
 
 type AnswerPublic struct {
+	ID      int
 	Content string
 	Correct bool
 }

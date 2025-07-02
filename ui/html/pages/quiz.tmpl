@@ -1,5 +1,34 @@
 {{define "title"}}Quizzes{{end}}
 
 {{define "main"}}
-<h1>Quiz</h1>
+<div class="flex-col" id="quiz">
+	<div>
+		<h1>{{ .Quiz.Title }}</h1>
+		<span>Published by <a href="/profile/{{ .Quiz.Profile.ID }}">{{ .Quiz.Profile.FirstName }} {{ .Quiz.Profile.LastName
+				}}</a> | {{ .Quiz.Published }}</span>
+	</div>
+	<form class="flex-col quiz-form" method="post">
+		<ol class="flex-col questions">
+			{{range .Quiz.Questions}}
+			<li>
+				<span>{{ .Content }}</span>
+				<div class="answers">
+					{{$questionID := .ID}}
+
+					{{range $i, $answer := .Answers}}
+					<div>
+						{{$id := printf "question_%d_%d" $questionID $i }}
+						<input type="radio" id="{{ $id }}" name="question_{{ $questionID }}" value="{{ $answer.ID }}" required />
+						<label for="{{ $id }}">{{ $answer.Content }}</span>
+					</div>
+					{{end}}
+
+				</div>
+			</li>
+			{{end}}
+		</ol>
+
+		<button type="submit">Submit</button>
+	</form>
+</div>
 {{end}}

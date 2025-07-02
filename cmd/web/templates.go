@@ -20,6 +20,7 @@ type templateData struct {
 	IsAuthenticated bool
 	QuizList        []models.QuizMetadata
 	CSRFToken       string
+	Quiz            models.QuizPublic
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {
