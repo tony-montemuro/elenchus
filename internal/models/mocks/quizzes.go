@@ -7,3 +7,7 @@ type QuizModel struct{}
 func (m *QuizModel) Latest() ([]models.QuizMetadata, error) {
 	return []models.QuizMetadata{}, nil
 }
+
+func (m *QuizModel) GetQuizByID(id int) (models.QuizPublic, error) {
+	return models.QuizPublic{}, nil
+}

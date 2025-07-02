@@ -82,6 +82,35 @@ func (m *QuizModel) Latest() ([]QuizMetadata, error) {
 }
 
 func (m *QuizModel) GetQuizByID(id int) (QuizPublic, error) {
+	quiz, err := m.getQuizByID(id)
+	if err != nil {
+		return quiz, err
+	}
+
+	questions, err := m.getQuestionsByQuizID(id)
+	if err != nil {
+		return quiz, err
+	}
+	quiz.Questions = questions
+
+	var questionIDs []int
+	for _, question := range questions {
+		questionIDs = append(questionIDs, question.ID)
+	}
+
+	answersByQuestionID, err := m.getAnswersByQuestionIDs(questionIDs)
+	if err != nil {
+		return quiz, err
+	}
+
+	for i, question := range quiz.Questions {
+		quiz.Questions[i].Answers = answersByQuestionID[question.ID]
+	}
+
+	return quiz, err
+}
+
+func (m *QuizModel) getQuizByID(id int) (QuizPublic, error) {
 	var quiz QuizPublic
 	var profile ProfilePublic
 
@@ -100,70 +129,73 @@ func (m *QuizModel) GetQuizByID(id int) (QuizPublic, error) {
 	}
 
 	quiz.Profile = profile
+	return quiz, nil
+}
 
-	stmt = `SELECT qt.name, qt.default_points, q.id, q.content, q.points
+func (m *QuizModel) getQuestionsByQuizID(id int) ([]QuestionPublic, error) {
+	var questions []QuestionPublic
+
+	stmt := `SELECT qt.name, qt.default_points, q.id, q.content, q.points
 	FROM question q
 	JOIN question_type qt ON q.type_id = qt.id
 	WHERE q.quiz_id = ? AND q.deleted IS NULL
 	ORDER BY q.id`
 
-	questionRows, err := m.DB.Query(stmt, id)
+	rows, err := m.DB.Query(stmt, id)
 	if err != nil {
-		return quiz, err
+		return questions, err
 	}
-	if err = questionRows.Err(); err != nil {
-		return quiz, err
+	if err = rows.Err(); err != nil {
+		return questions, err
 	}
 
-	defer questionRows.Close()
+	defer rows.Close()
 
-	questionIDs := []int{}
-	for questionRows.Next() {
+	for rows.Next() {
 		var question QuestionPublic
 		var questionType QuestionTypePublic
 
-		err = questionRows.Scan(&questionType.Name, &questionType.DefaultPoints, &question.ID, &question.Content, &question.Points)
+		err = rows.Scan(&questionType.Name, &questionType.DefaultPoints, &question.ID, &question.Content, &question.Points)
 		if err != nil {
-			return quiz, err
+			return questions, err
 		}
 
 		question.Type = questionType
-		quiz.Questions = append(quiz.Questions, question)
-		questionIDs = append(questionIDs, question.ID)
+		questions = append(questions, question)
 	}
 
-	placeholders, args := buildInClause(questionIDs)
-	stmt = fmt.Sprintf(`SELECT a.content, a.correct, a.question_id
+	return questions, nil
+}
+
+func (m *QuizModel) getAnswersByQuestionIDs(ids []int) (map[int][]AnswerPublic, error) {
+	answersByQuestionID := make(map[int][]AnswerPublic)
+	placeholders, args := buildInClause(ids)
+	stmt := fmt.Sprintf(`SELECT a.content, a.correct, a.question_id
 	FROM answer a
 	WHERE a.question_id IN (%s)
 	ORDER BY a.question_id, a.id`, placeholders)
 
-	answerRows, err := m.DB.Query(stmt, args...)
+	rows, err := m.DB.Query(stmt, args...)
 	if err != nil {
-		return quiz, err
+		return answersByQuestionID, err
 	}
-	if err = answerRows.Err(); err != nil {
-		return quiz, err
+	if err = rows.Err(); err != nil {
+		return answersByQuestionID, err
 	}
 
-	defer answerRows.Close()
+	defer rows.Close()
 
-	answersByQuestionID := make(map[int][]AnswerPublic)
-	for answerRows.Next() {
+	for rows.Next() {
 		var answer AnswerPublic
 		var questionID int
 
-		err = answerRows.Scan(&answer.Content, &answer.Correct, &questionID)
+		err = rows.Scan(&answer.Content, &answer.Correct, &questionID)
 		if err != nil {
-			return quiz, err
+			return answersByQuestionID, err
 		}
 
 		answersByQuestionID[questionID] = append(answersByQuestionID[questionID], answer)
 	}
 
-	for i, question := range quiz.Questions {
-		quiz.Questions[i].Answers = answersByQuestionID[question.ID]
-	}
-
-	return quiz, err
+	return answersByQuestionID, nil
 }
