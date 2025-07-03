@@ -234,3 +234,7 @@ func (app *application) quiz(w http.ResponseWriter, r *http.Request) {
 	data.Quiz = quiz
 	app.render(w, r, http.StatusOK, "quiz.tmpl", data)
 }
+
+func (app *application) quizPost(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "%v", r.PathValue("quizID"))
+}

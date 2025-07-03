@@ -8,6 +8,7 @@
 				}}</a> | {{ .Quiz.Published }}</span>
 	</div>
 	<form class="flex-col quiz-form" method="post">
+		<input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
 		<ol class="flex-col questions">
 			{{range .Quiz.Questions}}
 			<li>
