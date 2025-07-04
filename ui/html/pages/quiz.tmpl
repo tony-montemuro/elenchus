@@ -2,10 +2,13 @@
 
 {{define "main"}}
 <div class="flex-col" id="quiz">
-	<div>
+	<div class="flex-col">
 		<h1>{{ .Quiz.Title }}</h1>
-		<span>Published by <a href="/profile/{{ .Quiz.Profile.ID }}">{{ .Quiz.Profile.FirstName }} {{ .Quiz.Profile.LastName
-				}}</a> | {{ .Quiz.Published }}</span>
+		<span>Created by <a href="/profile/{{ .Quiz.Profile.ID }}">{{ .Quiz.Profile.FirstName }} {{ .Quiz.Profile.LastName
+				}}</a></span>
+		{{if .Quiz.Published}}
+		<span>Published {{ .Quiz.Published }}</span>
+		{{end}}
 	</div>
 	<form class="flex-col quiz-form" method="post">
 		<input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />

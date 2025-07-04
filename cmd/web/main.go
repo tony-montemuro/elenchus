@@ -16,6 +16,7 @@ import (
 	"github.com/openai/openai-go/option"
 	"github.com/tony-montemuro/elenchus/internal/config"
 	"github.com/tony-montemuro/elenchus/internal/models"
+	"github.com/tony-montemuro/elenchus/internal/services"
 )
 
 type application struct {
@@ -23,6 +24,7 @@ type application struct {
 	templateCache  map[string]*template.Template
 	profiles       models.ProfileModelInterface
 	quizzes        models.QuizModelInterface
+	quizzesService services.QuizServiceInterface
 	sessionManager *scs.SessionManager
 	openAIClient   openai.Client
 }
@@ -53,11 +55,20 @@ func main() {
 
 	defer db.Close()
 
+	quizModel := &models.QuizModel{DB: db}
+	questionModel := &models.QuestionModel{DB: db}
+	answerModel := &models.AnswerModel{DB: db}
+
 	app := &application{
-		logger:         logger,
-		templateCache:  templateCache,
-		profiles:       &models.ProfileModel{DB: db},
-		quizzes:        &models.QuizModel{DB: db},
+		logger:        logger,
+		templateCache: templateCache,
+		profiles:      &models.ProfileModel{DB: db},
+		quizzes:       quizModel,
+		quizzesService: &services.QuizService{
+			QuizModel:     quizModel,
+			QuestionModel: questionModel,
+			AnswerModel:   answerModel,
+		},
 		sessionManager: sessionManager,
 	}
 

@@ -10,13 +10,8 @@ import (
 	"github.com/invopop/jsonschema"
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/option"
+	"github.com/tony-montemuro/elenchus/internal/models"
 )
-
-type Quiz struct {
-	Title       string     `json:"title" jsonschema:"The ideal name of the quiz, based on the user input"`
-	Description string     `json:"description" jsonschema:"A description of what the quiz is trying to teach, between 140 and 280 characters"`
-	Questions   []Question `json:"questions" jsonschema:"Up to 5 questions based on the input provided by the user -- can be less if user input is short"`
-}
 
 type Question struct {
 	Content string   `json:"content" jsonschema:"The question that the user is requested to answer"`
@@ -38,17 +33,17 @@ func generateSchema[T any]() any {
 	return schema
 }
 
-var QuizResponseSchema = generateSchema[Quiz]()
+var QuizResponseSchema = generateSchema[models.QuizJSONSchema]()
 var ErrGenerationRefusal = errors.New("Quiz creation unavailable: The submitted content doesn't meet our safety standards for educational content.")
 
-func (app *application) generateQuiz(notes string, ctx context.Context) (Quiz, error) {
+func (app *application) generateQuiz(notes string, ctx context.Context) (models.QuizJSONSchema, error) {
 	max_attempts := 3
-	var quiz Quiz
+	var quiz models.QuizJSONSchema
 	var err error
 
 	schemaParam := openai.ResponseFormatJSONSchemaJSONSchemaParam{
 		Name:        "quiz",
-		Description: openai.String("Quiz generated strictly on the notes provided by the user"),
+		Description: openai.String("Quiz generated strictly on the notes provided by the user. DO NOT EVER ENUMERATE THE QUESTIONS BY LETTER!"),
 		Schema:      QuizResponseSchema,
 		Strict:      openai.Bool(true),
 	}

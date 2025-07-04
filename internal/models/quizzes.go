@@ -3,13 +3,13 @@ package models
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"time"
 )
 
 type QuizModelInterface interface {
 	Latest() ([]QuizMetadata, error)
-	GetQuizByID(int) (QuizPublic, error)
+	GetQuizByID(int, *int) (QuizPublic, error)
+	InsertQuiz(QuizJSONSchema, int, *sql.Tx) (int, error)
 }
 
 type Quiz struct {
@@ -40,11 +40,23 @@ type QuizPublic struct {
 	Title       string
 	Description string
 	Questions   []QuestionPublic
-	Published   time.Time
+	Published   *time.Time
+}
+
+type QuizJSONSchema struct {
+	Title       string               `json:"title" jsonschema:"The ideal name of the quiz, based on the user input"`
+	Description string               `json:"description" jsonschema:"A description of what the quiz is trying to teach, between 140 and 280 characters"`
+	Questions   []QuestionJSONSchema `json:"questions" jsonschema:"Up to 5 questions based on the input provided by the user -- can be less if user input is short"`
 }
 
 type QuizModel struct {
 	DB *sql.DB
+}
+
+type QuizService struct {
+	QuizModel     *QuizModel
+	QuestionModel *QuestionModel
+	AnswerModel   *AnswerModel
 }
 
 func (m *QuizModel) Latest() ([]QuizMetadata, error) {
@@ -81,121 +93,55 @@ func (m *QuizModel) Latest() ([]QuizMetadata, error) {
 	return quizzes, nil
 }
 
-func (m *QuizModel) GetQuizByID(id int) (QuizPublic, error) {
-	quiz, err := m.getQuizByID(id)
-	if err != nil {
-		return quiz, err
-	}
-
-	questions, err := m.getQuestionsByQuizID(id)
-	if err != nil {
-		return quiz, err
-	}
-	quiz.Questions = questions
-
-	var questionIDs []int
-	for _, question := range questions {
-		questionIDs = append(questionIDs, question.ID)
-	}
-
-	answersByQuestionID, err := m.getAnswersByQuestionIDs(questionIDs)
-	if err != nil {
-		return quiz, err
-	}
-
-	for i, question := range quiz.Questions {
-		quiz.Questions[i].Answers = answersByQuestionID[question.ID]
-	}
-
-	return quiz, err
-}
-
-func (m *QuizModel) getQuizByID(id int) (QuizPublic, error) {
+func (m *QuizModel) GetQuizByID(id int, profileID *int) (QuizPublic, error) {
 	var quiz QuizPublic
 	var profile ProfilePublic
+	var unpublished *time.Time
 
-	stmt := `SELECT q.id, p.id, p.first_name, p.last_name, p.deleted, q.title, q.description, q.published
+	stmt := `SELECT q.id, p.id, p.first_name, p.last_name, p.deleted, q.title, q.description, q.published, q.unpublished
 	FROM quiz q
 	JOIN profile p ON q.profile_id = p.id 
-	WHERE q.id = ? AND q.published IS NOT NULL AND (q.unpublished IS NULL OR q.published > q.unpublished) AND q.deleted IS NULL`
+	WHERE q.id = ? AND q.deleted IS NULL`
 
-	err := m.DB.QueryRow(stmt, id).Scan(&quiz.ID, &profile.ID, &profile.FirstName, &profile.LastName, &profile.Deleted, &quiz.Title, &quiz.Description, &quiz.Published)
+	err := m.DB.QueryRow(stmt, id).Scan(&quiz.ID, &profile.ID, &profile.FirstName, &profile.LastName, &profile.Deleted, &quiz.Title, &quiz.Description, &quiz.Published, &unpublished)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return QuizPublic{}, ErrNoRecord
-		} else {
-			return QuizPublic{}, err
 		}
+
+		return QuizPublic{}, err
+	}
+
+	isPublished := quiz.Published != nil
+	isUnpublished := unpublished != nil
+
+	// If the quiz is not owned by the user, the quiz is not published, OR the quiz was unpublished at least once,
+	// and hasn't been re-published since, then we want to treat this as a missing record
+	if (profileID == nil || profile.ID != *profileID) && (!isPublished || (isUnpublished && unpublished.After(*quiz.Published))) {
+		return QuizPublic{}, ErrNoRecord
 	}
 
 	quiz.Profile = profile
 	return quiz, nil
 }
 
-func (m *QuizModel) getQuestionsByQuizID(id int) ([]QuestionPublic, error) {
-	var questions []QuestionPublic
-
-	stmt := `SELECT qt.name, qt.default_points, q.id, q.content, q.points
-	FROM question q
-	JOIN question_type qt ON q.type_id = qt.id
-	WHERE q.quiz_id = ? AND q.deleted IS NULL
-	ORDER BY q.id`
-
-	rows, err := m.DB.Query(stmt, id)
+func (m *QuizModel) InsertQuiz(quiz QuizJSONSchema, profileID int, tx *sql.Tx) (int, error) {
+	stmt, err := tx.Prepare(`INSERT INTO quiz (profile_id, title, description, created, updated)
+	VALUES (?, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())`)
 	if err != nil {
-		return questions, err
+		return 0, err
 	}
-	if err = rows.Err(); err != nil {
-		return questions, err
-	}
+	defer stmt.Close()
 
-	defer rows.Close()
-
-	for rows.Next() {
-		var question QuestionPublic
-		var questionType QuestionTypePublic
-
-		err = rows.Scan(&questionType.Name, &questionType.DefaultPoints, &question.ID, &question.Content, &question.Points)
-		if err != nil {
-			return questions, err
-		}
-
-		question.Type = questionType
-		questions = append(questions, question)
-	}
-
-	return questions, nil
-}
-
-func (m *QuizModel) getAnswersByQuestionIDs(ids []int) (map[int][]AnswerPublic, error) {
-	answersByQuestionID := make(map[int][]AnswerPublic)
-	placeholders, args := buildInClause(ids)
-	stmt := fmt.Sprintf(`SELECT a.id, a.content, a.correct, a.question_id
-	FROM answer a
-	WHERE a.question_id IN (%s)
-	ORDER BY a.question_id, a.id`, placeholders)
-
-	rows, err := m.DB.Query(stmt, args...)
+	result, err := stmt.Exec(profileID, quiz.Title, quiz.Description)
 	if err != nil {
-		return answersByQuestionID, err
-	}
-	if err = rows.Err(); err != nil {
-		return answersByQuestionID, err
+		return 0, err
 	}
 
-	defer rows.Close()
-
-	for rows.Next() {
-		var answer AnswerPublic
-		var questionID int
-
-		err = rows.Scan(&answer.ID, &answer.Content, &answer.Correct, &questionID)
-		if err != nil {
-			return answersByQuestionID, err
-		}
-
-		answersByQuestionID[questionID] = append(answersByQuestionID[questionID], answer)
+	quizID, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
 	}
 
-	return answersByQuestionID, nil
+	return int(quizID), nil
 }

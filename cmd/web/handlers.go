@@ -210,7 +210,19 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "%v", quiz)
+	profileID, err := app.getProfileID(r)
+	if err != nil {
+		app.serverError(w, r, errors.New("user attempted to create quiz without proper authorization!"))
+		return
+	}
+	id, err := app.quizzesService.UploadQuiz(quiz, *profileID)
+	if err != nil {
+		app.serverError(w, r, err)
+	}
+
+	data.Flash = "Quiz created!"
+
+	http.Redirect(w, r, fmt.Sprintf("/quizzes/%d", id), http.StatusSeeOther)
 }
 
 func (app *application) quiz(w http.ResponseWriter, r *http.Request) {
@@ -220,7 +232,8 @@ func (app *application) quiz(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	quiz, err := app.quizzes.GetQuizByID(quizID)
+	profileID, _ := app.getProfileID(r)
+	quiz, err := app.quizzesService.GetQuizByID(quizID, profileID)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord) {
 			app.redirectNotFound(w, r, "user attempted to access a quiz that does not exist", err)

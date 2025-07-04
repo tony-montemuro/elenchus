@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"log/slog"
 	"net/http"
 	"runtime/debug"
@@ -30,6 +31,16 @@ func (app *application) isAuthenticated(r *http.Request) bool {
 	}
 
 	return isAuthenticated
+}
+
+func (app *application) getProfileID(r *http.Request) (*int, error) {
+	id := app.sessionManager.GetInt(r.Context(), authenticatedUserIdKey)
+
+	if id == 0 {
+		return nil, errors.New("undefined profile id")
+	}
+
+	return &id, nil
 }
 
 func generateRequestID() string {

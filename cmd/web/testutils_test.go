@@ -12,7 +12,8 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/option"
-	"github.com/tony-montemuro/elenchus/internal/models/mocks"
+	modelMocks "github.com/tony-montemuro/elenchus/internal/models/mocks"
+	serviceMocks "github.com/tony-montemuro/elenchus/internal/services/mocks"
 )
 
 func newTestApplication(t *testing.T, logWriter io.Writer) *application {
@@ -27,8 +28,9 @@ func newTestApplication(t *testing.T, logWriter io.Writer) *application {
 	app := &application{
 		templateCache:  templateCache,
 		logger:         slog.New(slog.NewJSONHandler(logWriter, nil)),
-		profiles:       &mocks.ProfileModel{},
-		quizzes:        &mocks.QuizModel{},
+		profiles:       &modelMocks.ProfileModel{},
+		quizzes:        &modelMocks.QuizModel{},
+		quizzesService: &serviceMocks.QuizService{},
 		sessionManager: sessionManager,
 	}
 
