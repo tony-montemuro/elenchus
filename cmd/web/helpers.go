@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"runtime/debug"
@@ -60,4 +61,12 @@ func (app *application) redirectNotFound(w http.ResponseWriter, r *http.Request,
 	app.sessionManager.Put(r.Context(), "flash", "This page does not exist.")
 	app.logger.Warn(message, slog.String("error", err.Error()))
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func pluralize(s string, n int) string {
+	if n == 1 {
+		return s
+	}
+
+	return fmt.Sprintf("%ss", s)
 }

@@ -23,6 +23,11 @@ type templateData struct {
 	Quiz            models.QuizPublic
 }
 
+var functions = template.FuncMap{
+	"humanDate": humanDate,
+	"timeAgo":   timeAgo,
+}
+
 func newTemplateCache() (map[string]*template.Template, error) {
 	cache := map[string]*template.Template{}
 
@@ -39,7 +44,7 @@ func newTemplateCache() (map[string]*template.Template, error) {
 			page,
 		}
 
-		ts, err := template.ParseFS(ui.Files, patterns...)
+		ts, err := template.New(name).Funcs(functions).ParseFS(ui.Files, patterns...)
 		if err != nil {
 			return nil, err
 		}
