@@ -2,4 +2,9 @@
 
 {{define "main"}}
 <h1>Profile</h1>
+<h2>Your Quizzes</h2>
+<span>Published</span>
+{{template "quiz-list" .Data.Published}}
+<span>Unpublished</span>
+{{template "quiz-list" .Data.Unpublished}}
 {{end}}

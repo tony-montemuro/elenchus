@@ -218,6 +218,7 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 	id, err := app.quizzesService.UploadQuiz(quiz, *profileID)
 	if err != nil {
 		app.serverError(w, r, err)
+		return
 	}
 
 	data.Flash = "Quiz created!"
@@ -253,5 +254,29 @@ func (app *application) quizPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) profile(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Profile page goes here..."))
+	profileID, err := app.getProfileID(r)
+	if err != nil {
+		app.redirectNotFound(w, r, "user attempted to access profile page without proper authorization!", err)
+		return
+	}
+
+	published, err := app.quizzes.GetPublishedQuizzesByProfile(profileID)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	unpublished, err := app.quizzes.GetUnpublishedQuizzesByProfile(profileID)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	data := app.newTemplateData(r)
+	data.Data = ProfilePageData{
+		Published:   published,
+		Unpublished: unpublished,
+	}
+
+	app.render(w, r, http.StatusOK, "profile.tmpl", data)
 }

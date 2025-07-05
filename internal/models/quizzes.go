@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -10,6 +11,8 @@ type QuizModelInterface interface {
 	Latest() ([]QuizMetadata, error)
 	GetQuizByID(int, *int) (QuizPublic, error)
 	InsertQuiz(QuizJSONSchema, int, *sql.Tx) (int, error)
+	GetPublishedQuizzesByProfile(*int) ([]QuizMetadata, error)
+	GetUnpublishedQuizzesByProfile(*int) ([]QuizMetadata, error)
 }
 
 type Quiz struct {
@@ -31,7 +34,7 @@ type QuizMetadata struct {
 	Title         string
 	Description   string
 	QuestionCount int
-	Published     time.Time
+	Published     *time.Time
 }
 
 type QuizPublic struct {
@@ -144,4 +147,48 @@ func (m *QuizModel) InsertQuiz(quiz QuizJSONSchema, profileID int, tx *sql.Tx) (
 	}
 
 	return int(quizID), nil
+}
+
+func (m *QuizModel) GetPublishedQuizzesByProfile(profileID *int) ([]QuizMetadata, error) {
+	return m.getProfileQuizzes(profileID, true)
+}
+
+func (m *QuizModel) GetUnpublishedQuizzesByProfile(profileID *int) ([]QuizMetadata, error) {
+	return m.getProfileQuizzes(profileID, false)
+}
+
+func (m *QuizModel) getProfileQuizzes(profileID *int, isPublished bool) ([]QuizMetadata, error) {
+	var quizzes []QuizMetadata
+	whereClause := `q.published IS NOT NULL AND q.published > COALESCE(q.unpublished, 0)`
+	if !isPublished {
+		whereClause = `NOT (` + whereClause + `)`
+	}
+
+	stmt := fmt.Sprintf(`SELECT q.id, p.id, p.first_name, p.last_name, p.deleted, q.title, q.description, (SELECT count(id) FROM question WHERE quiz_id = q.id) AS question_count, q.published
+	FROM quiz q
+	JOIN profile p ON q.profile_id = p.id
+	WHERE %s AND p.id = ? 
+	ORDER BY q.published DESC`, whereClause)
+
+	rows, err := m.DB.Query(stmt, *profileID)
+	if err != nil {
+		return quizzes, nil
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var p ProfilePublic
+		var q QuizMetadata
+
+		err = rows.Scan(&q.ID, &p.ID, &p.FirstName, &p.LastName, &p.Deleted, &q.Title, &q.Description, &q.QuestionCount, &q.Published)
+		if err != nil {
+			return []QuizMetadata{}, err
+		}
+
+		q.Profile = p
+		quizzes = append(quizzes, q)
+	}
+
+	return quizzes, nil
 }

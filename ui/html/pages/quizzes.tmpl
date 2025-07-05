@@ -2,15 +2,5 @@
 
 {{define "main"}}
 <h1>Quizzes</h1>
-<div class="quiz-list flex-col">
-	{{ range .QuizList }}
-	<a href="/quizzes/{{ .ID }}" class="quiz-option flex-col" title="{{ .Title }}">
-		<h2>{{ .Title }}</h2>
-		<span>{{ .Description }}</span>
-		<span>Created by {{ .Profile.FirstName }} {{ .Profile.LastName }}</span>
-		<span>{{ .QuestionCount }} questions</span>
-		<span title="{{humanDate .Published}}">Published {{timeAgo .Published}}</span>
-	</a>
-	{{end}}
-</div>
+{{template "quiz-list" .QuizList}}
 {{end}}

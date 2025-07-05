@@ -21,6 +21,7 @@ type templateData struct {
 	QuizList        []models.QuizMetadata
 	CSRFToken       string
 	Quiz            models.QuizPublic
+	Data            any
 }
 
 var functions = template.FuncMap{
@@ -41,6 +42,7 @@ func newTemplateCache() (map[string]*template.Template, error) {
 
 		patterns := []string{
 			"html/base.tmpl",
+			"html/partials/*.tmpl",
 			page,
 		}
 
