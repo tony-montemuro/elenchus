@@ -3,17 +3,18 @@
 {{define "main"}}
 <div class="flex-col" id="quiz">
 	<div class="flex-col">
-		<h1>{{ .Quiz.Title }}</h1>
-		<span>Created by <a href="/profile/{{ .Quiz.Profile.ID }}">{{ .Quiz.Profile.FirstName }} {{ .Quiz.Profile.LastName
+		{{ $quiz := .Data.Quiz }}
+		<h1>{{ $quiz.Title }}</h1>
+		<span>Created by <a href="/profile/{{ $quiz.Profile.ID }}">{{ $quiz.Profile.FirstName }} {{ $quiz.Profile.LastName
 				}}</a></span>
-		{{if .Quiz.Published}}
-		<span title="{{humanDate .Quiz.Published}}">Published {{timeAgo .Quiz.Published}}</span>
+		{{if $quiz.Published}}
+		<span title="{{humanDate $quiz.Published}}">Published {{timeAgo $quiz.Published}}</span>
 		{{end}}
 	</div>
 	<form class="flex-col quiz-form" method="post">
 		<input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
 		<ol class="flex-col questions">
-			{{range .Quiz.Questions}}
+			{{range $quiz.Questions}}
 			<li>
 				<span>{{ .Content }}</span>
 				<div class="answers">

@@ -160,7 +160,9 @@ func (app *application) quizList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := app.newTemplateData(r)
-	data.QuizList = quizzes
+	data.Data = QuizzesPageData{
+		Quizzes: quizzes,
+	}
 	app.render(w, r, http.StatusOK, "quizzes.tmpl", data)
 }
 
@@ -245,7 +247,9 @@ func (app *application) quiz(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := app.newTemplateData(r)
-	data.Quiz = quiz
+	data.Data = QuizPageData{
+		Quiz: quiz,
+	}
 	app.render(w, r, http.StatusOK, "quiz.tmpl", data)
 }
 

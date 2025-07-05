@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 
 	"github.com/justinas/nosurf"
-	"github.com/tony-montemuro/elenchus/internal/models"
 	"github.com/tony-montemuro/elenchus/internal/validator"
 	"github.com/tony-montemuro/elenchus/ui"
 )
@@ -18,9 +17,7 @@ type templateData struct {
 	RangeRules      validator.FormRangeRules
 	Flash           string
 	IsAuthenticated bool
-	QuizList        []models.QuizMetadata
 	CSRFToken       string
-	Quiz            models.QuizPublic
 	Script          string
 	Data            any
 }
