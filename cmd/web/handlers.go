@@ -251,3 +251,7 @@ func (app *application) quiz(w http.ResponseWriter, r *http.Request) {
 func (app *application) quizPost(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%v", r.PathValue("quizID"))
 }
+
+func (app *application) profile(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Profile page goes here..."))
+}

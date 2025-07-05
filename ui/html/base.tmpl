@@ -20,6 +20,7 @@
 			</div>
 			<div class="nav-items">
 				{{if .IsAuthenticated}}
+				<a href='/profile'>Profile</a>
 				<form action='/logout' method='POST'>
 					<input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
 					<button type="submit">Logout</button>
