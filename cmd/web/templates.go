@@ -21,6 +21,7 @@ type templateData struct {
 	QuizList        []models.QuizMetadata
 	CSRFToken       string
 	Quiz            models.QuizPublic
+	Script          string
 	Data            any
 }
 

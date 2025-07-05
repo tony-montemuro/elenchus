@@ -6,6 +6,9 @@
 	<meta charset='utf-8'>
 	<title>{{template "title" .}} - elenchus</title>
 	<link rel='stylesheet' href='/static/css/main.css'>
+	{{if .Script}}
+	<script src="/static/js/{{.Script}}" defer></script>
+	{{end}}
 </head>
 
 <body>

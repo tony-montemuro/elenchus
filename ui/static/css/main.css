@@ -93,6 +93,10 @@ input:focus {
 	outline: none;
 }
 
+input[type="radio"]:hover {
+	cursor: pointer;
+}
+
 .nav-items {
 	display: flex;
 	gap: 1rem;
@@ -156,4 +160,8 @@ input:focus {
 
 #quiz {
 	gap: 1rem;
+}
+
+.hidden {
+	display: none;
 }

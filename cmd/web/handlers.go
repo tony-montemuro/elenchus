@@ -277,6 +277,7 @@ func (app *application) profile(w http.ResponseWriter, r *http.Request) {
 		Published:   published,
 		Unpublished: unpublished,
 	}
+	data.Script = "profile.js"
 
 	app.render(w, r, http.StatusOK, "profile.tmpl", data)
 }

@@ -3,8 +3,16 @@
 {{define "main"}}
 <h1>Profile</h1>
 <h2>Your Quizzes</h2>
-<span>Published</span>
-{{template "quiz-list" .Data.Published}}
-<span>Unpublished</span>
-{{template "quiz-list" .Data.Unpublished}}
+<div>
+	<label for="published">Published</label>
+	<input id="published" type="radio" name="status" checked />
+	<label for="unpublished">Unpublished</label>
+	<input id="unpublished" type="radio" name="status" />
+</div>
+<div id="published-list" class="hidden">
+	{{template "quiz-list" .Data.Published}}
+</div>
+<div id="unpublished-list" class="hidden">
+	{{template "quiz-list" .Data.Unpublished}}
+</div>
 {{end}}
