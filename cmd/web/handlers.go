@@ -285,3 +285,7 @@ func (app *application) profile(w http.ResponseWriter, r *http.Request) {
 
 	app.render(w, r, http.StatusOK, "profile.tmpl", data)
 }
+
+func (app *application) edit(w http.ResponseWriter, r *http.Request) {
+	app.render(w, r, http.StatusOK, "edit.tmpl", app.newTemplateData(r))
+}

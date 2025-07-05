@@ -4,7 +4,12 @@
 <div class="flex-col" id="quiz">
 	<div class="flex-col">
 		{{ $quiz := .Data.Quiz }}
-		<h1>{{ $quiz.Title }}</h1>
+		<div id="quiz-title" class="flex-row">
+			<h1>{{ $quiz.Title }}</h1>
+			{{if $quiz.Editable}}
+			<a href="/quizzes/{{ $quiz.ID }}/edit">Edit</a>
+			{{end}}
+		</div>
 		<span>Created by <a href="/profile/{{ $quiz.Profile.ID }}">{{ $quiz.Profile.FirstName }} {{ $quiz.Profile.LastName
 				}}</a></span>
 		{{if $quiz.Published}}

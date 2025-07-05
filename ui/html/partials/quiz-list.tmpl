@@ -1,15 +1,23 @@
 {{define "quiz-list"}}
 <div class="quiz-list flex-col">
 	{{ range . }}
-	<a href="/quizzes/{{ .ID }}" class="quiz-option flex-col" title="{{ .Title }}">
-		<h2>{{ .Title }}</h2>
-		<span>{{ .Description }}</span>
-		<span>Created by {{ .Profile.FirstName }} {{ .Profile.LastName }}</span>
-		<span>{{ .QuestionCount }} questions</span>
-		{{if .Published}}
-		<span title="{{humanDate .Published}}">Published {{timeAgo .Published}}</span>
+	<div class="quiz-option flex-row" title="{{ .Title }}">
+		<a href="/quizzes/{{.ID}}" class="flex-col quiz-info">
+			<h2>{{ .Title }}</h2>
+			<span>{{ .Description }}</span>
+			<span>Created by {{ .Profile.FirstName }} {{ .Profile.LastName }}</span>
+			<span>{{ .QuestionCount }} questions</span>
+			{{if .Published}}
+			<span title="{{humanDate .Published}}">Published {{timeAgo .Published}}</span>
+			{{end}}
+		</a>
+
+		{{if .Editable}}
+		<div class="flex-row quiz-edit">
+			<a href="/quizzes/{{.ID}}/edit" class="quiz-edit">Edit</a>
+		</div>
 		{{end}}
-	</a>
+	</div>
 	{{end}}
 </div>
 {{end}}

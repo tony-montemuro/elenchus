@@ -35,6 +35,7 @@ type QuizMetadata struct {
 	Description   string
 	QuestionCount int
 	Published     *time.Time
+	Editable      bool
 }
 
 type QuizPublic struct {
@@ -44,6 +45,7 @@ type QuizPublic struct {
 	Description string
 	Questions   []QuestionPublic
 	Published   *time.Time
+	Editable    bool
 }
 
 type QuizJSONSchema struct {
@@ -60,6 +62,22 @@ type QuizService struct {
 	QuizModel     *QuizModel
 	QuestionModel *QuestionModel
 	AnswerModel   *AnswerModel
+}
+
+func (q *QuizMetadata) isNotPublished(unpublished *time.Time) bool {
+	return isNotPublished(q.Published, unpublished)
+}
+
+func (q *QuizMetadata) isOwnedByProfile(profileID *int) bool {
+	return isOwnedByProfile(profileID, q.Profile.ID)
+}
+
+func (q *QuizPublic) isNotPublished(unpublished *time.Time) bool {
+	return isNotPublished(q.Published, unpublished)
+}
+
+func (q *QuizPublic) isOwnedByProfile(profileID *int) bool {
+	return isOwnedByProfile(profileID, q.Profile.ID)
 }
 
 func (m *QuizModel) Latest() ([]QuizMetadata, error) {
@@ -85,7 +103,7 @@ func (m *QuizModel) Latest() ([]QuizMetadata, error) {
 
 		err = rows.Scan(&q.ID, &p.ID, &p.FirstName, &p.LastName, &p.Deleted, &q.Title, &q.Description, &q.QuestionCount, &q.Published)
 		if err != nil {
-			return []QuizMetadata{}, err
+			return quizzes, err
 		}
 
 		q.Profile = p
@@ -115,16 +133,17 @@ func (m *QuizModel) GetQuizByID(id int, profileID *int) (QuizPublic, error) {
 		return QuizPublic{}, err
 	}
 
-	isPublished := quiz.Published != nil
-	isUnpublished := unpublished != nil
+	quiz.Profile = profile
+	if quiz.isNotPublished(unpublished) {
+		// If the quiz is not published, and is also NOT owned by profile, then access is not allowed -- treat as missing record
+		if !quiz.isOwnedByProfile(profileID) {
+			return QuizPublic{}, ErrNoRecord
+		}
 
-	// If the quiz is not owned by the user, the quiz is not published, OR the quiz was unpublished at least once,
-	// and hasn't been re-published since, then we want to treat this as a missing record
-	if (profileID == nil || profile.ID != *profileID) && (!isPublished || (isUnpublished && unpublished.After(*quiz.Published))) {
-		return QuizPublic{}, ErrNoRecord
+		// however, if the profile *does* own the unpublished quiz, they not only have access, but can *edit* the quiz
+		quiz.Editable = true
 	}
 
-	quiz.Profile = profile
 	return quiz, nil
 }
 
@@ -164,7 +183,7 @@ func (m *QuizModel) getProfileQuizzes(profileID *int, isPublished bool) ([]QuizM
 		whereClause = `NOT (` + whereClause + `)`
 	}
 
-	stmt := fmt.Sprintf(`SELECT q.id, p.id, p.first_name, p.last_name, p.deleted, q.title, q.description, (SELECT count(id) FROM question WHERE quiz_id = q.id) AS question_count, q.published
+	stmt := fmt.Sprintf(`SELECT q.id, p.id, p.first_name, p.last_name, p.deleted, q.title, q.description, (SELECT count(id) FROM question WHERE quiz_id = q.id) AS question_count, q.published, q.unpublished
 	FROM quiz q
 	JOIN profile p ON q.profile_id = p.id
 	WHERE %s AND p.id = ? 
@@ -180,15 +199,27 @@ func (m *QuizModel) getProfileQuizzes(profileID *int, isPublished bool) ([]QuizM
 	for rows.Next() {
 		var p ProfilePublic
 		var q QuizMetadata
+		var unpublished *time.Time
 
-		err = rows.Scan(&q.ID, &p.ID, &p.FirstName, &p.LastName, &p.Deleted, &q.Title, &q.Description, &q.QuestionCount, &q.Published)
+		err = rows.Scan(&q.ID, &p.ID, &p.FirstName, &p.LastName, &p.Deleted, &q.Title, &q.Description, &q.QuestionCount, &q.Published, &unpublished)
 		if err != nil {
 			return []QuizMetadata{}, err
 		}
 
 		q.Profile = p
+		if q.isNotPublished(unpublished) && q.isOwnedByProfile(profileID) {
+			q.Editable = true
+		}
 		quizzes = append(quizzes, q)
 	}
 
 	return quizzes, nil
+}
+
+func isNotPublished(published, unpublished *time.Time) bool {
+	return published == nil || (unpublished != nil && unpublished.After(*published))
+}
+
+func isOwnedByProfile(profileID *int, quizProfileId int) bool {
+	return profileID != nil && quizProfileId == *profileID
 }

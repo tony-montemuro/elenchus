@@ -102,6 +102,11 @@ input[type="radio"]:hover {
 	gap: 1rem;
 }
 
+.flex-row {
+	display: flex;
+	flex-direction: row;
+}
+
 .flex-col {
 	display: flex;
 	flex-direction: column;
@@ -145,8 +150,21 @@ input[type="radio"]:hover {
 .quiz-option {
 	border: 1px solid white;
 	padding: 0.25rem;
-	color: inherit;
+	justify-content: space-between;
+}
+
+.quiz-option a {
 	text-decoration: none;
+	color: inherit;
+}
+
+.quiz-info {
+	width: 100%;
+}
+
+.quiz-edit {
+	align-items: center;
+	text-decoration: underline;
 }
 
 .quiz-form {
@@ -164,4 +182,9 @@ input[type="radio"]:hover {
 
 .hidden {
 	display: none;
+}
+
+#quiz-title {
+	gap: 0.5rem;
+	align-items: center;
 }
