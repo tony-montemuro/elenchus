@@ -13,6 +13,11 @@
 
 2. Run the project initialization script:
 
+   ⚠️ Before running this script, please ensure the following conditions are met:
+
+   - MariaDB is installed and running.
+   - The root password must be provided to setup the database.
+
    ```bash
    ./init.sh
    ```
@@ -20,7 +25,15 @@
     This script will:
 
     - Install project dependencies
-    - Create a self-signed TLS certificate for HTTPS
+    - Create the database
+    - Create a database user for the application, as well as running migrations
+    - Run database migrations
+
+    Additionally, if you specify that you are in a local (non-production) environment...
+
+    - Create a test database
+    - Create a test database user for testing
+    - Create a self-signed TLS certificate for HTTPS locally
 
 ## Running
 

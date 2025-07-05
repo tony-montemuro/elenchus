@@ -97,6 +97,11 @@ else
     echo "✅ Dependencies installed!"
 fi
 
+echo -e "\n"
+echo "⬆️ Running database migrations..."
+sql-migrate up
+echo "✅ Database fully migrated!"
+
 if [[ $ENVIRONMENT == "local" ]]; then
     echo -e "\n"
     echo "🔐 Creating local TLS certificate..."
