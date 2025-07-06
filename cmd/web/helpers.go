@@ -57,9 +57,13 @@ func getRequestID(r *http.Request) string {
 	return "unknown"
 }
 
-func (app *application) redirectNotFound(w http.ResponseWriter, r *http.Request, message string, err error) {
-	app.sessionManager.Put(r.Context(), "flash", "This page does not exist.")
-	app.logger.Warn(message, slog.String("error", err.Error()))
+func (app *application) redirectNotFound(w http.ResponseWriter, r *http.Request, logMessage string, err error) {
+	app.redirectHome(w, r, "This page does not exist.", logMessage, err)
+}
+
+func (app *application) redirectHome(w http.ResponseWriter, r *http.Request, message, logMessage string, err error) {
+	app.sessionManager.Put(r.Context(), "flash", message)
+	app.logger.Warn(logMessage, slog.String("error", err.Error()))
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 

@@ -1,5 +1,6 @@
 {{define "title"}}Edit{{end}}
 
 {{define "main"}}
-<h1>Edit</h1>
+{{$quiz := .Data.Quiz}}
+<h1>Editing {{$quiz.Title}}</h1>
 {{end}}

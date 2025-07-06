@@ -287,5 +287,33 @@ func (app *application) profile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) edit(w http.ResponseWriter, r *http.Request) {
-	app.render(w, r, http.StatusOK, "edit.tmpl", app.newTemplateData(r))
+	quizID, err := strconv.Atoi(r.PathValue("quizID"))
+	if err != nil {
+		app.redirectNotFound(w, r, "user attempted to edit a quiz that does not exist", err)
+		return
+	}
+
+	profileID, _ := app.getProfileID(r)
+	quiz, err := app.quizzesService.GetQuizByID(quizID, profileID)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.redirectNotFound(w, r, "user attempted to access a quiz that does not exist", err)
+		} else {
+			app.serverError(w, r, err)
+		}
+		return
+	}
+
+	if !quiz.Editable {
+		errMsg := "user attempted to edit a quiz that cannot be edited"
+		app.redirectHome(w, r, "Quiz cannot be edited.", errMsg, errors.New(errMsg))
+		return
+	}
+
+	data := app.newTemplateData(r)
+	data.Data = QuizPageData{
+		Quiz: quiz,
+	}
+
+	app.render(w, r, http.StatusOK, "edit.tmpl", data)
 }
