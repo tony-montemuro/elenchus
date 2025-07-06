@@ -2,56 +2,44 @@
 
 {{define "main"}}
 <form action="/signup" method="post">
-	<input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
+	{{template "csrf-token" .CSRFToken}}
 	<div class="flex-col auth-form">
 		<h1>Sign Up</h1>
-		{{ $rule := .RangeRules.firstName }}
 		<div class="flex-col auth-input">
-			<input id="first-name" type="text" name="first-name" placeholder="First Name" title="First Name" {{ if gt
-				$rule.MinLength 1 }}minlength="{{ $rule.MinLength }}" {{ end }} {{ if gt $rule.MaxLength 0
-				}}maxlength="{{ $rule.MaxLength }}" {{ end }} {{ if gt $rule.MinLength 0 }}required{{ end }} value="{{
+			<input id="first-name" type="text" name="first-name" placeholder="First Name" title="First Name"
+				{{template "input-ranges" .RangeRules.firstName}} value="{{
 				.Form.FirstName }}" autocomplete="given-name">
 			{{with .Form.FieldErrors.firstName}}
 			<span class='error'>{{.}}</span>
 			{{end}}
 		</div>
 
-		{{ $rule := .RangeRules.lastName }}
 		<div class="flex-col auth-input">
-			<input id="last-name" type="text" name="last-name" placeholder="Last Name" title="Last Name" {{ if gt
-				$rule.MinLength 1 }}minlength="{{ $rule.MinLength }}" {{ end }} {{ if gt $rule.MaxLength 0
-				}}maxlength="{{ $rule.MaxLength }}" {{ end }} {{ if gt $rule.MinLength 0 }}required{{ end }} value="{{
+			<input id="last-name" type="text" name="last-name" placeholder="Last Name" title="Last Name"
+				{{template "input-ranges" .RangeRules.lastName}} value="{{
 				.Form.LastName }}" autocomplete="family-name">
 			{{with .Form.FieldErrors.lastName}}
 			<span class='error'>{{.}}</span>
 			{{end}}
 		</div>
 
-		{{ $rule := .RangeRules.email }}
 		<div class="flex-col auth-input">
-			<input id="email" type="email" name="email" placeholder="Email" title="Email" {{ if gt $rule.MinLength 1
-				}}minlength="{{ $rule.MinLength }}" {{ end }} {{ if gt $rule.MaxLength 0 }}maxlength="{{ $rule.MaxLength }}" {{
-				end }} {{ if gt $rule.MinLength 0 }}required{{ end }} value="{{ .Form.Email }}" autocomplete="email">
+			<input id="email" type="email" name="email" placeholder="Email" title="Email" {{template "input-ranges"
+				.RangeRules.email}} value="{{ .Form.Email }}" autocomplete="email">
 			{{with .Form.FieldErrors.email}}
 			<span class='error'>{{.}}</span>
 			{{end}}
 		</div>
 
-		{{ $rule := .RangeRules.password }}
 		<div class="flex-col auth-input">
-			<input id="password" type="password" name="password" placeholder="Password" title="Password" {{ if gt
-				$rule.MinLength 1 }}minlength="{{ $rule.MinLength }}" {{ end }} {{ if gt $rule.MaxLength 0
-				}}maxlength="{{ $rule.MaxLength }}" {{ end }} {{ if gt $rule.MinLength 0 }}required{{ end }}
-				autocomplete="new-password">
+			<input id="password" type="password" name="password" placeholder="Password" title="Password"
+				{{template "input-ranges" .RangeRules.password}} autocomplete="new-password">
 		</div>
 
 		{{ $rule := .RangeRules.password }}
 		<div class="flex-col auth-input">
-			<input id="password2" type="password" name="password2" placeholder="Confirm password" title="Password" {{ if gt
-				$rule.MinLength 1 }}minlength="{{ $rule.MinLength }}" {{ end }} {{ if gt $rule.MaxLength 0
-				}}maxlength="{{ $rule.MaxLength }}" {{ end }} {{ if gt $rule.MinLength 0 }}required{{ end }}
-				autocomplete="new-password">
-
+			<input id="password2" type="password" name="password2" placeholder="Confirm password" title="Password"
+				{{template "input-ranges" .RangeRules.password}} autocomplete="new-password">
 			{{with .Form.FieldErrors.password}}
 			<span class='error'>{{.}}</span>
 			{{end}}

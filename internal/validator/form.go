@@ -8,4 +8,5 @@ var (
 	SignUpForm = "signupForm"
 	LoginForm  = "loginForm"
 	CreateForm = "createForm"
+	EditForm   = "editForm"
 )

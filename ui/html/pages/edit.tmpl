@@ -2,5 +2,21 @@
 
 {{define "main"}}
 {{$quiz := .Data.Quiz}}
-<h1>Editing {{$quiz.Title}}</h1>
+<div class="flex-col" id="quiz">
+	<form method="post" class="flex-col">
+		<div class="flex-row">
+			<label for="title">Title: </label>
+			<input type="text" name="title" id="title" value={{$quiz.Title}} {{template "input-ranges" .RangeRules.title}} />
+		</div>
+		<div>
+			<label for="description">Description: </label>
+			<textarea name="description" id="description" rows="7" cols="100" maxlength="1024" {{template "input-ranges"
+				.RangeRules.description}}>{{$quiz.Description}}</textarea>
+		</div>
+		<div>
+			<button id="save" type="submit">Save</button>
+			<button id="save" type="submit">Save & Publish</button>
+		</div>
+	</form>
+</div>
 {{end}}

@@ -3,16 +3,12 @@
 {{define "main"}}
 <h1>Create</h1>
 <form action="/create" method="post" class="flex-col">
-	<input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
+	{{template "csrf-token" .CSRFToken}}
 	<label for="notes">Paste your notes here:</label>
-	{{ $rule := .RangeRules.notes }}
-	<textarea id="notes" name="notes" rows="20" {{ if gt $rule.MinLength 1 }}minlength="{{ $rule.MinLength }}" {{ end }}
-		{{ if gt $rule.MaxLength 0 }}maxlength="{{ $rule.MaxLength }}" {{ end }} {{ if gt $rule.MinLength 0 }}required{{ end
-		}}></textarea>
+	<textarea id="notes" name="notes" rows="20" {{template "input-ranges" .RangeRules.notes}}></textarea>
 	{{with .Form.FieldErrors.notes}}
 	<span class='error'>{{.}}</span>
 	{{end}}
-
 	<button type="submit">Submit</button>
 </form>
 {{end}}

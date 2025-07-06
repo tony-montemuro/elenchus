@@ -1,0 +1,4 @@
+{{define "input-ranges"}}
+{{ if gt .MinLength 1 }}minlength="{{ .MinLength }}" {{ end }} {{ if gt .MaxLength 0 }}maxlength="{{ .MaxLength }}" {{
+end }} {{ if gt .MinLength 0 }}required{{ end }}
+{{end}}

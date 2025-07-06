@@ -34,6 +34,10 @@ var RangeRules = map[string]FormRangeRules{
 	CreateForm: {
 		"notes": {MinLength: 250, MaxLength: 60000},
 	},
+	EditForm: {
+		"title":       {MinLength: 1, MaxLength: 255},
+		"description": {MinLength: 1, MaxLength: 1024},
+	},
 }
 
 func GetRangeErrors(form Form, name string) []RangeError {

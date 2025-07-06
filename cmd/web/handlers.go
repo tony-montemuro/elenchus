@@ -314,6 +314,7 @@ func (app *application) edit(w http.ResponseWriter, r *http.Request) {
 	data.Data = QuizPageData{
 		Quiz: quiz,
 	}
+	data.RangeRules = validator.RangeRules[validator.EditForm]
 
 	app.render(w, r, http.StatusOK, "edit.tmpl", data)
 }
