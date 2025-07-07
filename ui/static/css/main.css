@@ -176,6 +176,23 @@ input[type="radio"]:hover {
 	gap: 0.5rem;
 }
 
+.questions input[type="text"] {
+	width: 100%;
+}
+
+.answers {
+	width: 100%;
+}
+
+.answers thead {
+	font-size: 0.75em;
+}
+
+.answers tbody td:first-of-type {
+	text-align: center;
+	width: 0;
+}
+
 #quiz {
 	gap: 1rem;
 }
@@ -187,4 +204,8 @@ input[type="radio"]:hover {
 #quiz-title {
 	gap: 0.5rem;
 	align-items: center;
+}
+
+.edit-input {
+	gap: 0.25rem;
 }

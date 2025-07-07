@@ -4,14 +4,48 @@
 {{$quiz := .Data.Quiz}}
 <div class="flex-col" id="quiz">
 	<form method="post" class="flex-col">
-		<div class="flex-row">
+		<div class="flex-row edit-input">
 			<label for="title">Title: </label>
-			<input type="text" name="title" id="title" value={{$quiz.Title}} {{template "input-ranges" .RangeRules.title}} />
+			<input type="text" name="title" id="title" value="{{$quiz.Title}}" {{template "input-ranges"
+				.RangeRules.title}} />
 		</div>
-		<div>
+		<div class="flex-row edit-input">
 			<label for="description">Description: </label>
 			<textarea name="description" id="description" rows="7" cols="100" maxlength="1024" {{template "input-ranges"
 				.RangeRules.description}}>{{$quiz.Description}}</textarea>
+		</div>
+		<div>
+			<span>Questions</span>
+			<ol class="flex-col questions">
+				{{range $quiz.Questions}}
+				<li>
+					{{$questionID := .ID}}
+					<input type="text" name="question[{{$questionID}}][content]" value="{{.Content}}" />
+					<table class="answers">
+						<thead>
+							<tr>
+								<th>Correct</th>
+								<th>Answer</th>
+							</tr>
+						</thead>
+						<tbody class="answers">
+							{{range $i, $answer := .Answers}}
+							<tr>
+								<td>
+									{{$id := printf "question_%d_%d" $questionID $i }}
+									<input type="radio" id="{{ $id }}" name="question[{{ $questionID }}][correct]"
+										value="{{ $answer.ID }}" required {{if .Correct}}checked{{end}} />
+								</td>
+								<td>
+									<input type="text" name="answer[{{$answer.ID}}][content]" value="{{$answer.Content}}" />
+								</td>
+							</tr>
+							{{end}}
+						</tbody>
+					</table>
+				</li>
+				{{end}}
+			</ol>
 		</div>
 		<div>
 			<button id="save" type="submit">Save</button>

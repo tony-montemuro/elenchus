@@ -28,7 +28,8 @@
 					{{range $i, $answer := .Answers}}
 					<div>
 						{{$id := printf "question_%d_%d" $questionID $i }}
-						<input type="radio" id="{{ $id }}" name="question_{{ $questionID }}" value="{{ $answer.ID }}" required />
+						<input type="radio" id="{{ $id }}" name="question[{{ $questionID }}][answer]" value="{{ $answer.ID }}"
+							required />
 						<label for="{{ $id }}">{{ $answer.Content }}</span>
 					</div>
 					{{end}}
