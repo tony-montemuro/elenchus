@@ -8,22 +8,16 @@
 		<div class="flex-col auth-input">
 			<input id="email" type="email" name="email" placeholder="Email" title="Email" {{template "input-ranges"
 				.RangeRules.email}} value="{{ .Form.Email }}" autocomplete="email">
-			{{with .Form.FieldErrors.email}}
-			<span class='error'>{{.}}</span>
-			{{end}}
+			{{template "error" .Form.FieldErrors.email}}
 		</div>
 
 		<div class="flex-col auth-input">
 			<input id="password" type="password" name="password" placeholder="Password" title="Password"
 				{{template "input-ranges" .RangeRules.password}} autocomplete="current-password">
-
-			{{with .Form.FieldErrors.password}}
-			<span class='error'>{{.}}</span>
-			{{end}}
+			{{template "error" .Form.FieldErrors.password}}
 		</div>
-		{{range .Form.NonFieldErrors}}
-		<span class='error'>{{.}}</span>
-		{{end}}
+
+		{{template "error" .Form.NonFieldErrors}}
 
 		<button type="submit">Login</button>
 	</div>

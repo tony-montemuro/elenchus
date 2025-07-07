@@ -21,7 +21,9 @@
 				{{range $quiz.Questions}}
 				<li>
 					{{$questionID := .ID}}
-					<input type="text" name="question[{{$questionID}}][content]" value="{{.Content}}" />
+					{{$name := "question[{{$questionID}}][content]"}}
+					<input type="text" name="{{$name}}" value="{{.Content}}" />
+					{{template "error" index .Form.FieldErrors $name}}
 					<table class="answers">
 						<thead>
 							<tr>
@@ -38,7 +40,9 @@
 										value="{{ $answer.ID }}" required {{if .Correct}}checked{{end}} />
 								</td>
 								<td>
-									<input type="text" name="answer[{{$answer.ID}}][content]" value="{{$answer.Content}}" />
+									{{$name := "answer[{{$answer.ID}}][content]"}}
+									<input type="text" name="{{$name}}" value="{{$answer.Content}}" />
+									{{template "error" index .Form.FieldErrors $name}}
 								</td>
 							</tr>
 							{{end}}

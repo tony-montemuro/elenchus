@@ -6,9 +6,7 @@
 	{{template "csrf-token" .CSRFToken}}
 	<label for="notes">Paste your notes here:</label>
 	<textarea id="notes" name="notes" rows="20" {{template "input-ranges" .RangeRules.notes}}></textarea>
-	{{with .Form.FieldErrors.notes}}
-	<span class='error'>{{.}}</span>
-	{{end}}
+	{{template "error" .Form.FieldErrors.notes}}
 	<button type="submit">Submit</button>
 </form>
 {{end}}
