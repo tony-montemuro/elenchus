@@ -4,6 +4,7 @@
 {{$quiz := .Data.Quiz}}
 <div class="flex-col" id="quiz">
 	<form method="post" class="flex-col">
+		{{template "csrf-token" .CSRFToken}}
 		<div class="flex-row edit-input">
 			<label for="title">Title: </label>
 			<input type="text" name="title" id="title" value="{{$quiz.Title}}" {{template "input-ranges"

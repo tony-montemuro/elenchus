@@ -318,3 +318,7 @@ func (app *application) edit(w http.ResponseWriter, r *http.Request) {
 
 	app.render(w, r, http.StatusOK, "edit.tmpl", data)
 }
+
+func (app *application) editPost(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Editing quiz..."))
+}
