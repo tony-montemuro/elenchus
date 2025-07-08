@@ -2,6 +2,7 @@
 
 {{define "main"}}
 {{$quiz := .Data.Quiz}}
+{{$form := .Form}}
 <div class="flex-col" id="quiz">
 	<form method="post" class="flex-col">
 		{{template "csrf-token" .CSRFToken}}
@@ -21,9 +22,9 @@
 				{{range $quiz.Questions}}
 				<li>
 					{{$questionID := .ID}}
-					{{$name := "question[{{$questionID}}][content]"}}
+					{{$name := printf "question[%v][content]" $questionID}}
 					<input type="text" name="{{$name}}" value="{{.Content}}" />
-					{{template "error" index .Form.FieldErrors $name}}
+					{{template "error" index $form.FieldErrors $name}}
 					<table class="answers">
 						<thead>
 							<tr>
@@ -40,9 +41,9 @@
 										value="{{ $answer.ID }}" required {{if .Correct}}checked{{end}} />
 								</td>
 								<td>
-									{{$name := "answer[{{$answer.ID}}][content]"}}
+									{{$name := printf "answer[%v][content]" $answer.ID}}
 									<input type="text" name="{{$name}}" value="{{$answer.Content}}" />
-									{{template "error" index .Form.FieldErrors $name}}
+									{{template "error" index $form.FieldErrors $name}}
 								</td>
 							</tr>
 							{{end}}

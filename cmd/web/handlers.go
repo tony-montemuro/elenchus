@@ -311,6 +311,7 @@ func (app *application) edit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := app.newTemplateData(r)
+	data.Form = editForm{}
 	data.Data = QuizPageData{
 		Quiz: quiz,
 	}
@@ -320,5 +321,14 @@ func (app *application) edit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) editPost(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Editing quiz..."))
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form := editForm{}
+	form.parseRequest(r.PostForm)
+
+	fmt.Fprintf(w, "%v", form)
 }
