@@ -321,7 +321,24 @@ func (app *application) edit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) editPost(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
+	quizID, err := strconv.Atoi(r.PathValue("quizID"))
+	if err != nil {
+		app.redirectNotFound(w, r, "user attempted to edit a quiz that does not exist", err)
+		return
+	}
+
+	profileID, _ := app.getProfileID(r)
+	quiz, err := app.quizzesService.GetQuizByID(quizID, profileID)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.redirectNotFound(w, r, "user attempted to access a quiz that does not exist", err)
+		} else {
+			app.serverError(w, r, err)
+		}
+		return
+	}
+
+	err = r.ParseForm()
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
@@ -330,5 +347,27 @@ func (app *application) editPost(w http.ResponseWriter, r *http.Request) {
 	form := editForm{}
 	form.parseRequest(r.PostForm)
 
-	fmt.Fprintf(w, "%v", form)
+	formName := validator.EditForm
+	errs := validator.GetRangeErrors(form, formName)
+	errs = append(errs, validator.GetAggregateFieldRangeErrors(form.serializeQuestionContent(), formName, "question")...)
+	errs = append(errs, validator.GetAggregateFieldRangeErrors(form.serializeAnswerContent(), formName, "answer")...)
+	for _, err := range errs {
+		form.AddFieldError(err.Key, err.Error())
+	}
+
+	rangeRules := validator.RangeRules[formName]
+	data := app.newTemplateData(r)
+	data.Data = QuizPageData{
+		Quiz: quiz,
+	}
+	data.RangeRules = rangeRules
+	fmt.Printf("%v", form.FieldErrors)
+
+	if !form.Valid() {
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, "edit.tmpl", data)
+		return
+	}
+
+	fmt.Fprintf(w, "validated!")
 }

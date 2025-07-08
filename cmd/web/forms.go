@@ -78,6 +78,15 @@ type editForm struct {
 	validator.Validator
 }
 
+func (f editForm) GetStringVals() map[string]string {
+	vals := make(map[string]string)
+
+	vals["title"] = f.Title
+	vals["description"] = f.Description
+
+	return vals
+}
+
 func (f *editForm) parseRequest(postForm url.Values) error {
 	f.Questions = make(questionEditMap)
 	f.Answers = make(answerEditMap)
@@ -174,4 +183,20 @@ func (f *editForm) parseAnswerField(fieldName string) (int, string, error) {
 
 func (f *editForm) getError(message string) error {
 	return fmt.Errorf("edit form: malformed answer field (%s)", message)
+}
+
+func (f *editForm) serializeQuestionContent() map[string]string {
+	s := make(map[string]string)
+	for key, val := range f.Questions {
+		s[fmt.Sprintf("question[%d][content]", key)] = val.Content
+	}
+	return s
+}
+
+func (f *editForm) serializeAnswerContent() map[string]string {
+	s := make(map[string]string)
+	for key, val := range f.Answers {
+		s[fmt.Sprintf("answer[%d][content]", key)] = val.Content
+	}
+	return s
 }

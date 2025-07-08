@@ -37,6 +37,8 @@ var RangeRules = map[string]FormRangeRules{
 	EditForm: {
 		"title":       {MinLength: 1, MaxLength: 255},
 		"description": {MinLength: 1, MaxLength: 1024},
+		"question":    {MinLength: 1, MaxLength: 2048},
+		"answer":      {MinLength: 1, MaxLength: 2048},
 	},
 }
 
@@ -47,6 +49,25 @@ func GetRangeErrors(form Form, name string) []RangeError {
 	for key, val := range form.GetStringVals() {
 		var err *RangeError
 		rule, exists := rules[key]
+		if exists {
+			err = getError(rule, key, val)
+		}
+
+		if err != nil {
+			errs = append(errs, *err)
+		}
+	}
+
+	return errs
+}
+
+func GetAggregateFieldRangeErrors(fields map[string]string, formName, fieldName string) []RangeError {
+	rules := RangeRules[formName]
+	errs := []RangeError{}
+
+	for key, val := range fields {
+		var err *RangeError
+		rule, exists := rules[fieldName]
 		if exists {
 			err = getError(rule, key, val)
 		}
