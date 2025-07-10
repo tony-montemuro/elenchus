@@ -10,9 +10,17 @@
 	<input id="unpublished" type="radio" name="status" />
 </div>
 <div id="published-list" class="hidden">
+	{{if gt (len .Data.Published) 0}}
 	{{template "quiz-list" .Data.Published}}
+	{{else}}
+	<em>You have no published quizzes.</em>
+	{{end}}
 </div>
 <div id="unpublished-list" class="hidden">
+	{{if gt (len .Data.Unpublished) 0}}
 	{{template "quiz-list" .Data.Unpublished}}
+	{{else}}
+	<em>You have no unpublished quizzes.</em>
+	{{end}}
 </div>
 {{end}}

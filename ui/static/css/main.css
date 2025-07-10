@@ -97,6 +97,10 @@ input[type="radio"]:hover {
 	cursor: pointer;
 }
 
+em {
+	font-style: italic;
+}
+
 .nav-items {
 	display: flex;
 	gap: 1rem;
