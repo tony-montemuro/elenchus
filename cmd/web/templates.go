@@ -25,6 +25,7 @@ type templateData struct {
 var functions = template.FuncMap{
 	"humanDate": humanDate,
 	"timeAgo":   timeAgo,
+	"pluralize": pluralize,
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {
