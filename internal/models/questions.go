@@ -6,8 +6,8 @@ import (
 )
 
 type QuestionModelInterface interface {
-	InsertQuestions(questions []QuestionJSONSchema, quizID int, tx *sql.Tx) (QuestionJSONSchemaMap, error)
-	GetQuestionsByQuizID(quizID int) ([]QuestionPublic, error)
+	InsertQuestions([]QuestionJSONSchema, int, int, *sql.Tx) (QuestionJSONSchemaMap, error)
+	GetQuestionsByQuizID(int) ([]QuestionPublic, error)
 }
 
 type Question struct {
@@ -40,7 +40,25 @@ type QuestionJSONSchema struct {
 
 type QuestionJSONSchemaMap map[int]QuestionJSONSchema
 
-func (m *QuestionModel) InsertQuestions(questions []QuestionJSONSchema, quizID int, tx *sql.Tx) (QuestionJSONSchemaMap, error) {
+func (q *QuestionPublic) ContainsAnswer(ids []int) bool {
+	for _, id := range ids {
+		found := false
+
+		for _, answer := range q.Answers {
+			if answer.ID == id {
+				found = true
+			}
+		}
+
+		if !found {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (m *QuestionModel) InsertQuestions(questions []QuestionJSONSchema, quizID int, typeId int, tx *sql.Tx) (QuestionJSONSchemaMap, error) {
 	idsToQuestion := make(QuestionJSONSchemaMap)
 	stmt, err := tx.Prepare(`INSERT INTO question(quiz_id, type_id, content, points, created, updated)
 	VALUES (?, ?, ?, 1, UTC_TIMESTAMP(), UTC_TIMESTAMP())`)
@@ -50,7 +68,7 @@ func (m *QuestionModel) InsertQuestions(questions []QuestionJSONSchema, quizID i
 	defer stmt.Close()
 
 	for _, question := range questions {
-		result, err := stmt.Exec(quizID, 3, question.Content)
+		result, err := stmt.Exec(quizID, typeId, question.Content)
 		if err != nil {
 			return idsToQuestion, err
 		}

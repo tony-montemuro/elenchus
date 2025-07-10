@@ -8,9 +8,10 @@ type QuizServiceInterface interface {
 }
 
 type QuizService struct {
-	QuizModel     *models.QuizModel
-	QuestionModel *models.QuestionModel
-	AnswerModel   *models.AnswerModel
+	QuizModel         *models.QuizModel
+	QuestionModel     *models.QuestionModel
+	AnswerModel       *models.AnswerModel
+	QuestionTypeModel *models.QuestionTypeModel
 }
 
 func (s *QuizService) UploadQuiz(quiz models.QuizJSONSchema, profileID int) (int, error) {
@@ -25,7 +26,12 @@ func (s *QuizService) UploadQuiz(quiz models.QuizJSONSchema, profileID int) (int
 		return 0, err
 	}
 
-	questionMap, err := s.QuestionModel.InsertQuestions(quiz.Questions, quizID, tx)
+	typeId, err := s.QuestionTypeModel.GetMultipleChoiceId()
+	if err != nil {
+		return 0, err
+	}
+
+	questionMap, err := s.QuestionModel.InsertQuestions(quiz.Questions, quizID, typeId, tx)
 	if err != nil {
 		return 0, err
 	}

@@ -3,6 +3,7 @@
 {{define "main"}}
 {{$quiz := .Data.Quiz}}
 {{$form := .Form}}
+{{$rangeRules := .RangeRules}}
 <div class="flex-col" id="quiz">
 	<form method="post" class="flex-col">
 		{{template "csrf-token" .CSRFToken}}
@@ -30,8 +31,10 @@
 				<li>
 					{{$questionID := .ID}}
 					{{$name := printf "question[%v][content]" $questionID}}
-					<input type="text" name="{{$name}}" value="{{.Content}}" />
+					<input type="text" name="{{$name}}" value="{{.Content}}" {{template "input-ranges" $rangeRules.question}} />
 					{{template "error" index $form.FieldErrors $name}}
+					{{$name := printf "question[%v][points]" $questionID}}
+					<input type="number" name="{{$name}}" value="{{.Points}}" required min="1" />
 					<table class="answers">
 						<thead>
 							<tr>
@@ -43,13 +46,15 @@
 							{{range $i, $answer := .Answers}}
 							<tr>
 								<td>
-									{{$id := printf "question_%d_%d" $questionID $i }}
-									<input type="radio" id="{{ $id }}" name="question[{{ $questionID }}][correct]"
-										value="{{ $answer.ID }}" required {{if .Correct}}checked{{end}} />
+									<input type="radio" name="question[{{ $questionID }}][correct]" value="{{ $answer.ID }}" required {{if
+										.Correct}}checked{{end}} />
 								</td>
 								<td>
+									{{$name := printf "answer[%v][question]" $answer.ID}}
+									<input type="hidden" name="{{$name}}" value="{{$questionID}}" />
 									{{$name := printf "answer[%v][content]" $answer.ID}}
-									<input type="text" name="{{$name}}" value="{{$answer.Content}}" />
+									<input type="text" name="{{$name}}" value="{{$answer.Content}}" {{template "input-ranges"
+										$rangeRules.answer}} />
 									{{template "error" index $form.FieldErrors $name}}
 								</td>
 							</tr>

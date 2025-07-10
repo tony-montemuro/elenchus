@@ -35,6 +35,7 @@ func generateSchema[T any]() any {
 
 var QuizResponseSchema = generateSchema[models.QuizJSONSchema]()
 var ErrGenerationRefusal = errors.New("Quiz creation unavailable: The submitted content doesn't meet our safety standards for educational content.")
+var ErrNotEditable = errors.New("Quiz edit unavailable: user attempted to edit a quiz that cannot be edited")
 
 func (app *application) generateQuiz(notes string, ctx context.Context) (models.QuizJSONSchema, error) {
 	max_attempts := 3
@@ -89,4 +90,58 @@ func (app *application) generateQuiz(notes string, ctx context.Context) (models.
 	}
 
 	return quiz, err
+}
+
+func (app *application) getQuizByID(quizID int, r *http.Request) (models.QuizPublic, error) {
+	profileID, _ := app.getProfileID(r)
+	quiz, err := app.quizzesService.GetQuizByID(quizID, profileID)
+	if err != nil {
+		return quiz, err
+	}
+
+	if !quiz.Editable {
+		return quiz, ErrNotEditable
+	}
+
+	return quiz, nil
+}
+
+func (app *application) buildNewQuizPublic(oldQuiz models.QuizPublic, editForm editForm) (models.QuizPublic, error) {
+	quiz := models.QuizPublic{
+		ID:          oldQuiz.ID,
+		Profile:     oldQuiz.Profile,
+		Title:       editForm.Title,
+		Description: editForm.Description,
+		Questions:   []models.QuestionPublic{},
+		Published:   nil,
+		Editable:    true,
+	}
+
+	mcType, err := app.questionTypes.GetMultipleChoice()
+	if err != nil {
+		return quiz, err
+	}
+
+	for id, q := range editForm.Questions {
+		question := models.QuestionPublic{
+			ID:      id,
+			Type:    mcType,
+			Content: q.Content,
+			Points:  q.Points,
+			Answers: []models.AnswerPublic{},
+		}
+
+		correctAnswerID := q.Correct
+		for _, answer := range q.Answers {
+			question.Answers = append(question.Answers, models.AnswerPublic{
+				ID:      answer.ID,
+				Content: answer.Content,
+				Correct: correctAnswerID == answer.ID,
+			})
+		}
+
+		quiz.Questions = append(quiz.Questions, question)
+	}
+
+	return quiz, nil
 }

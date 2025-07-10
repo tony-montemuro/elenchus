@@ -293,20 +293,15 @@ func (app *application) edit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	profileID, _ := app.getProfileID(r)
-	quiz, err := app.quizzesService.GetQuizByID(quizID, profileID)
+	quiz, err := app.getQuizByID(quizID, r)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord) {
 			app.redirectNotFound(w, r, "user attempted to access a quiz that does not exist", err)
+		} else if errors.Is(err, ErrNotEditable) {
+			app.redirectHome(w, r, "Quiz cannot be edited.", err.Error(), err)
 		} else {
 			app.serverError(w, r, err)
 		}
-		return
-	}
-
-	if !quiz.Editable {
-		errMsg := "user attempted to edit a quiz that cannot be edited"
-		app.redirectHome(w, r, "Quiz cannot be edited.", errMsg, errors.New(errMsg))
 		return
 	}
 
@@ -327,11 +322,12 @@ func (app *application) editPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	profileID, _ := app.getProfileID(r)
-	quiz, err := app.quizzesService.GetQuizByID(quizID, profileID)
+	quiz, err := app.getQuizByID(quizID, r)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord) {
 			app.redirectNotFound(w, r, "user attempted to access a quiz that does not exist", err)
+		} else if errors.Is(err, ErrNotEditable) {
+			app.redirectHome(w, r, "Quiz cannot be edited.", err.Error(), err)
 		} else {
 			app.serverError(w, r, err)
 		}
@@ -344,8 +340,11 @@ func (app *application) editPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	form := editForm{}
-	form.parseRequest(r.PostForm)
+	form, err := newEditForm(r.PostForm)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
 
 	formName := validator.EditForm
 	errs := validator.GetRangeErrors(form, formName)
@@ -355,19 +354,24 @@ func (app *application) editPost(w http.ResponseWriter, r *http.Request) {
 		form.AddFieldError(err.Key, err.Error())
 	}
 
+	newQuiz, err := app.buildNewQuizPublic(quiz, form)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
 	rangeRules := validator.RangeRules[formName]
 	data := app.newTemplateData(r)
 	data.Data = QuizPageData{
-		Quiz: quiz,
+		Quiz: newQuiz,
 	}
 	data.RangeRules = rangeRules
-	fmt.Printf("%v", form.FieldErrors)
+	data.Form = form
 
 	if !form.Valid() {
-		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, "edit.tmpl", data)
 		return
 	}
 
-	fmt.Fprintf(w, "validated!")
+	app.render(w, r, http.StatusOK, "edit.tmpl", data)
 }

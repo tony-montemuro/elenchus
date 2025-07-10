@@ -61,21 +61,30 @@ func (f createForm) GetStringVals() map[string]string {
 type questionEdit struct {
 	Content string
 	Correct int
+	Points  int
+	Answers []answerEdit
 }
 
 type answerEdit struct {
+	ID      int
 	Content string
 }
 
 type questionEditMap map[int]questionEdit
 type answerEditMap map[int]answerEdit
+type answersEditMap map[int][]answerEdit
 
 type editForm struct {
 	Title       string
 	Description string
 	Questions   questionEditMap
-	Answers     answerEditMap
 	validator.Validator
+}
+
+func newEditForm(postForm url.Values) (editForm, error) {
+	editForm := editForm{}
+	err := editForm.parseRequest(postForm)
+	return editForm, err
 }
 
 func (f editForm) GetStringVals() map[string]string {
@@ -89,66 +98,134 @@ func (f editForm) GetStringVals() map[string]string {
 
 func (f *editForm) parseRequest(postForm url.Values) error {
 	f.Questions = make(questionEditMap)
-	f.Answers = make(answerEditMap)
 
 	for key, vals := range postForm {
-		if len(vals) == 0 || key == "csrf_token" {
+		if len(vals) == 0 || key == "csrf_token" || strings.HasPrefix(key, "answer[") {
 			continue
 		}
 
+		val := vals[0]
 		if strings.HasPrefix(key, "question[") {
-			questionID, field, err := f.parseQuestionField(key)
+			err := f.updateQuestions(key, val)
 			if err != nil {
 				return f.getError(err.Error())
 			}
-
-			if _, exists := f.Questions[questionID]; !exists {
-				f.Questions[questionID] = questionEdit{}
-			}
-
-			q := f.Questions[questionID]
-			switch field {
-			case "content":
-				q.Content = vals[0]
-			case "correct":
-				correct, err := strconv.Atoi(vals[0])
-				if err != nil {
-					return f.getError(err.Error())
-				}
-				q.Correct = correct
-			}
-			f.Questions[questionID] = q
-		}
-
-		if strings.HasPrefix(key, "answer[") {
-			answerID, field, err := f.parseAnswerField(key)
-			if err != nil {
-				return f.getError(err.Error())
-			}
-
-			if field != "content" {
-				return f.getError("answer has bad structure -- second key must be 'content'")
-			}
-
-			if _, exists := f.Answers[answerID]; !exists {
-				f.Answers[answerID] = answerEdit{}
-			}
-
-			answer := f.Answers[answerID]
-			answer.Content = vals[0]
-			f.Answers[answerID] = answer
 		}
 
 		if key == "title" {
-			f.Title = vals[0]
+			f.Title = val
 		}
 
 		if key == "description" {
-			f.Description = vals[0]
+			f.Description = val
 		}
 	}
 
+	answers, err := f.gatherAnswers(postForm)
+	if err != nil {
+		return f.getError(err.Error())
+	}
+
+	f.updateAnswers(answers)
+
 	return nil
+}
+
+func (f *editForm) updateQuestions(key, val string) error {
+	var q questionEdit
+
+	questionID, field, err := f.parseQuestionField(key)
+	if err != nil {
+		return err
+	}
+
+	if _, exists := f.Questions[questionID]; !exists {
+		f.Questions[questionID] = q
+	}
+
+	q = f.Questions[questionID]
+
+	switch field {
+	case "content":
+		q.Content = val
+	case "correct":
+		correct, err := strconv.Atoi(val)
+		if err != nil {
+			return err
+		}
+		q.Correct = correct
+	case "points":
+		points, err := strconv.Atoi(val)
+		if err != nil {
+			return err
+		}
+		q.Points = points
+	}
+
+	f.Questions[questionID] = q
+	return nil
+}
+
+func (f *editForm) gatherAnswers(postForm url.Values) (answerEditMap, error) {
+	answers := make(answerEditMap)
+
+	for key, vals := range postForm {
+		if !strings.HasPrefix(key, "answer[") {
+			continue
+		}
+
+		answerID, field, err := f.parseAnswerField(key)
+		if err != nil {
+			return answers, err
+		}
+
+		if _, exists := answers[answerID]; !exists {
+			answers[answerID] = answerEdit{}
+		}
+
+		a := answers[answerID]
+		switch field {
+		case "content":
+			a.Content = vals[0]
+		case "question":
+			questionID, err := strconv.Atoi(vals[0])
+			if err != nil {
+				return answers, nil
+			}
+			a.ID = questionID
+		}
+
+		answers[answerID] = a
+	}
+
+	return answers, nil
+}
+
+func (f *editForm) updateAnswers(answers answerEditMap) {
+	questionsToAnswers := make(answersEditMap)
+
+	for answerID, answer := range answers {
+		questionID := answer.ID
+
+		if _, exists := questionsToAnswers[questionID]; !exists {
+			questionsToAnswers[questionID] = []answerEdit{}
+		}
+
+		questionsToAnswers[questionID] = append(questionsToAnswers[questionID], answerEdit{
+			ID:      answerID,
+			Content: answer.Content,
+		})
+	}
+
+	for questionID := range f.Questions {
+		q := f.Questions[questionID]
+
+		for _, answer := range questionsToAnswers[questionID] {
+			q.Answers = append(q.Answers, answer)
+		}
+
+		f.Questions[questionID] = q
+	}
 }
 
 func (f *editForm) parseQuestionField(fieldName string) (int, string, error) {
@@ -170,7 +247,7 @@ func (f *editForm) parseAnswerField(fieldName string) (int, string, error) {
 	re := regexp.MustCompile(`^answer\[(\d+)\]\[([^]]+)\]$`)
 	matches := re.FindStringSubmatch(fieldName)
 	if len(matches) != 3 {
-		return 0, "", f.getError("answer name has insufficient data -- must match structure: answer[id][content]")
+		return 0, "", f.getError("answer name has insufficient data -- must match structure: answer[id][content/question]")
 	}
 
 	id, err := strconv.Atoi(matches[1])
@@ -182,21 +259,26 @@ func (f *editForm) parseAnswerField(fieldName string) (int, string, error) {
 }
 
 func (f *editForm) getError(message string) error {
-	return fmt.Errorf("edit form: malformed answer field (%s)", message)
+	return fmt.Errorf("edit form: malformed field (%s)", message)
 }
 
 func (f *editForm) serializeQuestionContent() map[string]string {
 	s := make(map[string]string)
-	for key, val := range f.Questions {
-		s[fmt.Sprintf("question[%d][content]", key)] = val.Content
+
+	for id, question := range f.Questions {
+		s[fmt.Sprintf("question[%d][content]", id)] = question.Content
 	}
 	return s
 }
 
 func (f *editForm) serializeAnswerContent() map[string]string {
 	s := make(map[string]string)
-	for key, val := range f.Answers {
-		s[fmt.Sprintf("answer[%d][content]", key)] = val.Content
+
+	for _, question := range f.Questions {
+		for _, answer := range question.Answers {
+			s[fmt.Sprintf("answer[%d][content]", answer.ID)] = answer.Content
+		}
 	}
+
 	return s
 }

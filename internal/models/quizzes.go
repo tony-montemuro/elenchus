@@ -58,12 +58,6 @@ type QuizModel struct {
 	DB *sql.DB
 }
 
-type QuizService struct {
-	QuizModel     *QuizModel
-	QuestionModel *QuestionModel
-	AnswerModel   *AnswerModel
-}
-
 func (q *QuizMetadata) isNotPublished(unpublished *time.Time) bool {
 	return isNotPublished(q.Published, unpublished)
 }
@@ -78,6 +72,24 @@ func (q *QuizPublic) isNotPublished(unpublished *time.Time) bool {
 
 func (q *QuizPublic) isOwnedByProfile(profileID *int) bool {
 	return isOwnedByProfile(profileID, q.Profile.ID)
+}
+
+func (q *QuizPublic) ContainsQuestions(ids []int) bool {
+	for _, id := range ids {
+		found := false
+
+		for _, question := range q.Questions {
+			if question.ID == id {
+				found = true
+			}
+		}
+
+		if !found {
+			return false
+		}
+	}
+
+	return true
 }
 
 func (m *QuizModel) Latest() ([]QuizMetadata, error) {

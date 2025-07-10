@@ -8,7 +8,7 @@ import (
 
 type QuestionModel struct{}
 
-func (m *QuestionModel) InsertQuestions(questions []models.QuestionJSONSchema, quizID int, tx *sql.Tx) (models.QuestionJSONSchemaMap, error) {
+func (m *QuestionModel) InsertQuestions(questions []models.QuestionJSONSchema, quizID int, questionType int, tx *sql.Tx) (models.QuestionJSONSchemaMap, error) {
 	return make(models.QuestionJSONSchemaMap), nil
 }
 

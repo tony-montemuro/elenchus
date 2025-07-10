@@ -24,6 +24,7 @@ type application struct {
 	templateCache  map[string]*template.Template
 	profiles       models.ProfileModelInterface
 	quizzes        models.QuizModelInterface
+	questionTypes  models.QuestionTypeModelInterface
 	quizzesService services.QuizServiceInterface
 	sessionManager *scs.SessionManager
 	openAIClient   openai.Client
@@ -58,16 +59,19 @@ func main() {
 	quizModel := &models.QuizModel{DB: db}
 	questionModel := &models.QuestionModel{DB: db}
 	answerModel := &models.AnswerModel{DB: db}
+	questionTypeModel := &models.QuestionTypeModel{DB: db}
 
 	app := &application{
 		logger:        logger,
 		templateCache: templateCache,
 		profiles:      &models.ProfileModel{DB: db},
 		quizzes:       quizModel,
+		questionTypes: questionTypeModel,
 		quizzesService: &services.QuizService{
-			QuizModel:     quizModel,
-			QuestionModel: questionModel,
-			AnswerModel:   answerModel,
+			QuizModel:         quizModel,
+			QuestionModel:     questionModel,
+			AnswerModel:       answerModel,
+			QuestionTypeModel: questionTypeModel,
 		},
 		sessionManager: sessionManager,
 	}
