@@ -37,7 +37,8 @@
 					</div>
 					{{$name := printf "question[%v][points]" $questionID}}
 					<div class="flex-col edit-input">
-						<input type="number" name="{{$name}}" value="{{.Points}}" required min="1" />
+						<input type="number" name="{{$name}}" value="{{.Points}}" required min="1" max="1000" />
+						{{template "error" index $form.FieldErrors $name}}
 					</div>
 					<table class="answers">
 						<thead>

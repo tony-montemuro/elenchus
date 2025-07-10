@@ -353,6 +353,10 @@ func (app *application) editPost(w http.ResponseWriter, r *http.Request) {
 	for _, err := range errs {
 		form.AddFieldError(err.Key, err.Error())
 	}
+	for key, points := range form.serializeQuestionPoints() {
+		form.CheckField(validator.Gte(points, 1), key, "This field cannot be less than 1.")
+		form.CheckField(validator.Lte(points, 1000), key, "This field cannot be more than 1000.")
+	}
 
 	newQuiz, err := app.buildNewQuizPublic(quiz, form)
 	if err != nil {

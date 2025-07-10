@@ -57,3 +57,11 @@ func MaxChars(value string, n int) bool {
 func Matches(value string, rx *regexp.Regexp) bool {
 	return rx.MatchString(value)
 }
+
+func Gte(value, floor int) bool {
+	return value >= floor
+}
+
+func Lte(value, ceil int) bool {
+	return value <= ceil
+}

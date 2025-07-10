@@ -278,3 +278,13 @@ func (f *editForm) serializeAnswerContent() map[string]string {
 
 	return s
 }
+
+func (f *editForm) serializeQuestionPoints() map[string]int {
+	s := make(map[string]int)
+
+	for id, question := range f.Questions {
+		s[fmt.Sprintf("question[%d][points]", id)] = question.Points
+	}
+
+	return s
+}
