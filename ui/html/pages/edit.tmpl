@@ -28,13 +28,17 @@
 			<span>Questions</span>
 			<ol class="flex-col questions">
 				{{range $quiz.Questions}}
+				{{$questionID := .ID}}
 				<li>
-					{{$questionID := .ID}}
 					{{$name := printf "question[%v][content]" $questionID}}
-					<input type="text" name="{{$name}}" value="{{.Content}}" {{template "input-ranges" $rangeRules.question}} />
-					{{template "error" index $form.FieldErrors $name}}
+					<div class="flex-col edit-input">
+						<input type="text" name="{{$name}}" value="{{.Content}}" {{template "input-ranges" $rangeRules.question}} />
+						{{template "error" index $form.FieldErrors $name}}
+					</div>
 					{{$name := printf "question[%v][points]" $questionID}}
-					<input type="number" name="{{$name}}" value="{{.Points}}" required min="1" />
+					<div class="flex-col edit-input">
+						<input type="number" name="{{$name}}" value="{{.Points}}" required min="1" />
+					</div>
 					<table class="answers">
 						<thead>
 							<tr>
