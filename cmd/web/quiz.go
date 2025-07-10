@@ -1,11 +1,13 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	"encoding/json"
 	"errors"
 	"log/slog"
 	"net/http"
+	"slices"
 
 	"github.com/invopop/jsonschema"
 	"github.com/openai/openai-go"
@@ -122,7 +124,8 @@ func (app *application) buildNewQuizPublic(oldQuiz models.QuizPublic, editForm e
 		return quiz, err
 	}
 
-	for id, q := range editForm.Questions {
+	for _, id := range sortedKeys(editForm.Questions) {
+		q := editForm.Questions[id]
 		question := models.QuestionPublic{
 			ID:      id,
 			Type:    mcType,
@@ -132,7 +135,11 @@ func (app *application) buildNewQuizPublic(oldQuiz models.QuizPublic, editForm e
 		}
 
 		correctAnswerID := q.Correct
-		for _, answer := range q.Answers {
+		answers := slices.SortedStableFunc(slices.Values(q.Answers), func(x, y answerEdit) int {
+			return cmp.Compare(x.ID, y.ID)
+		})
+
+		for _, answer := range answers {
 			question.Answers = append(question.Answers, models.AnswerPublic{
 				ID:      answer.ID,
 				Content: answer.Content,
@@ -141,6 +148,7 @@ func (app *application) buildNewQuizPublic(oldQuiz models.QuizPublic, editForm e
 		}
 
 		quiz.Questions = append(quiz.Questions, question)
+
 	}
 
 	return quiz, nil

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
@@ -8,6 +9,7 @@ import (
 	"log/slog"
 	"net/http"
 	"runtime/debug"
+	"slices"
 )
 
 func (app *application) serverError(w http.ResponseWriter, r *http.Request, err error) {
@@ -73,4 +75,17 @@ func pluralize(s string, n int) string {
 	}
 
 	return fmt.Sprintf("%ss", s)
+}
+
+func sortedKeys[K cmp.Ordered, V any](m map[K]V) []K {
+	keys := make([]K, len(m))
+
+	i := 0
+	for k := range m {
+		keys[i] = k
+		i++
+	}
+
+	slices.Sort(keys)
+	return keys
 }

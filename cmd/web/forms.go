@@ -219,11 +219,7 @@ func (f *editForm) updateAnswers(answers answerEditMap) {
 
 	for questionID := range f.Questions {
 		q := f.Questions[questionID]
-
-		for _, answer := range questionsToAnswers[questionID] {
-			q.Answers = append(q.Answers, answer)
-		}
-
+		q.Answers = questionsToAnswers[questionID]
 		f.Questions[questionID] = q
 	}
 }
