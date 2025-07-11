@@ -45,6 +45,7 @@ type QuizPublic struct {
 	Title       string
 	Description string
 	Questions   []QuestionPublic
+	PointsCount int
 	Published   *time.Time
 	Editable    bool
 }
@@ -132,25 +133,25 @@ func (m *QuizModel) GetQuizByID(id int, profileID *int) (QuizPublic, error) {
 	var profile ProfilePublic
 	var unpublished *time.Time
 
-	stmt := `SELECT q.id, p.id, p.first_name, p.last_name, p.deleted, q.title, q.description, q.published, q.unpublished
+	stmt := `SELECT q.id, p.id, p.first_name, p.last_name, p.deleted, q.title, q.description, (SELECT SUM(points) FROM question WHERE quiz_id = q.id) AS points_count, q.published, q.unpublished
 	FROM quiz q
 	JOIN profile p ON q.profile_id = p.id 
 	WHERE q.id = ? AND q.deleted IS NULL`
 
-	err := m.DB.QueryRow(stmt, id).Scan(&quiz.ID, &profile.ID, &profile.FirstName, &profile.LastName, &profile.Deleted, &quiz.Title, &quiz.Description, &quiz.Published, &unpublished)
+	err := m.DB.QueryRow(stmt, id).Scan(&quiz.ID, &profile.ID, &profile.FirstName, &profile.LastName, &profile.Deleted, &quiz.Title, &quiz.Description, &quiz.PointsCount, &quiz.Published, &unpublished)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return QuizPublic{}, ErrNoRecord
+			return quiz, ErrNoRecord
 		}
 
-		return QuizPublic{}, err
+		return quiz, err
 	}
 
 	quiz.Profile = profile
 	if quiz.isNotPublished(unpublished) {
 		// If the quiz is not published, and is also NOT owned by profile, then access is not allowed -- treat as missing record
 		if !quiz.isOwnedByProfile(profileID) {
-			return QuizPublic{}, ErrNoRecord
+			return quiz, ErrNoRecord
 		}
 
 		// however, if the profile *does* own the unpublished quiz, they not only have access, but can *edit* the quiz

@@ -5,9 +5,9 @@
 		<a href="/quizzes/{{.ID}}" class="flex-col quiz-info">
 			<h2>{{ .Title }}</h2>
 			<span>{{ .Description }}</span>
-			<span>Created by {{ .Profile.FirstName }} {{ .Profile.LastName }}</span>
 			<span>{{ .PointsCount }} {{ pluralize "point" .PointsCount }} | {{ .QuestionCount }} {{ pluralize "question"
 				.QuestionCount }}</span>
+			<span>Created by {{ .Profile.FirstName }} {{ .Profile.LastName }}</span>
 			{{if .Published}}
 			<span title="{{humanDate .Published}}">Published {{timeAgo .Published}}</span>
 			{{end}}

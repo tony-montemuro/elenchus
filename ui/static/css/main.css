@@ -184,6 +184,14 @@ em {
 	width: 100%;
 }
 
+.question {
+	gap: 0.5rem;
+}
+
+.question em {
+	opacity: 0.75;
+}
+
 .answers {
 	width: 100%;
 }
