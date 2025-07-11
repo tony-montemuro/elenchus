@@ -17,7 +17,9 @@
 			{{template "error" .Form.FieldErrors.password}}
 		</div>
 
-		{{template "error" .Form.NonFieldErrors}}
+		{{range .Form.NonFieldErrors}}
+		{{template "error" .}}
+		{{end}}
 
 		<button type="submit">Login</button>
 	</div>
