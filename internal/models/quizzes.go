@@ -246,7 +246,7 @@ func (m *QuizModel) UpdateQuiz(quiz QuizPublic, tx *sql.Tx) error {
 
 func (m *QuizModel) PublishQuizById(id int, tx *sql.Tx) error {
 	stmt, err := tx.Prepare(`UPDATE quiz q
-	SET q.published = NOW()
+	SET q.published = NOW(), updated = NOW()
 	WHERE q.id = ?`)
 	if err != nil {
 		return err
