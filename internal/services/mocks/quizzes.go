@@ -11,3 +11,11 @@ func (s *QuizService) UploadQuiz(quiz models.QuizJSONSchema, profileID int) (int
 func (s *QuizService) GetQuizByID(id int, profileID *int) (models.QuizPublic, error) {
 	return models.QuizPublic{}, nil
 }
+
+func (s *QuizService) SaveAndPublishQuiz(oldQuiz, newQuiz models.QuizPublic) error {
+	return nil
+}
+
+func (s *QuizService) SaveQuiz(oldQuiz, newQuiz models.QuizPublic) error {
+	return nil
+}

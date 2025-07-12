@@ -11,6 +11,7 @@ type QuizServiceInterface interface {
 	UploadQuiz(models.QuizJSONSchema, int) (int, error)
 	GetQuizByID(int, *int) (models.QuizPublic, error)
 	SaveQuiz(models.QuizPublic, models.QuizPublic) error
+	SaveAndPublishQuiz(models.QuizPublic, models.QuizPublic) error
 }
 
 type QuizService struct {
@@ -82,6 +83,14 @@ func (s *QuizService) GetQuizByID(id int, profileID *int) (models.QuizPublic, er
 	return quiz, err
 }
 
+func (s *QuizService) SaveQuiz(oldQuiz, newQuiz models.QuizPublic) error {
+	return s.saveQuiz(oldQuiz, newQuiz, false)
+}
+
+func (s *QuizService) SaveAndPublishQuiz(oldQuiz, newQuiz models.QuizPublic) error {
+	return s.saveQuiz(oldQuiz, newQuiz, true)
+}
+
 func (s *QuizService) updateAnswers(oldAnswers []models.AnswerPublic, newAnswers []models.AnswerPublic, tx *sql.Tx) error {
 	oldAnswerCount, newAnswerCount := len(oldAnswers), len(newAnswers)
 	if oldAnswerCount != newAnswerCount {
@@ -129,7 +138,7 @@ func (s *QuizService) updateQuestionsAndAnswers(oldQuestions []models.QuestionPu
 	return nil
 }
 
-func (s *QuizService) SaveQuiz(oldQuiz, newQuiz models.QuizPublic) error {
+func (s *QuizService) saveQuiz(oldQuiz, newQuiz models.QuizPublic, isPublish bool) error {
 	tx, err := s.QuizModel.DB.Begin()
 	if err != nil {
 		return err
@@ -138,6 +147,13 @@ func (s *QuizService) SaveQuiz(oldQuiz, newQuiz models.QuizPublic) error {
 
 	if newQuiz.Title != oldQuiz.Title || newQuiz.Description != oldQuiz.Description {
 		err = s.QuizModel.UpdateQuiz(newQuiz, tx)
+		if err != nil {
+			return err
+		}
+	}
+
+	if isPublish {
+		err = s.QuizModel.PublishQuizById(newQuiz.ID, tx)
 		if err != nil {
 			return err
 		}

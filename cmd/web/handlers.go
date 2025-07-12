@@ -377,6 +377,18 @@ func (app *application) editPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if r.PostForm.Get("action") == "publish" {
+		err = app.quizzesService.SaveAndPublishQuiz(quiz, newQuiz)
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
+
+		app.sessionManager.Put(r.Context(), "flash", "Quiz saved and published!")
+		http.Redirect(w, r, fmt.Sprintf("/quizzes/%d", newQuiz.ID), http.StatusSeeOther)
+		return
+	}
+
 	err = app.quizzesService.SaveQuiz(quiz, newQuiz)
 	if err != nil {
 		app.serverError(w, r, err)

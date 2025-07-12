@@ -244,6 +244,20 @@ func (m *QuizModel) UpdateQuiz(quiz QuizPublic, tx *sql.Tx) error {
 	return err
 }
 
+func (m *QuizModel) PublishQuizById(id int, tx *sql.Tx) error {
+	stmt, err := tx.Prepare(`UPDATE quiz q
+	SET q.published = NOW()
+	WHERE q.id = ?`)
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(id)
+	return err
+}
+
 func isNotPublished(published, unpublished *time.Time) bool {
 	return published == nil || (unpublished != nil && unpublished.After(*published))
 }
