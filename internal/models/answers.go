@@ -91,3 +91,17 @@ func (m *AnswerModel) GetAnswersByQuestionIDs(ids []int) (AnswersByQuestion, err
 
 	return answersMap, nil
 }
+
+func (m *AnswerModel) UpdateAnswer(answer AnswerPublic, tx *sql.Tx) error {
+	stmt, err := tx.Prepare(`UPDATE answer a
+	SET a.content = ?, a.correct = ?, a.updated = NOW()
+	WHERE a.id = ?`)
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(answer.Content, answer.Correct, answer.ID)
+	return err
+}

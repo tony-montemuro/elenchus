@@ -118,3 +118,17 @@ func (m *QuestionModel) GetQuestionsByQuizID(quizID int) ([]QuestionPublic, erro
 
 	return questions, nil
 }
+
+func (m *QuestionModel) UpdateQuestion(question QuestionPublic, tx *sql.Tx) error {
+	stmt, err := tx.Prepare(`UPDATE question q
+	SET q.content = ?, q.points = ?, q.updated = NOW()
+	WHERE q.id = ?`)
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(question.Content, question.Points, question.ID)
+	return err
+}

@@ -230,6 +230,20 @@ func (m *QuizModel) getProfileQuizzes(profileID *int, isPublished bool) ([]QuizM
 	return quizzes, nil
 }
 
+func (m *QuizModel) UpdateQuiz(quiz QuizPublic, tx *sql.Tx) error {
+	stmt, err := tx.Prepare(`UPDATE quiz q
+	SET q.title = ?, q.description = ?, q.updated = NOW()
+	WHERE q.id = ?`)
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(quiz.Title, quiz.Description, quiz.ID)
+	return err
+}
+
 func isNotPublished(published, unpublished *time.Time) bool {
 	return published == nil || (unpublished != nil && unpublished.After(*published))
 }

@@ -377,5 +377,12 @@ func (app *application) editPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = app.quizzesService.SaveQuiz(quiz, newQuiz)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	data.Flash = "Quiz saved!"
 	app.render(w, r, http.StatusOK, "edit.tmpl", data)
 }
