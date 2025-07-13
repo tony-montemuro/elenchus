@@ -225,18 +225,12 @@ func (f *editForm) updateAnswers(answers answerEditMap) {
 }
 
 func (f *editForm) parseQuestionField(fieldName string) (int, string, error) {
-	re := regexp.MustCompile(`^question\[(\d+)\]\[([^]]+)\]$`)
-	matches := re.FindStringSubmatch(fieldName)
-	if len(matches) != 3 {
-		return 0, "", f.getError("question has insufficient data -- must match structure: question[id][content/correct]")
-	}
-
-	id, err := strconv.Atoi(matches[1])
+	id, field, err := parseQuestionField(fieldName, "question[id][content/question]")
 	if err != nil {
-		return 0, "", f.getError(err.Error())
+		return id, field, f.getError(err.Error())
 	}
 
-	return id, matches[2], nil
+	return id, field, err
 }
 
 func (f *editForm) parseAnswerField(fieldName string) (int, string, error) {
@@ -287,4 +281,82 @@ func (f *editForm) serializeQuestionPoints() map[string]int {
 	}
 
 	return s
+}
+
+type questionAnswerMap map[int]int
+
+type quizForm struct {
+	quizID  int
+	answers questionAnswerMap
+}
+
+func newQuizForm(postForm url.Values) (quizForm, error) {
+	quizForm := quizForm{}
+	err := quizForm.parseRequest(postForm)
+	return quizForm, err
+}
+
+func (f *quizForm) parseRequest(postForm url.Values) error {
+	f.answers = make(questionAnswerMap)
+
+	for key, vals := range postForm {
+		if len(vals) == 0 || key == "csrf_token" {
+			continue
+		}
+
+		if strings.HasPrefix(key, "question[") {
+			answerID, err := strconv.Atoi(vals[0])
+			if err != nil {
+				return err
+			}
+
+			questionID, err := f.parseQuestionField(key)
+			if err != nil {
+				return f.getError(err.Error())
+			}
+
+			f.answers[questionID] = answerID
+		}
+
+		if key == "quiz" {
+			quizID, err := strconv.Atoi(vals[0])
+			if err != nil {
+				return f.getError("quiz ID must be an integer")
+			}
+
+			f.quizID = quizID
+		}
+	}
+
+	return nil
+}
+
+func (f *quizForm) parseQuestionField(fieldName string) (int, error) {
+	structure := "question[id][answer]"
+	id, field, err := parseQuestionField(fieldName, structure)
+
+	if err == nil && field != "answer" {
+		err = fmt.Errorf("question has insufficient data -- must match structure: %s", structure)
+	}
+
+	return id, err
+}
+
+func parseQuestionField(fieldName, expectedStructure string) (int, string, error) {
+	re := regexp.MustCompile(`^question\[(\d+)\]\[([^]]+)\]$`)
+	matches := re.FindStringSubmatch(fieldName)
+	if len(matches) != 3 {
+		return 0, "", fmt.Errorf("question has insufficient data -- must match structure: %s", expectedStructure)
+	}
+
+	id, err := strconv.Atoi(matches[1])
+	if err != nil {
+		return 0, "", err
+	}
+
+	return id, matches[2], nil
+}
+
+func (f *quizForm) getError(message string) error {
+	return fmt.Errorf("quiz form: malformed field (%s)", message)
 }

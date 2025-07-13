@@ -19,6 +19,7 @@
 	</div>
 	<form class="flex-col quiz-form" method="post">
 		{{template "csrf-token" .CSRFToken}}
+		<input type="hidden" name="quiz" value={{$quiz.ID}} />
 		<ol class="flex-col questions">
 			{{range $quiz.Questions}}
 			<li>

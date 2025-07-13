@@ -254,7 +254,20 @@ func (app *application) quiz(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) quizPost(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "%v", r.PathValue("quizID"))
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form, err := newQuizForm(r.PostForm)
+	if err != nil {
+		app.logger.Error(err.Error())
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	fmt.Fprintf(w, "%v", form)
 }
 
 func (app *application) profile(w http.ResponseWriter, r *http.Request) {
@@ -342,6 +355,7 @@ func (app *application) editPost(w http.ResponseWriter, r *http.Request) {
 
 	form, err := newEditForm(r.PostForm)
 	if err != nil {
+		app.logger.Error(err.Error())
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
