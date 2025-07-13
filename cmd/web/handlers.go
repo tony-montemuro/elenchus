@@ -267,7 +267,23 @@ func (app *application) quizPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "%v", form)
+	quiz, err := app.getQuizByID(form.quizID, r)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.clientError(w, http.StatusBadRequest)
+		} else {
+			app.serverError(w, r, err)
+		}
+		return
+	}
+
+	attempt, err := quiz.Grade(form.answers)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	fmt.Fprintf(w, "%v", attempt)
 }
 
 func (app *application) profile(w http.ResponseWriter, r *http.Request) {
@@ -306,7 +322,7 @@ func (app *application) edit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	quiz, err := app.getQuizByID(quizID, r)
+	quiz, err := app.getEditableQuizById(quizID, r)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord) {
 			app.redirectNotFound(w, r, "user attempted to access a quiz that does not exist", err)
@@ -335,7 +351,7 @@ func (app *application) editPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	quiz, err := app.getQuizByID(quizID, r)
+	quiz, err := app.getEditableQuizById(quizID, r)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord) {
 			app.redirectNotFound(w, r, "user attempted to access a quiz that does not exist", err)

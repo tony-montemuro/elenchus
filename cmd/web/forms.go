@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/tony-montemuro/elenchus/internal/models"
 	"github.com/tony-montemuro/elenchus/internal/validator"
 )
 
@@ -287,7 +288,7 @@ type questionAnswerMap map[int]int
 
 type quizForm struct {
 	quizID  int
-	answers questionAnswerMap
+	answers models.QuestionAnswer
 }
 
 func newQuizForm(postForm url.Values) (quizForm, error) {
@@ -297,7 +298,7 @@ func newQuizForm(postForm url.Values) (quizForm, error) {
 }
 
 func (f *quizForm) parseRequest(postForm url.Values) error {
-	f.answers = make(questionAnswerMap)
+	f.answers = make(models.QuestionAnswer)
 
 	for key, vals := range postForm {
 		if len(vals) == 0 || key == "csrf_token" {

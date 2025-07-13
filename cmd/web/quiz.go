@@ -94,9 +94,8 @@ func (app *application) generateQuiz(notes string, ctx context.Context) (models.
 	return quiz, err
 }
 
-func (app *application) getQuizByID(quizID int, r *http.Request) (models.QuizPublic, error) {
-	profileID, _ := app.getProfileID(r)
-	quiz, err := app.quizzesService.GetQuizByID(quizID, profileID)
+func (app *application) getEditableQuizById(quizID int, r *http.Request) (models.QuizPublic, error) {
+	quiz, err := app.getQuizByID(quizID, r)
 	if err != nil {
 		return quiz, err
 	}
@@ -106,6 +105,12 @@ func (app *application) getQuizByID(quizID int, r *http.Request) (models.QuizPub
 	}
 
 	return quiz, nil
+}
+
+func (app *application) getQuizByID(quizID int, r *http.Request) (models.QuizPublic, error) {
+	profileID, _ := app.getProfileID(r)
+	quiz, err := app.quizzesService.GetQuizByID(quizID, profileID)
+	return quiz, err
 }
 
 func (app *application) buildNewQuizPublic(oldQuiz models.QuizPublic, editForm editForm) (models.QuizPublic, error) {

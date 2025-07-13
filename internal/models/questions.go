@@ -40,22 +40,24 @@ type QuestionJSONSchema struct {
 
 type QuestionJSONSchemaMap map[int]QuestionJSONSchema
 
-func (q *QuestionPublic) ContainsAnswer(ids []int) bool {
-	for _, id := range ids {
-		found := false
+func (q *QuestionPublic) IsCorrect(id int) (bool, error) {
+	var err error
+	isValid := false
 
-		for _, answer := range q.Answers {
-			if answer.ID == id {
-				found = true
+	for _, answer := range q.Answers {
+		if answer.ID == id {
+			isValid = true
+			if answer.Correct {
+				return true, nil
 			}
-		}
-
-		if !found {
-			return false
 		}
 	}
 
-	return true
+	if !isValid {
+		err = ErrNoRecord
+	}
+
+	return false, err
 }
 
 func (m *QuestionModel) InsertQuestions(questions []QuestionJSONSchema, quizID int, typeId int, tx *sql.Tx) (QuestionJSONSchemaMap, error) {

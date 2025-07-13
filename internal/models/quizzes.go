@@ -76,22 +76,25 @@ func (q *QuizPublic) isOwnedByProfile(profileID *int) bool {
 	return isOwnedByProfile(profileID, q.Profile.ID)
 }
 
-func (q *QuizPublic) ContainsQuestions(ids []int) bool {
-	for _, id := range ids {
-		found := false
+func (q *QuizPublic) Grade(answers QuestionAnswer) (AttemptPublic, error) {
+	attempt := AttemptPublic{
+		Quiz:           *q,
+		QuestionAnswer: answers,
+	}
 
-		for _, question := range q.Questions {
-			if question.ID == id {
-				found = true
-			}
+	for _, question := range q.Questions {
+		correct, err := question.IsCorrect(answers[question.ID])
+		if err != nil {
+			return attempt, err
 		}
 
-		if !found {
-			return false
+		points := question.Points
+		if correct {
+			attempt.PointsEarned += points
 		}
 	}
 
-	return true
+	return attempt, nil
 }
 
 func (m *QuizModel) Latest() ([]QuizMetadata, error) {
