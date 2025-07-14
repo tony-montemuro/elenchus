@@ -20,14 +20,15 @@ import (
 )
 
 type application struct {
-	logger         *slog.Logger
-	templateCache  map[string]*template.Template
-	profiles       models.ProfileModelInterface
-	quizzes        models.QuizModelInterface
-	questionTypes  models.QuestionTypeModelInterface
-	quizzesService services.QuizServiceInterface
-	sessionManager *scs.SessionManager
-	openAIClient   openai.Client
+	logger          *slog.Logger
+	templateCache   map[string]*template.Template
+	profiles        models.ProfileModelInterface
+	quizzes         models.QuizModelInterface
+	questionTypes   models.QuestionTypeModelInterface
+	quizzesService  services.QuizServiceInterface
+	attemptsService services.AttemptServiceInterface
+	sessionManager  *scs.SessionManager
+	openAIClient    openai.Client
 }
 
 func main() {
@@ -60,6 +61,8 @@ func main() {
 	questionModel := &models.QuestionModel{DB: db}
 	answerModel := &models.AnswerModel{DB: db}
 	questionTypeModel := &models.QuestionTypeModel{DB: db}
+	attemptModel := &models.AttemptModel{DB: db}
+	multipleChoiceAttemptModel := &models.MultipleChoiceAttemptModel{DB: db}
 
 	app := &application{
 		logger:        logger,
@@ -72,6 +75,11 @@ func main() {
 			QuestionModel:     questionModel,
 			AnswerModel:       answerModel,
 			QuestionTypeModel: questionTypeModel,
+		},
+		attemptsService: &services.AttemptService{
+			DB:                         db,
+			AttemptModel:               attemptModel,
+			MultipleChoiceAttemptModel: multipleChoiceAttemptModel,
 		},
 		sessionManager: sessionManager,
 	}

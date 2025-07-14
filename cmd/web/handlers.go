@@ -283,7 +283,17 @@ func (app *application) quizPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "%v", attempt)
+	profileID, _ := app.getProfileID(r)
+	if profileID != nil && !quiz.Editable {
+		id, err := app.attemptsService.SaveAttempt(attempt)
+		if err != nil {
+			app.serverError(w, r, err)
+		}
+
+		fmt.Fprintf(w, "Quiz graded, and attempt saved (%d)! Redirecting...", id)
+		return
+	}
+	fmt.Fprintf(w, "Rendering direct result (attempt NOT saved!)")
 }
 
 func (app *application) profile(w http.ResponseWriter, r *http.Request) {
