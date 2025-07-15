@@ -315,7 +315,11 @@ func (app *application) result(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "%v", attempt)
+	data := app.newTemplateData(r)
+	data.Data = AttemptPageData{
+		Attempt: attempt,
+	}
+	app.render(w, r, http.StatusOK, "attempt.tmpl", data)
 }
 
 func (app *application) attempt(w http.ResponseWriter, r *http.Request) {
@@ -351,7 +355,11 @@ func (app *application) attempt(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "%v", attempt)
+	data := app.newTemplateData(r)
+	data.Data = AttemptPageData{
+		Attempt: attempt,
+	}
+	app.render(w, r, http.StatusOK, "attempt.tmpl", data)
 }
 
 func (app *application) profile(w http.ResponseWriter, r *http.Request) {

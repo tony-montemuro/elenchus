@@ -1,0 +1,52 @@
+{{define "title"}}Attempt{{end}}
+
+{{define "main"}}
+<div class="flex-col" id="quiz">
+	<div class="flex-col">
+		{{$attempt := .Data.Attempt}}
+		{{$quiz := $attempt.Quiz}}
+		<div id="quiz-title" class="flex-row">
+			<h1>Attempt - {{$quiz.Title}}</h1>
+			{{if $quiz.Editable}}
+			<a href="/quizzes/{{ $quiz.ID }}/edit">Edit</a>
+			{{end}}
+		</div>
+		<h2>Score: {{$attempt.PointsEarned}} / {{$quiz.PointsCount}}</h2>
+		<span>Created by <a href="/profile/{{ $quiz.Profile.ID }}">{{ $quiz.Profile.FirstName }} {{ $quiz.Profile.LastName
+				}}</a></span>
+		{{if $quiz.Published}}
+		<span title="{{humanDate $quiz.Published}}">Published {{timeAgo $quiz.Published}}</span>
+		{{end}}
+	</div>
+	<form class="flex-col quiz-form" method="post">
+		{{template "csrf-token" .CSRFToken}}
+		<input type="hidden" name="quiz" value={{$quiz.ID}} />
+		<ol class="flex-col questions">
+			{{range $quiz.Questions}}
+			<li>
+				{{$questionID := .ID}}
+				<div class="flex-row question">
+					<span>{{.Content}}</span>
+					<span>{{if .IsCorrect (index $attempt.Answers $questionID)}}{{.Points}}{{else}}0{{end}}/{{.Points}}
+						points</span>
+				</div>
+				<div class="answers">
+
+					{{range $i, $answer := .Answers}}
+					<div>
+						{{$id := printf "question_%d_%d" $questionID $i }}
+						<input type="radio" id="{{$id}}" name="question[{{$questionID}}][answer]" value="{{$answer.ID}}" disabled
+							{{if eq (index $attempt.Answers $questionID) $answer.ID}}checked{{end}} />
+						<label for="{{$id}}">{{$answer.Content}}</span>
+					</div>
+					{{end}}
+
+				</div>
+			</li>
+			{{end}}
+		</ol>
+
+		<button type="submit">Submit</button>
+	</form>
+</div>
+{{end}}

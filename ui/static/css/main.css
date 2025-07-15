@@ -93,7 +93,7 @@ input:focus {
 	outline: none;
 }
 
-input[type="radio"]:hover {
+input[type="radio"]:hover:not(:disabled) {
 	cursor: pointer;
 }
 
