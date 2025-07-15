@@ -254,7 +254,7 @@ func (m *QuizModel) getProfileQuizzes(profileID *int, isPublished bool) ([]QuizM
 
 func (m *QuizModel) UpdateQuiz(quiz QuizPublic, tx *sql.Tx) error {
 	stmt, err := tx.Prepare(`UPDATE quiz q
-	SET q.title = ?, q.description = ?, q.updated = NOW()
+	SET q.title = ?, q.description = ?, q.updated = UTC_TIMESTAMP()
 	WHERE q.id = ?`)
 	if err != nil {
 		return err
@@ -268,7 +268,7 @@ func (m *QuizModel) UpdateQuiz(quiz QuizPublic, tx *sql.Tx) error {
 
 func (m *QuizModel) PublishQuizById(id int, tx *sql.Tx) error {
 	stmt, err := tx.Prepare(`UPDATE quiz q
-	SET q.published = NOW(), updated = NOW()
+	SET q.published = UTC_TIMESTAMP(), updated = UTC_TIMESTAMP()
 	WHERE q.id = ?`)
 	if err != nil {
 		return err

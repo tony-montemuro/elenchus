@@ -94,7 +94,7 @@ func (m *AnswerModel) GetAnswersByQuestionIDs(ids []int) (AnswersByQuestion, err
 
 func (m *AnswerModel) UpdateAnswer(answer AnswerPublic, tx *sql.Tx) error {
 	stmt, err := tx.Prepare(`UPDATE answer a
-	SET a.content = ?, a.correct = ?, a.updated = NOW()
+	SET a.content = ?, a.correct = ?, a.updated = UTC_TIMESTAMP()
 	WHERE a.id = ?`)
 	if err != nil {
 		return err

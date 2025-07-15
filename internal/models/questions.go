@@ -123,7 +123,7 @@ func (m *QuestionModel) GetQuestionsByQuizID(quizID int) ([]QuestionPublic, erro
 
 func (m *QuestionModel) UpdateQuestion(question QuestionPublic, tx *sql.Tx) error {
 	stmt, err := tx.Prepare(`UPDATE question q
-	SET q.content = ?, q.points = ?, q.updated = NOW()
+	SET q.content = ?, q.points = ?, q.updated = UTC_TIMESTAMP()
 	WHERE q.id = ?`)
 	if err != nil {
 		return err
