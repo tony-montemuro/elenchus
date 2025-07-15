@@ -15,6 +15,7 @@ type QuizServiceInterface interface {
 }
 
 type QuizService struct {
+	DB                *sql.DB
 	QuizModel         *models.QuizModel
 	QuestionModel     *models.QuestionModel
 	AnswerModel       *models.AnswerModel
@@ -22,7 +23,7 @@ type QuizService struct {
 }
 
 func (s *QuizService) UploadQuiz(quiz models.QuizJSONSchema, profileID int) (int, error) {
-	tx, err := s.QuizModel.DB.Begin()
+	tx, err := s.DB.Begin()
 	if err != nil {
 		return 0, err
 	}
@@ -139,7 +140,7 @@ func (s *QuizService) updateQuestionsAndAnswers(oldQuestions []models.QuestionPu
 }
 
 func (s *QuizService) saveQuiz(oldQuiz, newQuiz models.QuizPublic, isPublish bool) error {
-	tx, err := s.QuizModel.DB.Begin()
+	tx, err := s.DB.Begin()
 	if err != nil {
 		return err
 	}
