@@ -1,6 +1,8 @@
 package models
 
-import "database/sql"
+import (
+	"database/sql"
+)
 
 type MultipleChoiceAttemptModel struct {
 	DB *sql.DB
@@ -21,4 +23,37 @@ func (m *MultipleChoiceAttemptModel) InsertMultipleChoiceAttempts(attemptID int,
 	}
 
 	return nil
+}
+
+func (m *MultipleChoiceAttemptModel) GetMultipleChoiceAttempts(attemptID int) (QuestionAnswer, error) {
+	answers := make(QuestionAnswer)
+	stmt := `SELECT mca.question_id, mca.answer_id
+	FROM multiple_choice_attempt mca
+	WHERE mca.attempt_id = ?
+	ORDER BY mca.question_id`
+
+	rows, err := m.DB.Query(stmt, attemptID)
+	if err != nil {
+		return answers, err
+	}
+	if err = rows.Err(); err != nil {
+		return answers, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var questionID int
+		var answerID int
+
+		err = rows.Scan(&questionID, &answerID)
+		if err != nil {
+			return answers, err
+		}
+
+		answers[questionID] = answerID
+	}
+
+	return answers, nil
+
 }

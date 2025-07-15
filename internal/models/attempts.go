@@ -1,13 +1,19 @@
 package models
 
-import "database/sql"
+import (
+	"database/sql"
+	"errors"
+	"time"
+)
 
 type QuestionAnswer map[int]int
 
 type AttemptPublic struct {
-	Quiz           QuizPublic
-	PointsEarned   int
-	QuestionAnswer QuestionAnswer
+	ID           *int
+	Quiz         QuizPublic
+	PointsEarned int
+	Answers      QuestionAnswer
+	Created      *time.Time
 }
 
 type AttemptModel struct {
@@ -32,4 +38,23 @@ func (m *AttemptModel) InsertAttempt(attempt AttemptPublic, tx *sql.Tx) (int, er
 	}
 
 	return int(id), err
+}
+
+func (m *AttemptModel) GetAttemptById(id int) (AttemptPublic, error) {
+	var attempt AttemptPublic
+
+	stmt := `SELECT id, points_earned, created
+	FROM attempt
+	WHERE id = ?`
+
+	err := m.DB.QueryRow(stmt, id).Scan(&attempt.ID, &attempt.PointsEarned, &attempt.Created)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return attempt, ErrNoRecord
+		}
+
+		return attempt, err
+	}
+
+	return attempt, nil
 }

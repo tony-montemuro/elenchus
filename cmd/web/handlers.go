@@ -290,10 +290,66 @@ func (app *application) quizPost(w http.ResponseWriter, r *http.Request) {
 			app.serverError(w, r, err)
 		}
 
-		fmt.Fprintf(w, "Quiz graded, and attempt saved (%d)! Redirecting...", id)
+		attempt.ID = &id
+		app.sessionManager.Put(r.Context(), attemptKey, attempt)
+		http.Redirect(w, r, fmt.Sprintf("/quizzes/%d/attempt/%d", quiz.ID, attempt.ID), http.StatusSeeOther)
 		return
 	}
-	fmt.Fprintf(w, "Rendering direct result (attempt NOT saved!)")
+
+	fmt.Fprintf(w, "%v", attempt)
+}
+
+func (app *application) result(w http.ResponseWriter, r *http.Request) {
+	if !app.sessionManager.Exists(r.Context(), attemptKey) {
+		app.clientError(w, http.StatusNotFound)
+		return
+	}
+
+	attempt, ok := app.sessionManager.Get(r.Context(), attemptKey).(models.AnswerPublic)
+	if !ok {
+		app.serverError(w, r, errors.New("session attempt not correctly typed! must be of type `models.AnswerPublic`"))
+	}
+
+	fmt.Fprintf(w, "%v", attempt)
+}
+
+func (app *application) attempt(w http.ResponseWriter, r *http.Request) {
+	var attempt models.AttemptPublic
+	var err error
+
+	quizID, err := strconv.Atoi(r.PathValue("quizID"))
+	if err != nil {
+		app.clientError(w, http.StatusNotFound)
+	}
+
+	attemptID, err := strconv.Atoi(r.PathValue("attemptID"))
+	if err != nil {
+		app.clientError(w, http.StatusNotFound)
+	}
+
+	profileID, _ := app.getProfileID(r)
+
+	if !app.sessionManager.Exists(r.Context(), attemptKey) {
+		attempt, err = app.attemptsService.GetAttempt(attemptID, quizID, profileID)
+		if err != nil {
+			if errors.Is(err, models.ErrNoRecord) {
+				app.clientError(w, http.StatusBadRequest)
+			} else {
+				app.serverError(w, r, err)
+			}
+
+			return
+		}
+	} else {
+		var ok bool
+		attempt, ok = app.sessionManager.Pop(r.Context(), attemptKey).(models.AttemptPublic)
+		if !ok {
+			app.serverError(w, r, errors.New("session attempt not correctly typed! must be of type `models.AttemptPublic`"))
+		}
+		attempt.ID = &attemptID
+	}
+
+	fmt.Fprintf(w, "%v", attempt)
 }
 
 func (app *application) profile(w http.ResponseWriter, r *http.Request) {

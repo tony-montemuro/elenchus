@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/tls"
 	"database/sql"
+	"encoding/gob"
 	"html/template"
 	"log/slog"
 	"net/http"
@@ -29,6 +30,10 @@ type application struct {
 	attemptsService services.AttemptServiceInterface
 	sessionManager  *scs.SessionManager
 	openAIClient    openai.Client
+}
+
+func init() {
+	gob.Register(models.AttemptPublic{})
 }
 
 func main() {
@@ -63,23 +68,25 @@ func main() {
 	questionTypeModel := &models.QuestionTypeModel{DB: db}
 	attemptModel := &models.AttemptModel{DB: db}
 	multipleChoiceAttemptModel := &models.MultipleChoiceAttemptModel{DB: db}
+	quizService := &services.QuizService{
+		QuizModel:         quizModel,
+		QuestionModel:     questionModel,
+		AnswerModel:       answerModel,
+		QuestionTypeModel: questionTypeModel,
+	}
 
 	app := &application{
-		logger:        logger,
-		templateCache: templateCache,
-		profiles:      &models.ProfileModel{DB: db},
-		quizzes:       quizModel,
-		questionTypes: questionTypeModel,
-		quizzesService: &services.QuizService{
-			QuizModel:         quizModel,
-			QuestionModel:     questionModel,
-			AnswerModel:       answerModel,
-			QuestionTypeModel: questionTypeModel,
-		},
+		logger:         logger,
+		templateCache:  templateCache,
+		profiles:       &models.ProfileModel{DB: db},
+		quizzes:        quizModel,
+		questionTypes:  questionTypeModel,
+		quizzesService: quizService,
 		attemptsService: &services.AttemptService{
 			DB:                         db,
 			AttemptModel:               attemptModel,
 			MultipleChoiceAttemptModel: multipleChoiceAttemptModel,
+			QuizService:                quizService,
 		},
 		sessionManager: sessionManager,
 	}

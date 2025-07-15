@@ -78,8 +78,8 @@ func (q *QuizPublic) isOwnedByProfile(profileID *int) bool {
 
 func (q *QuizPublic) Grade(answers QuestionAnswer) (AttemptPublic, error) {
 	attempt := AttemptPublic{
-		Quiz:           *q,
-		QuestionAnswer: answers,
+		Quiz:    *q,
+		Answers: answers,
 	}
 
 	for _, question := range q.Questions {
@@ -134,6 +134,8 @@ func (m *QuizModel) Latest() ([]QuizMetadata, error) {
 func (m *QuizModel) GetQuizByID(id int, profileID *int) (QuizPublic, error) {
 	var quiz QuizPublic
 	var profile ProfilePublic
+	var deleted sql.NullTime
+	var published sql.NullTime
 	var unpublished *time.Time
 
 	stmt := `SELECT q.id, p.id, p.first_name, p.last_name, p.deleted, q.title, q.description, (SELECT SUM(points) FROM question WHERE quiz_id = q.id) AS points_count, q.published, q.unpublished
@@ -141,7 +143,7 @@ func (m *QuizModel) GetQuizByID(id int, profileID *int) (QuizPublic, error) {
 	JOIN profile p ON q.profile_id = p.id 
 	WHERE q.id = ? AND q.deleted IS NULL`
 
-	err := m.DB.QueryRow(stmt, id).Scan(&quiz.ID, &profile.ID, &profile.FirstName, &profile.LastName, &profile.Deleted, &quiz.Title, &quiz.Description, &quiz.PointsCount, &quiz.Published, &unpublished)
+	err := m.DB.QueryRow(stmt, id).Scan(&quiz.ID, &profile.ID, &profile.FirstName, &profile.LastName, &deleted, &quiz.Title, &quiz.Description, &quiz.PointsCount, &published, &unpublished)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return quiz, ErrNoRecord
@@ -150,7 +152,20 @@ func (m *QuizModel) GetQuizByID(id int, profileID *int) (QuizPublic, error) {
 		return quiz, err
 	}
 
+	if deleted.Valid {
+		profile.Deleted = &deleted.Time
+	} else {
+		profile.Deleted = nil
+	}
+
 	quiz.Profile = profile
+
+	if published.Valid {
+		quiz.Published = &published.Time
+	} else {
+		quiz.Published = nil
+	}
+
 	if quiz.isNotPublished(unpublished) {
 		// If the quiz is not published, and is also NOT owned by profile, then access is not allowed -- treat as missing record
 		if !quiz.isOwnedByProfile(profileID) {

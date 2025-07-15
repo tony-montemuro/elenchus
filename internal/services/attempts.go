@@ -8,12 +8,14 @@ import (
 
 type AttemptServiceInterface interface {
 	SaveAttempt(models.AttemptPublic) (int, error)
+	GetAttempt(int, int, *int) (models.AttemptPublic, error)
 }
 
 type AttemptService struct {
 	DB                         *sql.DB
 	AttemptModel               *models.AttemptModel
 	MultipleChoiceAttemptModel *models.MultipleChoiceAttemptModel
+	QuizService                *QuizService
 }
 
 func (s *AttemptService) SaveAttempt(attempt models.AttemptPublic) (int, error) {
@@ -28,7 +30,7 @@ func (s *AttemptService) SaveAttempt(attempt models.AttemptPublic) (int, error) 
 		return 0, err
 	}
 
-	if err = s.MultipleChoiceAttemptModel.InsertMultipleChoiceAttempts(id, attempt.QuestionAnswer, tx); err != nil {
+	if err = s.MultipleChoiceAttemptModel.InsertMultipleChoiceAttempts(id, attempt.Answers, tx); err != nil {
 		return 0, err
 	}
 
@@ -37,4 +39,25 @@ func (s *AttemptService) SaveAttempt(attempt models.AttemptPublic) (int, error) 
 	}
 
 	return id, nil
+}
+
+func (s *AttemptService) GetAttempt(attemptID, quizID int, profileID *int) (models.AttemptPublic, error) {
+	var attempt models.AttemptPublic
+	quiz, err := s.QuizService.GetQuizByID(quizID, profileID)
+	if err != nil {
+		return attempt, err
+	}
+
+	answers, err := s.MultipleChoiceAttemptModel.GetMultipleChoiceAttempts(attemptID)
+	if err != nil {
+		return attempt, err
+	}
+
+	attempt, err = quiz.Grade(answers)
+	if err != nil {
+		return attempt, err
+	}
+	attempt.ID = &attemptID
+
+	return attempt, nil
 }
