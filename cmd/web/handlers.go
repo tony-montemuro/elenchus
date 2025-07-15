@@ -284,15 +284,14 @@ func (app *application) quizPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	profileID, _ := app.getProfileID(r)
-	if profileID != nil && !quiz.Editable {
-		id, err := app.attemptsService.SaveAttempt(attempt)
+	if quiz.IsSavable(profileID) {
+		attempt, err := app.attemptsService.SaveAttempt(attempt)
 		if err != nil {
 			app.serverError(w, r, err)
 		}
 
-		attempt.ID = &id
 		app.sessionManager.Put(r.Context(), attemptKey, attempt)
-		http.Redirect(w, r, fmt.Sprintf("/quizzes/%d/attempt/%d", quiz.ID, attempt.ID), http.StatusSeeOther)
+		http.Redirect(w, r, fmt.Sprintf("/quizzes/%d/attempt/%d", quiz.ID, *attempt.ID), http.StatusSeeOther)
 		return
 	}
 
@@ -300,14 +299,15 @@ func (app *application) quizPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) result(w http.ResponseWriter, r *http.Request) {
-	if !app.sessionManager.Exists(r.Context(), attemptKey) {
-		app.clientError(w, http.StatusNotFound)
-		return
-	}
+	attempt, err := app.getAttemptFromSession(r)
 
-	attempt, ok := app.sessionManager.Get(r.Context(), attemptKey).(models.AnswerPublic)
-	if !ok {
-		app.serverError(w, r, errors.New("session attempt not correctly typed! must be of type `models.AnswerPublic`"))
+	if err != nil {
+		if errors.Is(err, ErrNoAttempt) {
+			app.clientError(w, http.StatusNotFound)
+		} else {
+			app.serverError(w, r, err)
+		}
+		return
 	}
 
 	fmt.Fprintf(w, "%v", attempt)
@@ -329,24 +329,21 @@ func (app *application) attempt(w http.ResponseWriter, r *http.Request) {
 
 	profileID, _ := app.getProfileID(r)
 
-	if !app.sessionManager.Exists(r.Context(), attemptKey) {
-		attempt, err = app.attemptsService.GetAttempt(attemptID, quizID, profileID)
-		if err != nil {
-			if errors.Is(err, models.ErrNoRecord) {
-				app.clientError(w, http.StatusBadRequest)
-			} else {
-				app.serverError(w, r, err)
-			}
+	attempt, err = app.getAttemptFromSession(r)
 
-			return
+	// fall-back to DB if attempt cannot be fetched from session
+	if err != nil && errors.Is(err, ErrNoAttempt) {
+		attempt, err = app.attemptsService.GetAttempt(attemptID, quizID, profileID)
+	}
+
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.clientError(w, http.StatusBadRequest)
+		} else {
+			app.serverError(w, r, err)
 		}
-	} else {
-		var ok bool
-		attempt, ok = app.sessionManager.Pop(r.Context(), attemptKey).(models.AttemptPublic)
-		if !ok {
-			app.serverError(w, r, errors.New("session attempt not correctly typed! must be of type `models.AttemptPublic`"))
-		}
-		attempt.ID = &attemptID
+
+		return
 	}
 
 	fmt.Fprintf(w, "%v", attempt)

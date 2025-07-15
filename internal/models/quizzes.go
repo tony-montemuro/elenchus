@@ -97,6 +97,10 @@ func (q *QuizPublic) Grade(answers QuestionAnswer) (AttemptPublic, error) {
 	return attempt, nil
 }
 
+func (q *QuizPublic) IsSavable(profileID *int) bool {
+	return profileID != nil && !q.Editable
+}
+
 func (m *QuizModel) Latest() ([]QuizMetadata, error) {
 	var quizzes []QuizMetadata
 

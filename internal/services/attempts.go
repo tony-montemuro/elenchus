@@ -7,7 +7,7 @@ import (
 )
 
 type AttemptServiceInterface interface {
-	SaveAttempt(models.AttemptPublic) (int, error)
+	SaveAttempt(models.AttemptPublic) (models.AttemptPublic, error)
 	GetAttempt(int, int, *int) (models.AttemptPublic, error)
 }
 
@@ -18,27 +18,28 @@ type AttemptService struct {
 	QuizService                *QuizService
 }
 
-func (s *AttemptService) SaveAttempt(attempt models.AttemptPublic) (int, error) {
+func (s *AttemptService) SaveAttempt(attempt models.AttemptPublic) (models.AttemptPublic, error) {
 	tx, err := s.DB.Begin()
 	if err != nil {
-		return 0, err
+		return attempt, err
 	}
 	defer tx.Rollback()
 
 	id, err := s.AttemptModel.InsertAttempt(attempt, tx)
 	if err != nil {
-		return 0, err
+		return attempt, err
 	}
+	attempt.ID = &id
 
 	if err = s.MultipleChoiceAttemptModel.InsertMultipleChoiceAttempts(id, attempt.Answers, tx); err != nil {
-		return 0, err
+		return attempt, err
 	}
 
 	if err := tx.Commit(); err != nil {
-		return 0, err
+		return attempt, err
 	}
 
-	return id, nil
+	return attempt, nil
 }
 
 func (s *AttemptService) GetAttempt(attemptID, quizID int, profileID *int) (models.AttemptPublic, error) {
