@@ -285,17 +285,22 @@ func (app *application) quizPost(w http.ResponseWriter, r *http.Request) {
 
 	profileID, _ := app.getProfileID(r)
 	if quiz.IsSavable(profileID) {
-		attempt, err := app.attemptsService.SaveAttempt(attempt)
-		if err != nil {
-			app.serverError(w, r, err)
-		}
+		attempt, err = app.attemptsService.SaveAttempt(attempt)
+	}
 
-		app.sessionManager.Put(r.Context(), attemptKey, attempt)
-		http.Redirect(w, r, fmt.Sprintf("/quizzes/%d/attempt/%d", quiz.ID, *attempt.ID), http.StatusSeeOther)
+	if err != nil {
+		app.serverError(w, r, err)
 		return
 	}
 
-	fmt.Fprintf(w, "%v", attempt)
+	app.sessionManager.Put(r.Context(), attemptKey, attempt)
+
+	redirectPath := fmt.Sprintf("/quizzes/%d/result", form.quizID)
+	if attempt.ID != nil {
+		redirectPath = fmt.Sprintf("/quizzes/%d/attempt/%d", quiz.ID, *attempt.ID)
+	}
+
+	http.Redirect(w, r, redirectPath, http.StatusSeeOther)
 }
 
 func (app *application) result(w http.ResponseWriter, r *http.Request) {

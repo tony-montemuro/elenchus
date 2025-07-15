@@ -37,7 +37,7 @@ func (app *application) routes() http.Handler {
 	mux.Handle("GET /quizzes", dynamicChain.thenFunc(app.quizList))
 	mux.Handle("GET /quizzes/{quizID}", dynamicChain.thenFunc(app.quiz))
 	mux.Handle("POST /quizzes/{quizID}", dynamicChain.thenFunc(app.quizPost))
-	mux.Handle("GET /quizzes/quiz/result", dynamicChain.thenFunc(app.result))
+	mux.Handle("GET /quizzes/{quizID}/result", dynamicChain.thenFunc(app.result))
 	mux.Handle("GET /ping", dynamicChain.thenFunc(ping))
 
 	protectedChain := append(dynamicChain, app.requireAuthentication)
