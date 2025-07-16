@@ -205,6 +205,11 @@ em {
 	width: 0;
 }
 
+.answer {
+	align-items: center;
+	gap: 0.25rem;
+}
+
 #quiz {
 	gap: 1rem;
 }
@@ -220,4 +225,9 @@ em {
 
 .edit-input {
 	gap: 0.25rem;
+}
+
+.correctness-icon {
+	width: 24px;
+	height: 24px;
 }

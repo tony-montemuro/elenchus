@@ -24,24 +24,46 @@
 		<ol class="flex-col questions">
 			{{range $quiz.Questions}}
 			<li>
-				{{$questionID := .ID}}
+				{{$question := .}}
+				{{$selectedAnswer := (index $attempt.Answers $question.ID)}}
+				{{$isCorrect := .IsCorrect (index $attempt.Answers $question.ID)}}
+				{{$correctContent := ""}}
+
 				<div class="flex-row question">
 					<span>{{.Content}}</span>
-					<span>{{if .IsCorrect (index $attempt.Answers $questionID)}}{{.Points}}{{else}}0{{end}}/{{.Points}}
+					<span>{{if $isCorrect}}{{.Points}}{{else}}0{{end}}/{{.Points}}
 						points</span>
 				</div>
-				<div class="answers">
 
+				<div class="answers">
 					{{range $i, $answer := .Answers}}
-					<div>
-						{{$id := printf "question_%d_%d" $questionID $i }}
-						<input type="radio" id="{{$id}}" name="question[{{$questionID}}][answer]" value="{{$answer.ID}}" disabled
-							{{if eq (index $attempt.Answers $questionID) $answer.ID}}checked{{end}} />
+					<div class="answer flex-row">
+						{{$isSelected := eq $selectedAnswer $answer.ID}}
+						{{$id := printf "question_%d_%d" $question.ID $i }}
+						{{if $question.IsCorrect $answer.ID}}
+						{{$correctContent = $answer.Content}}
+						{{end}}
+
+						<div class="correctness-icon">
+							{{if $isSelected}}
+							{{if $isCorrect}}
+							{{template "correct" .}}
+							{{else}}
+							{{template "incorrect" .}}
+							{{end}}
+							{{end}}
+						</div>
+
+						<input type="radio" id="{{$id}}" name="question[{{$question.ID}}][answer]" value="{{$answer.ID}}" disabled
+							{{if $isSelected}}checked{{end}} />
 						<label for="{{$id}}">{{$answer.Content}}</span>
 					</div>
 					{{end}}
-
 				</div>
+
+				{{if not $isCorrect}}
+				<span>Correct: {{$correctContent}}</span>
+				{{end}}
 			</li>
 			{{end}}
 		</ol>
