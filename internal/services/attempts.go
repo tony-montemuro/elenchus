@@ -60,5 +60,11 @@ func (s *AttemptService) GetAttempt(attemptID, quizID int, profileID *int) (mode
 	}
 	attempt.ID = &attemptID
 
+	created, err := s.AttemptModel.GetAttemptCreatedDate(attemptID)
+	if err != nil {
+		return attempt, err
+	}
+	attempt.Created = &created
+
 	return attempt, nil
 }

@@ -16,6 +16,12 @@ type AttemptPublic struct {
 	Created      *time.Time
 }
 
+type AttemptMetadata struct {
+	ID           int
+	PointsEarned int
+	Created      time.Time
+}
+
 type AttemptModel struct {
 	DB *sql.DB
 }
@@ -48,13 +54,24 @@ func (m *AttemptModel) GetAttemptById(id int) (AttemptPublic, error) {
 	WHERE id = ?`
 
 	err := m.DB.QueryRow(stmt, id).Scan(&attempt.ID, &attempt.PointsEarned, &attempt.Created)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return attempt, ErrNoRecord
-		}
-
-		return attempt, err
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
+		return attempt, ErrNoRecord
 	}
 
-	return attempt, nil
+	return attempt, err
+}
+
+func (m *AttemptModel) GetAttemptCreatedDate(id int) (time.Time, error) {
+	var created time.Time
+
+	stmt := `SELECT created
+	FROM attempt
+	WHERE id = ?`
+
+	err := m.DB.QueryRow(stmt, id).Scan(&created)
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
+		return created, ErrNoRecord
+	}
+
+	return created, err
 }

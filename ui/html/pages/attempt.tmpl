@@ -5,6 +5,7 @@
 	<div class="flex-col">
 		{{$attempt := .Data.Attempt}}
 		{{$quiz := $attempt.Quiz}}
+
 		<div id="quiz-title" class="flex-row">
 			<h1>Attempt - {{$quiz.Title}}</h1>
 			{{if $quiz.Editable}}
@@ -12,12 +13,16 @@
 			{{end}}
 		</div>
 		<h2>Score: {{$attempt.PointsEarned}} / {{$quiz.PointsCount}}</h2>
+		{{if $attempt.Created}}
+		<span title="{{humanDate $attempt.Created}}">Attempted {{timeAgo $attempt.Created}}</span>
+		{{end}}
 		<span>Created by <a href="/profile/{{ $quiz.Profile.ID }}">{{ $quiz.Profile.FirstName }} {{ $quiz.Profile.LastName
 				}}</a></span>
 		{{if $quiz.Published}}
 		<span title="{{humanDate $quiz.Published}}">Published {{timeAgo $quiz.Published}}</span>
 		{{end}}
 	</div>
+
 	<form class="flex-col quiz-form" method="post">
 		{{template "csrf-token" .CSRFToken}}
 		<input type="hidden" name="quiz" value={{$quiz.ID}} />
