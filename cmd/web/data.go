@@ -12,7 +12,8 @@ type QuizzesPageData struct {
 }
 
 type QuizPageData struct {
-	Quiz models.QuizPublic
+	Attempts []models.AttemptMetadata
+	Quiz     models.QuizPublic
 }
 
 type AttemptPageData struct {

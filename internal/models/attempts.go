@@ -6,6 +6,13 @@ import (
 	"time"
 )
 
+type AttemptModelInterface interface {
+	InsertAttempt(AttemptPublic, *sql.Tx) (int, error)
+	GetAttemptById(int) (AttemptPublic, error)
+	GetAttemptCreatedDate(int) (time.Time, error)
+	GetAttempts(int, int) ([]AttemptMetadata, error)
+}
+
 type QuestionAnswer map[int]int
 
 type AttemptPublic struct {
@@ -18,6 +25,7 @@ type AttemptPublic struct {
 
 type AttemptMetadata struct {
 	ID           int
+	Sequence     int
 	PointsEarned int
 	Created      time.Time
 }
@@ -74,4 +82,33 @@ func (m *AttemptModel) GetAttemptCreatedDate(id int) (time.Time, error) {
 	}
 
 	return created, err
+}
+
+func (m *AttemptModel) GetAttempts(quizID, profileID int) ([]AttemptMetadata, error) {
+	attempts := []AttemptMetadata{}
+
+	stmt := `SELECT a.id, a.points_earned, a.created, ROW_NUMBER() OVER (ORDER BY a.created ASC) AS sequence 
+	FROM attempt a
+	WHERE a.quiz_id = ? AND a.profile_id = ?
+	ORDER BY a.created DESC`
+
+	rows, err := m.DB.Query(stmt, quizID, profileID)
+	if err != nil {
+		return attempts, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var a AttemptMetadata
+
+		err := rows.Scan(&a.ID, &a.PointsEarned, &a.Created, &a.Sequence)
+		if err != nil {
+			return attempts, err
+		}
+
+		attempts = append(attempts, a)
+	}
+
+	return attempts, nil
 }

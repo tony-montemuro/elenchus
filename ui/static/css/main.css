@@ -101,6 +101,10 @@ em {
 	font-style: italic;
 }
 
+summary {
+	cursor: pointer;
+}
+
 .nav-items {
 	display: flex;
 	gap: 1rem;
@@ -230,4 +234,18 @@ em {
 .correctness-icon {
 	width: 24px;
 	height: 24px;
+}
+
+.attempts th,
+.attempts td {
+	border: 1px solid;
+	padding: 0.5rem;
+}
+
+.attempts th {
+	text-align: left;
+}
+
+.attempts table {
+	border-collapse: collapse;
 }

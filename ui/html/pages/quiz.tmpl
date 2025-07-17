@@ -16,6 +16,30 @@
 		{{if $quiz.Published}}
 		<span title="{{humanDate $quiz.Published}}">Published {{timeAgo $quiz.Published}}</span>
 		{{end}}
+		{{if len .Data.Attempts}}
+		<details class="attempts">
+			<summary>Attempts</summary>
+			<table>
+				<thead>
+					<tr>
+						<th>Attempt</th>
+						<th>Score</th>
+						<th>Time Ago</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{range .Data.Attempts}}
+					<tr>
+						{{$href := printf "%d/attempt/%d" $quiz.ID .ID}}
+						<td><a href="{{$href}}">Attempt {{.Sequence}}</a></td>
+						<td>{{.PointsEarned}} / {{$quiz.PointsCount}}</td>
+						<td><span title="{{humanDate .Created}}">{{timeAgo .Created}}</span></td>
+					</tr>
+					{{end}}
+				</tbody>
+			</table>
+		</details>
+		{{end}}
 	</div>
 	<form class="flex-col quiz-form" method="post">
 		{{template "csrf-token" .CSRFToken}}

@@ -7,7 +7,8 @@
 		{{$quiz := $attempt.Quiz}}
 
 		<div id="quiz-title" class="flex-row">
-			<h1>Attempt - {{$quiz.Title}}</h1>
+			{{$href := printf "/quizzes/%d" $quiz.ID}}
+			<h1>Attempt - <a href="{{$href}}">{{$quiz.Title}}</a></h1>
 			{{if $quiz.Editable}}
 			<a href="/quizzes/{{ $quiz.ID }}/edit">Edit</a>
 			{{end}}
@@ -23,7 +24,7 @@
 		{{end}}
 	</div>
 
-	<form class="flex-col quiz-form" method="post">
+	<div class="flex-col quiz-form">
 		{{template "csrf-token" .CSRFToken}}
 		<input type="hidden" name="quiz" value={{$quiz.ID}} />
 		<ol class="flex-col questions">
@@ -72,8 +73,6 @@
 			</li>
 			{{end}}
 		</ol>
-
-		<button type="submit">Submit</button>
-	</form>
+	</div>
 </div>
 {{end}}

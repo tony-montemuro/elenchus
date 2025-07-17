@@ -113,7 +113,7 @@ func (m *QuizModel) Latest() ([]QuizMetadata, error) {
 
 	rows, err := m.DB.Query(stmt)
 	if err != nil {
-		return quizzes, nil
+		return quizzes, err
 	}
 
 	defer rows.Close()

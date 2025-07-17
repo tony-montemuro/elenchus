@@ -26,6 +26,7 @@ type application struct {
 	profiles        models.ProfileModelInterface
 	quizzes         models.QuizModelInterface
 	questionTypes   models.QuestionTypeModelInterface
+	attempts        models.AttemptModelInterface
 	quizzesService  services.QuizServiceInterface
 	attemptsService services.AttemptServiceInterface
 	sessionManager  *scs.SessionManager
@@ -82,6 +83,7 @@ func main() {
 		profiles:       &models.ProfileModel{DB: db},
 		quizzes:        quizModel,
 		questionTypes:  questionTypeModel,
+		attempts:       attemptModel,
 		quizzesService: quizService,
 		attemptsService: &services.AttemptService{
 			DB:                         db,

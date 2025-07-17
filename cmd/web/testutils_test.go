@@ -26,13 +26,15 @@ func newTestApplication(t *testing.T, logWriter io.Writer) *application {
 	sessionManager.Lifetime = 12 * time.Hour
 
 	app := &application{
-		templateCache:  templateCache,
-		logger:         slog.New(slog.NewJSONHandler(logWriter, nil)),
-		profiles:       &modelMocks.ProfileModel{},
-		quizzes:        &modelMocks.QuizModel{},
-		questionTypes:  &modelMocks.QuestionTypeModel{},
-		quizzesService: &serviceMocks.QuizService{},
-		sessionManager: sessionManager,
+		templateCache:   templateCache,
+		logger:          slog.New(slog.NewJSONHandler(logWriter, nil)),
+		profiles:        &modelMocks.ProfileModel{},
+		quizzes:         &modelMocks.QuizModel{},
+		questionTypes:   &modelMocks.QuestionTypeModel{},
+		attempts:        &modelMocks.AttemptModel{},
+		quizzesService:  &serviceMocks.QuizService{},
+		attemptsService: &serviceMocks.AttemptService{},
+		sessionManager:  sessionManager,
 	}
 
 	openAIClient := openai.NewClient(

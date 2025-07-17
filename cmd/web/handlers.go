@@ -229,6 +229,7 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) quiz(w http.ResponseWriter, r *http.Request) {
+	var attempts []models.AttemptMetadata
 	quizID, err := strconv.Atoi(r.PathValue("quizID"))
 	if err != nil {
 		app.redirectNotFound(w, r, "user attempted to access a quiz that does not exist", err)
@@ -246,9 +247,18 @@ func (app *application) quiz(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if profileID != nil {
+		attempts, err = app.attempts.GetAttempts(quizID, *profileID)
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
+	}
+
 	data := app.newTemplateData(r)
 	data.Data = QuizPageData{
-		Quiz: quiz,
+		Attempts: attempts,
+		Quiz:     quiz,
 	}
 	app.render(w, r, http.StatusOK, "quiz.tmpl", data)
 }
