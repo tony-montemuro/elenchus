@@ -5,7 +5,7 @@
 {{$form := .Form}}
 {{$rangeRules := .RangeRules}}
 <div class="flex-col" id="quiz">
-	<form class="flex-col">
+	<form method="post" class="flex-col">
 		{{template "csrf-token" .CSRFToken}}
 		<div class="flex-row edit-input">
 			<label for="title">Title: </label>
