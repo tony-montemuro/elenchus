@@ -295,7 +295,7 @@ func (app *application) quizPost(w http.ResponseWriter, r *http.Request) {
 
 	profileID, _ := app.getProfileID(r)
 	if quiz.IsSavable(profileID) {
-		attempt, err = app.attemptsService.SaveAttempt(attempt)
+		attempt, err = app.attemptsService.SaveAttempt(attempt, *profileID)
 	}
 
 	if err != nil {

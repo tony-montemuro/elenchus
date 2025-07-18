@@ -9,7 +9,7 @@ import (
 
 type AttemptModel struct{}
 
-func (m *AttemptModel) InsertAttempt(attempt models.AttemptPublic, tx *sql.Tx) (int, error) {
+func (m *AttemptModel) InsertAttempt(attempt models.AttemptPublic, profileID int, tx *sql.Tx) (int, error) {
 	return 0, nil
 }
 

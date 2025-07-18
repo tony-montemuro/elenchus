@@ -7,7 +7,7 @@ import (
 )
 
 type AttemptModelInterface interface {
-	InsertAttempt(AttemptPublic, *sql.Tx) (int, error)
+	InsertAttempt(AttemptPublic, int, *sql.Tx) (int, error)
 	GetAttemptById(int) (AttemptPublic, error)
 	GetAttemptCreatedDate(int) (time.Time, error)
 	GetAttempts(int, int) ([]AttemptMetadata, error)
@@ -34,14 +34,14 @@ type AttemptModel struct {
 	DB *sql.DB
 }
 
-func (m *AttemptModel) InsertAttempt(attempt AttemptPublic, tx *sql.Tx) (int, error) {
+func (m *AttemptModel) InsertAttempt(attempt AttemptPublic, profileID int, tx *sql.Tx) (int, error) {
 	stmt, err := tx.Prepare(`INSERT INTO attempt (profile_id, quiz_id, points_earned, created)
 	VALUES (?, ?, ?, UTC_TIMESTAMP())`)
 	if err != nil {
 		return 0, err
 	}
 
-	result, err := stmt.Exec(attempt.Quiz.Profile.ID, attempt.Quiz.ID, attempt.PointsEarned)
+	result, err := stmt.Exec(profileID, attempt.Quiz.ID, attempt.PointsEarned)
 	if err != nil {
 		return 0, err
 	}

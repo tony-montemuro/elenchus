@@ -4,7 +4,7 @@ import "github.com/tony-montemuro/elenchus/internal/models"
 
 type AttemptService struct{}
 
-func (s *AttemptService) SaveAttempt(attempt models.AttemptPublic) (models.AttemptPublic, error) {
+func (s *AttemptService) SaveAttempt(attempt models.AttemptPublic, profileID int) (models.AttemptPublic, error) {
 	return models.AttemptPublic{}, nil
 }
 
