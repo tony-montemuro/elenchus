@@ -346,7 +346,10 @@ func (app *application) attempt(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusNotFound)
 	}
 
-	profileID, _ := app.getProfileID(r)
+	profileID, err := app.getProfileID(r)
+	if err != nil {
+		app.redirectNotFound(w, r, "unauthorized user attempted to access attempt", err)
+	}
 
 	attempt, err = app.getAttemptFromSession(r)
 
@@ -358,6 +361,8 @@ func (app *application) attempt(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord) {
 			app.clientError(w, http.StatusBadRequest)
+		} else if errors.Is(err, models.ErrInvalidCredentials) {
+			app.redirectHome(w, r, "Attempt not found.", "authorized user attempt to access attempt from different profile", err)
 		} else {
 			app.serverError(w, r, err)
 		}

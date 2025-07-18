@@ -60,10 +60,14 @@ func (s *AttemptService) GetAttempt(attemptID, quizID int, profileID *int) (mode
 	}
 	attempt.ID = &attemptID
 
-	created, err := s.AttemptModel.GetAttemptCreatedDate(attemptID)
+	created, pid, err := s.AttemptModel.GetAttemptDetails(attemptID)
 	if err != nil {
 		return attempt, err
 	}
+	if pid != *profileID {
+		return attempt, models.ErrInvalidCredentials
+	}
+
 	attempt.Created = &created
 
 	return attempt, nil

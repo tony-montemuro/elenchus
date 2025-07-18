@@ -17,8 +17,8 @@ func (m *AttemptModel) GetAttemptById(id int) (models.AttemptPublic, error) {
 	return models.AttemptPublic{}, nil
 }
 
-func (m *AttemptModel) GetAttemptCreatedDate(id int) (time.Time, error) {
-	return time.Now(), nil
+func (m *AttemptModel) GetAttemptDetails(id int) (time.Time, int, error) {
+	return time.Now(), 0, nil
 }
 
 func (m *AttemptModel) GetAttempts(quizID int, profileID int) ([]models.AttemptMetadata, error) {

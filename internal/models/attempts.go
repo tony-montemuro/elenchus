@@ -9,7 +9,7 @@ import (
 type AttemptModelInterface interface {
 	InsertAttempt(AttemptPublic, int, *sql.Tx) (int, error)
 	GetAttemptById(int) (AttemptPublic, error)
-	GetAttemptCreatedDate(int) (time.Time, error)
+	GetAttemptDetails(int) (time.Time, int, error)
 	GetAttempts(int, int) ([]AttemptMetadata, error)
 }
 
@@ -69,19 +69,20 @@ func (m *AttemptModel) GetAttemptById(id int) (AttemptPublic, error) {
 	return attempt, err
 }
 
-func (m *AttemptModel) GetAttemptCreatedDate(id int) (time.Time, error) {
+func (m *AttemptModel) GetAttemptDetails(id int) (time.Time, int, error) {
 	var created time.Time
+	var profileID int
 
-	stmt := `SELECT created
+	stmt := `SELECT created, profile_id
 	FROM attempt
 	WHERE id = ?`
 
-	err := m.DB.QueryRow(stmt, id).Scan(&created)
+	err := m.DB.QueryRow(stmt, id).Scan(&created, &profileID)
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
-		return created, ErrNoRecord
+		return created, profileID, ErrNoRecord
 	}
 
-	return created, err
+	return created, profileID, err
 }
 
 func (m *AttemptModel) GetAttempts(quizID, profileID int) ([]AttemptMetadata, error) {
