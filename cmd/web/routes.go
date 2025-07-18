@@ -48,6 +48,7 @@ func (app *application) routes() http.Handler {
 	mux.Handle("GET /quizzes/{quizID}/edit", protectedChain.thenFunc(app.edit))
 	mux.Handle("POST /quizzes/{quizID}/edit", protectedChain.thenFunc(app.editPost))
 	mux.Handle("GET /quizzes/{quizID}/attempt/{attemptID}", protectedChain.thenFunc(app.attempt))
+	mux.Handle("POST /quizzes/{quizID}/unpublish", protectedChain.thenFunc(app.unpublish))
 
 	globalChain := chain{app.recoverPanic, app.addRequestID, app.logRequest, commonHeaders}
 	return globalChain.then(mux)

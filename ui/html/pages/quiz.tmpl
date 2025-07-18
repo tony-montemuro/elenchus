@@ -4,10 +4,17 @@
 <div class="flex-col" id="quiz">
 	<div class="flex-col">
 		{{$quiz := .Data.Quiz}}
+		{{$profileID := .Data.ProfileID}}
 		<div id="quiz-title" class="flex-row">
 			<h1>{{$quiz.Title}}</h1>
 			{{if $quiz.Editable}}
-			<a href="/quizzes/{{ $quiz.ID }}/edit">Edit</a>
+			<a href="/quizzes/{{$quiz.ID}}/edit">Edit</a>
+			{{end}}
+			{{if and (eq $profileID $quiz.Profile.ID) ($quiz.Published)}}
+			<form method="post" action="/quizzes/{{$quiz.ID}}/unpublish">
+				{{template "csrf-token" .CSRFToken}}
+				<button type="submit">Unpublish</button>
+			</form>
 			{{end}}
 		</div>
 		<span>{{$quiz.PointsCount}} {{pluralize "point" $quiz.PointsCount}}</span>

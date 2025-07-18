@@ -255,11 +255,13 @@ func (app *application) quiz(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	data := app.newTemplateData(r)
-	data.Data = QuizPageData{
+	quizData := QuizPageData{
 		Attempts: attempts,
 		Quiz:     quiz,
 	}
+	quizData.setProfileID(profileID)
+	data := app.newTemplateData(r)
+	data.Data = quizData
 	app.render(w, r, http.StatusOK, "quiz.tmpl", data)
 }
 
@@ -518,4 +520,8 @@ func (app *application) editPost(w http.ResponseWriter, r *http.Request) {
 
 	data.Flash = "Quiz saved!"
 	app.render(w, r, http.StatusOK, "edit.tmpl", data)
+}
+
+func (app *application) unpublish(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Unpublishing..."))
 }

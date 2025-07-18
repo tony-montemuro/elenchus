@@ -18,7 +18,6 @@
 		<div class="flex-row edit-input">
 			<label for="description">Description: </label>
 			<div class="flex-col">
-
 				<textarea name="description" id="description" rows="7" cols="100" maxlength="1024" {{template "input-ranges"
 					.RangeRules.description}}>{{$quiz.Description}}</textarea>
 				{{template "error" $form.FieldErrors.description}}

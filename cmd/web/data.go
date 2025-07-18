@@ -12,8 +12,17 @@ type QuizzesPageData struct {
 }
 
 type QuizPageData struct {
-	Attempts []models.AttemptMetadata
-	Quiz     models.QuizPublic
+	Attempts  []models.AttemptMetadata
+	Quiz      models.QuizPublic
+	ProfileID int
+}
+
+func (d *QuizPageData) setProfileID(profileID *int) {
+	if profileID != nil {
+		d.ProfileID = *profileID
+	} else {
+		d.ProfileID = 0
+	}
 }
 
 type AttemptPageData struct {
