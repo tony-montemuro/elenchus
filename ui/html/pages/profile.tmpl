@@ -3,17 +3,23 @@
 {{define "main"}}
 <h1>Profile</h1>
 <h2>Information</h2>
-<form method="post" class="flex-col">
+<form method="post" class="flex-col profile-form">
 	{{template "csrf-token" .CSRFToken}}
-	<div class="flex-row profile-input">
-		<label for="first-name">First Name</label>
-		<input id="first-name" type="text" name="first-name" placeholder="First Name" title="First Name"
-			value="{{.Form.FirstName}}" {{template "input-ranges" .RangeRules.firstName}} autocomplete="given-name" />
+	<div class="flex-col">
+		<div class="flex-col profile-input">
+			<label for="first-name">First Name</label>
+			<input id="first-name" type="text" name="first-name" placeholder="First Name" title="First Name"
+				value="{{.Form.FirstName}}" {{template "input-ranges" .RangeRules.firstName}} autocomplete="given-name" />
+		</div>
+		{{template "error" .Form.FieldErrors.firstName}}
 	</div>
-	<div class="flex-row profile-input">
-		<label for="last-name">Last Name</label>
-		<input id="last-name" type="text" name="last-name" placeholder="Last Name" title="Last Name"
-			value="{{.Form.LastName}}" {{template "input-ranges" .RangeRules.lastName}} autocomplete="family-name" />
+	<div class="flex-col">
+		<div class="flex-col profile-input">
+			<label for="last-name">Last Name</label>
+			<input id="last-name" type="text" name="last-name" placeholder="Last Name" title="Last Name"
+				value="{{.Form.LastName}}" {{template "input-ranges" .RangeRules.lastName}} autocomplete="family-name" />
+		</div>
+		{{template "error" .Form.FieldErrors.lastName}}
 	</div>
 	<button type="submit">Update</button>
 </form>

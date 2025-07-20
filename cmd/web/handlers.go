@@ -400,29 +400,73 @@ func (app *application) profile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	profile, err := app.profiles.GetProfile(*profileID)
-	if err != nil {
-		app.serverError(w, r, err)
-		return
-	}
-
 	data := app.newTemplateData(r)
 	data.Data = ProfilePageData{
 		Published:   published,
 		Unpublished: unpublished,
 	}
 	data.Script = "profile.js"
-	data.Form = profileForm{
-		FirstName: profile.FirstName,
-		LastName:  profile.LastName,
+
+	form, err := app.getProfileFormFromSession(r)
+	if err != nil {
+		var firstName string
+		var lastName string
+
+		if errors.Is(err, ErrNoProfileForm) {
+			err = nil
+			firstName, lastName, err = app.profiles.GetProfileNames(*profileID)
+		}
+
+		if err != nil {
+			app.serverError(w, r, err)
+		}
+
+		form.FirstName = firstName
+		form.LastName = lastName
 	}
+	data.Form = form
+
 	data.RangeRules = validator.RangeRules[validator.ProfileForm]
 
 	app.render(w, r, http.StatusOK, "profile.tmpl", data)
 }
 
 func (app *application) profilePost(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Saving profile..."))
+	profileID, err := app.getProfileID(r)
+	if err != nil {
+		app.redirectNotFound(w, r, "user attempted to update a profile without proper authorization!", err)
+		return
+	}
+
+	err = r.ParseForm()
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	form := profileForm{
+		FirstName: r.PostForm.Get("first-name"),
+		LastName:  r.PostForm.Get("last-name"),
+	}
+
+	formName := validator.ProfileForm
+	errs := validator.GetRangeErrors(form, formName)
+	for _, err := range errs {
+		form.AddFieldError(err.Key, err.Error())
+	}
+
+	if form.Valid() {
+		err = app.profiles.UpdateProfileNames(form.FirstName, form.LastName, *profileID)
+
+		if err != nil {
+			app.sessionManager.Put(r.Context(), "flash", "Profile information could not be saved at this time.")
+		} else {
+			app.sessionManager.Put(r.Context(), "flash", "Profile information saved!")
+		}
+	}
+
+	app.sessionManager.Put(r.Context(), profileFormKey, form)
+	http.Redirect(w, r, "/profile", http.StatusSeeOther)
 }
 
 func (app *application) edit(w http.ResponseWriter, r *http.Request) {

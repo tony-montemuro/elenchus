@@ -10,13 +10,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// func (m *ProfileModel) GetProfile(id int) (ProfilePublic, error) {
-
 type ProfileModelInterface interface {
 	Insert(string, string, string, string) error
 	Authenticate(string, string) (Profile, error)
 	Exists(int) (bool, error)
-	GetProfile(int) (ProfilePublic, error)
+	GetProfileNames(int) (string, string, error)
+	UpdateProfileNames(string, string, int) error
 }
 
 type Profile struct {
@@ -100,16 +99,26 @@ func (m *ProfileModel) Exists(id int) (bool, error) {
 	return exists, err
 }
 
-func (m *ProfileModel) GetProfile(id int) (ProfilePublic, error) {
-	var p ProfilePublic
-	stmt := `SELECT p.id, p.first_name, p.last_name
+func (m *ProfileModel) GetProfileNames(id int) (string, string, error) {
+	var firstName string
+	var lastName string
+	stmt := `SELECT p.first_name, p.last_name
 	FROM profile p
 	WHERE p.id = ?`
 
-	err := m.DB.QueryRow(stmt, id).Scan(&p.ID, &p.FirstName, &p.LastName)
+	err := m.DB.QueryRow(stmt, id).Scan(&firstName, &lastName)
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
-		return p, ErrInvalidCredentials
+		return firstName, lastName, ErrInvalidCredentials
 	}
 
-	return p, err
+	return firstName, lastName, nil
+}
+
+func (m *ProfileModel) UpdateProfileNames(firstName, lastName string, profileID int) error {
+	stmt := `UPDATE profile p
+	SET p.first_name = ?, p.last_name = ?, updated = UTC_TIMESTAMP()
+	WHERE id = ?`
+
+	_, err := m.DB.Exec(stmt, firstName, lastName, profileID)
+	return err
 }

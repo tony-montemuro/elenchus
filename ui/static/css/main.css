@@ -250,6 +250,11 @@ summary {
 	border-collapse: collapse;
 }
 
+
+.profile-form {
+	gap: 0.5rem;
+}
+
 .profile-input {
 	gap: 0.25rem;
 }
