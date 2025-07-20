@@ -7,11 +7,13 @@
 		{{$profileID := .Data.ProfileID}}
 		<div id="quiz-title" class="flex-row">
 			<h1>{{$quiz.Title}}</h1>
+
 			{{if $quiz.Editable}}
 			<a href="/quizzes/{{$quiz.ID}}/edit">Edit</a>
 			{{end}}
+
 			{{if and (eq $profileID $quiz.Profile.ID) ($quiz.Published)}}
-			<form method="post" action="/quizzes/{{$quiz.ID}}/unpublish">
+			<form id="unpublish" method="post" action="/quizzes/{{$quiz.ID}}/unpublish">
 				{{template "csrf-token" .CSRFToken}}
 				<button type="submit">Unpublish</button>
 			</form>
@@ -20,9 +22,11 @@
 		<span>{{$quiz.PointsCount}} {{pluralize "point" $quiz.PointsCount}}</span>
 		<span>Created by <a href="/profile/{{ $quiz.Profile.ID }}">{{ $quiz.Profile.FirstName }} {{ $quiz.Profile.LastName
 				}}</a></span>
+
 		{{if $quiz.Published}}
 		<span title="{{humanDate $quiz.Published}}">Published {{timeAgo $quiz.Published}}</span>
 		{{end}}
+
 		{{if len .Data.Attempts}}
 		<details class="attempts">
 			<summary>Attempts</summary>
@@ -47,7 +51,9 @@
 			</table>
 		</details>
 		{{end}}
+
 	</div>
+
 	<form class="flex-col quiz-form" method="post">
 		{{template "csrf-token" .CSRFToken}}
 		<input type="hidden" name="quiz" value={{$quiz.ID}} />

@@ -262,6 +262,7 @@ func (app *application) quiz(w http.ResponseWriter, r *http.Request) {
 	quizData.setProfileID(profileID)
 	data := app.newTemplateData(r)
 	data.Data = quizData
+	data.Script = "quiz.js"
 	app.render(w, r, http.StatusOK, "quiz.tmpl", data)
 }
 
