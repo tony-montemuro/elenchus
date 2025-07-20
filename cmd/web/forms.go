@@ -59,6 +59,21 @@ func (f createForm) GetStringVals() map[string]string {
 	return vals
 }
 
+type profileForm struct {
+	FirstName string
+	LastName  string
+	validator.Validator
+}
+
+func (f profileForm) GetStringVals() map[string]string {
+	vals := make(map[string]string)
+
+	vals["firstName"] = f.FirstName
+	vals["lastName"] = f.LastName
+
+	return vals
+}
+
 type questionEdit struct {
 	Content string
 	Correct int

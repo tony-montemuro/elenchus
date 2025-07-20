@@ -2,6 +2,21 @@
 
 {{define "main"}}
 <h1>Profile</h1>
+<h2>Information</h2>
+<form method="post" class="flex-col">
+	{{template "csrf-token" .CSRFToken}}
+	<div class="flex-row profile-input">
+		<label for="first-name">First Name</label>
+		<input id="first-name" type="text" name="first-name" placeholder="First Name" title="First Name"
+			value="{{.Form.FirstName}}" {{template "input-ranges" .RangeRules.firstName}} autocomplete="given-name" />
+	</div>
+	<div class="flex-row profile-input">
+		<label for="last-name">Last Name</label>
+		<input id="last-name" type="text" name="last-name" placeholder="Last Name" title="Last Name"
+			value="{{.Form.LastName}}" {{template "input-ranges" .RangeRules.lastName}} autocomplete="family-name" />
+	</div>
+	<button type="submit">Update</button>
+</form>
 <h2>Your Quizzes</h2>
 <div>
 	<label for="published">Published</label>

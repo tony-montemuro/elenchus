@@ -400,14 +400,29 @@ func (app *application) profile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	profile, err := app.profiles.GetProfile(*profileID)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
 	data := app.newTemplateData(r)
 	data.Data = ProfilePageData{
 		Published:   published,
 		Unpublished: unpublished,
 	}
 	data.Script = "profile.js"
+	data.Form = profileForm{
+		FirstName: profile.FirstName,
+		LastName:  profile.LastName,
+	}
+	data.RangeRules = validator.RangeRules[validator.ProfileForm]
 
 	app.render(w, r, http.StatusOK, "profile.tmpl", data)
+}
+
+func (app *application) profilePost(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Saving profile..."))
 }
 
 func (app *application) edit(w http.ResponseWriter, r *http.Request) {

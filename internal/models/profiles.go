@@ -10,10 +10,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// func (m *ProfileModel) GetProfile(id int) (ProfilePublic, error) {
+
 type ProfileModelInterface interface {
-	Insert(firstName, lastName, email, password string) error
-	Authenticate(email, password string) (Profile, error)
-	Exists(id int) (bool, error)
+	Insert(string, string, string, string) error
+	Authenticate(string, string) (Profile, error)
+	Exists(int) (bool, error)
+	GetProfile(int) (ProfilePublic, error)
 }
 
 type Profile struct {
@@ -95,4 +98,18 @@ func (m *ProfileModel) Exists(id int) (bool, error) {
 	err := m.DB.QueryRow(stmt, id).Scan(&exists)
 
 	return exists, err
+}
+
+func (m *ProfileModel) GetProfile(id int) (ProfilePublic, error) {
+	var p ProfilePublic
+	stmt := `SELECT p.id, p.first_name, p.last_name
+	FROM profile p
+	WHERE p.id = ?`
+
+	err := m.DB.QueryRow(stmt, id).Scan(&p.ID, &p.FirstName, &p.LastName)
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
+		return p, ErrInvalidCredentials
+	}
+
+	return p, err
 }

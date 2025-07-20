@@ -40,6 +40,10 @@ var RangeRules = map[string]FormRangeRules{
 		"question":    {MinLength: 1, MaxLength: 2048},
 		"answer":      {MinLength: 1, MaxLength: 2048},
 	},
+	ProfileForm: {
+		"firstName": {MinLength: 1, MaxLength: 50},
+		"lastName":  {MinLength: 1, MaxLength: 50},
+	},
 }
 
 func GetRangeErrors(form Form, name string) []RangeError {

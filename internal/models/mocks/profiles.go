@@ -15,3 +15,7 @@ func (m *ProfileModel) Authenticate(email, password string) (models.Profile, err
 func (m *ProfileModel) Exists(id int) (bool, error) {
 	return false, nil
 }
+
+func (m *ProfileModel) GetProfile(id int) (models.ProfilePublic, error) {
+	return models.ProfilePublic{}, nil
+}

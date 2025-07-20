@@ -249,3 +249,7 @@ summary {
 .attempts table {
 	border-collapse: collapse;
 }
+
+.profile-input {
+	gap: 0.25rem;
+}

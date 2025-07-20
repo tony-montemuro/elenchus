@@ -45,6 +45,7 @@ func (app *application) routes() http.Handler {
 	mux.Handle("GET /create", protectedChain.thenFunc(app.create))
 	mux.Handle("POST /create", protectedChain.thenFunc(app.createPost))
 	mux.Handle("GET /profile", protectedChain.thenFunc(app.profile))
+	mux.Handle("POST /profile", protectedChain.thenFunc(app.profilePost))
 	mux.Handle("GET /quizzes/{quizID}/edit", protectedChain.thenFunc(app.edit))
 	mux.Handle("POST /quizzes/{quizID}/edit", protectedChain.thenFunc(app.editPost))
 	mux.Handle("GET /quizzes/{quizID}/attempt/{attemptID}", protectedChain.thenFunc(app.attempt))

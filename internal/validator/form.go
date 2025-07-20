@@ -5,8 +5,9 @@ type Form interface {
 }
 
 var (
-	SignUpForm = "signupForm"
-	LoginForm  = "loginForm"
-	CreateForm = "createForm"
-	EditForm   = "editForm"
+	SignUpForm  = "signupForm"
+	LoginForm   = "loginForm"
+	CreateForm  = "createForm"
+	EditForm    = "editForm"
+	ProfileForm = "ProfileForm"
 )
