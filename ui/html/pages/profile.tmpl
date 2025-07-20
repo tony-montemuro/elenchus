@@ -1,5 +1,11 @@
-{{define "title"}}Profile{{end}}
+{{define "title"}}{{printf "%s %s" .Data.FirstName .Data.LastName}}{{end}}
 
 {{define "main"}}
-<h1>Profile Page</h1>
+<h1>{{printf "%s %s" .Data.FirstName .Data.LastName}}</h1>
+<h2>Quizzes</h2>
+{{if gt (len .Data.Published) 0}}
+{{template "quiz-list" .Data.Published}}
+{{else}}
+<em>This user has no published quizzes.</em>
+{{end}}
 {{end}}

@@ -2,7 +2,7 @@ package main
 
 import "github.com/tony-montemuro/elenchus/internal/models"
 
-type ProfilePageData struct {
+type MyProfilePageData struct {
 	Published   []models.QuizMetadata
 	Unpublished []models.QuizMetadata
 }
@@ -27,4 +27,10 @@ func (d *QuizPageData) setProfileID(profileID *int) {
 
 type AttemptPageData struct {
 	Attempt models.AttemptPublic
+}
+
+type ProfilePageData struct {
+	Published []models.QuizMetadata
+	FirstName string
+	LastName  string
 }

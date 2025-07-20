@@ -401,7 +401,7 @@ func (app *application) myProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := app.newTemplateData(r)
-	data.Data = ProfilePageData{
+	data.Data = MyProfilePageData{
 		Published:   published,
 		Unpublished: unpublished,
 	}
@@ -617,10 +617,29 @@ func (app *application) unpublish(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) profile(w http.ResponseWriter, r *http.Request) {
-	// profileID, err := strconv.Atoi(r.PathValue("profileID"))
-	// if err != nil {
-	// 	app.clientError(w, http.StatusNotFound)
-	// }
+	profileID, err := strconv.Atoi(r.PathValue("profileID"))
+	if err != nil {
+		app.clientError(w, http.StatusNotFound)
+	}
 
-	app.render(w, r, http.StatusOK, "profile.tmpl", app.newTemplateData(r))
+	published, err := app.quizzes.GetPublishedQuizzesByProfile(&profileID)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	firstName, lastName, err := app.profiles.GetProfileNames(profileID)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	data := app.newTemplateData(r)
+	data.Data = ProfilePageData{
+		Published: published,
+		FirstName: firstName,
+		LastName:  lastName,
+	}
+
+	app.render(w, r, http.StatusOK, "profile.tmpl", data)
 }
