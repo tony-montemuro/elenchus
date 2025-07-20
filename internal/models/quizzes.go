@@ -37,6 +37,7 @@ type QuizMetadata struct {
 	QuestionCount int
 	PointsCount   int
 	Published     *time.Time
+	Unpublished   *time.Time
 	Editable      bool
 }
 
@@ -241,15 +242,14 @@ func (m *QuizModel) getProfileQuizzes(profileID *int, isPublished bool) ([]QuizM
 	for rows.Next() {
 		var p ProfilePublic
 		var q QuizMetadata
-		var unpublished *time.Time
 
-		err = rows.Scan(&q.ID, &p.ID, &p.FirstName, &p.LastName, &p.Deleted, &q.Title, &q.Description, &q.QuestionCount, &q.PointsCount, &q.Published, &unpublished)
+		err = rows.Scan(&q.ID, &p.ID, &p.FirstName, &p.LastName, &p.Deleted, &q.Title, &q.Description, &q.QuestionCount, &q.PointsCount, &q.Published, &q.Unpublished)
 		if err != nil {
 			return []QuizMetadata{}, err
 		}
 
 		q.Profile = p
-		if q.isNotPublished(unpublished) && q.isOwnedByProfile(profileID) {
+		if q.isNotPublished(q.Unpublished) && q.isOwnedByProfile(profileID) {
 			q.Editable = true
 		}
 		quizzes = append(quizzes, q)

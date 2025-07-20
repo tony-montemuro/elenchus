@@ -8,8 +8,14 @@
 			<span>{{ .PointsCount }} {{ pluralize "point" .PointsCount }} | {{ .QuestionCount }} {{ pluralize "question"
 				.QuestionCount }}</span>
 			<span>Created by {{ .Profile.FirstName }} {{ .Profile.LastName }}</span>
-			{{if .Published}}
+			{{if and (not .Editable) (.Published)}}
 			<span title="{{humanDate .Published}}">Published {{timeAgo .Published}}</span>
+			{{end}}
+			{{if and (.Editable) (.Unpublished)}}
+			<span>Unpublished {{timeAgo .Unpublished}}</span>
+			{{end}}
+			{{if and (.Editable) (not .Unpublished)}}
+			<span>Never Published</span>
 			{{end}}
 		</a>
 
