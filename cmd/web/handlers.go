@@ -381,7 +381,7 @@ func (app *application) attempt(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, http.StatusOK, "attempt.tmpl", data)
 }
 
-func (app *application) profile(w http.ResponseWriter, r *http.Request) {
+func (app *application) myProfile(w http.ResponseWriter, r *http.Request) {
 	profileID, err := app.getProfileID(r)
 	if err != nil {
 		app.redirectNotFound(w, r, "user attempted to access profile page without proper authorization!", err)
@@ -428,10 +428,10 @@ func (app *application) profile(w http.ResponseWriter, r *http.Request) {
 
 	data.RangeRules = validator.RangeRules[validator.ProfileForm]
 
-	app.render(w, r, http.StatusOK, "profile.tmpl", data)
+	app.render(w, r, http.StatusOK, "my_profile.tmpl", data)
 }
 
-func (app *application) profilePost(w http.ResponseWriter, r *http.Request) {
+func (app *application) myProfilePost(w http.ResponseWriter, r *http.Request) {
 	profileID, err := app.getProfileID(r)
 	if err != nil {
 		app.redirectNotFound(w, r, "user attempted to update a profile without proper authorization!", err)
@@ -614,4 +614,13 @@ func (app *application) unpublish(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/profile?view=unpublished", http.StatusSeeOther)
+}
+
+func (app *application) profile(w http.ResponseWriter, r *http.Request) {
+	// profileID, err := strconv.Atoi(r.PathValue("profileID"))
+	// if err != nil {
+	// 	app.clientError(w, http.StatusNotFound)
+	// }
+
+	app.render(w, r, http.StatusOK, "profile.tmpl", app.newTemplateData(r))
 }
