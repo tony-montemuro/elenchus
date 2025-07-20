@@ -57,3 +57,18 @@ func (m *MultipleChoiceAttemptModel) GetMultipleChoiceAttempts(attemptID int) (Q
 	return answers, nil
 
 }
+
+func (m *MultipleChoiceAttemptModel) DeleteAttemptsByQuizID(quizID int, tx *sql.Tx) error {
+	stmt, err := tx.Prepare(`UPDATE multiple_choice_attempt mca
+	JOIN attempt a ON mca.attempt_id = a.id
+	SET mca.deleted = UTC_TIMESTAMP()
+	WHERE a.quiz_id = ?`)
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(quizID)
+	return err
+}

@@ -12,7 +12,7 @@
 			<a href="/quizzes/{{$quiz.ID}}/edit">Edit</a>
 			{{end}}
 
-			{{if and (eq $profileID $quiz.Profile.ID) ($quiz.Published)}}
+			{{if and (eq $profileID $quiz.Profile.ID) (not $quiz.Editable)}}
 			<form id="unpublish" method="post" action="/quizzes/{{$quiz.ID}}/unpublish">
 				{{template "csrf-token" .CSRFToken}}
 				<button type="submit">Unpublish</button>

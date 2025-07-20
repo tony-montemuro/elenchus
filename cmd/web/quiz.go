@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"net/http"
 	"slices"
+	"strconv"
 
 	"github.com/invopop/jsonschema"
 	"github.com/openai/openai-go"
@@ -157,4 +158,19 @@ func (app *application) buildNewQuizPublic(oldQuiz models.QuizPublic, editForm e
 	}
 
 	return quiz, nil
+}
+
+func (app *application) getQuizIDParam(w http.ResponseWriter, r *http.Request) (int, error) {
+	quizID, err := strconv.Atoi(r.PathValue("quizID"))
+	if err != nil {
+		if r.Method == "POST" {
+			app.clientError(w, http.StatusNotFound)
+		} else {
+			app.redirectNotFound(w, r, "user attempted to access a quiz that does not exist", err)
+		}
+
+		return 0, err
+	}
+
+	return quizID, nil
 }

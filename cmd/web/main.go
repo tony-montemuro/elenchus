@@ -70,11 +70,13 @@ func main() {
 	attemptModel := &models.AttemptModel{DB: db}
 	multipleChoiceAttemptModel := &models.MultipleChoiceAttemptModel{DB: db}
 	quizService := &services.QuizService{
-		DB:                db,
-		QuizModel:         quizModel,
-		QuestionModel:     questionModel,
-		AnswerModel:       answerModel,
-		QuestionTypeModel: questionTypeModel,
+		DB:                         db,
+		QuizModel:                  quizModel,
+		QuestionModel:              questionModel,
+		AnswerModel:                answerModel,
+		MultipleChoiceAttemptModel: multipleChoiceAttemptModel,
+		AttemptModel:               attemptModel,
+		QuestionTypeModel:          questionTypeModel,
 	}
 
 	app := &application{

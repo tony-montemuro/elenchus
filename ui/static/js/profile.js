@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const inputs = document.querySelectorAll('input[name="status"]');
+    const urlParams = new URLSearchParams(window.location.search);
+    const view = urlParams.get('view');
 
     function toggleQuizzesVisibility(e) {
 	const publishedList = document.getElementById('published-list');
@@ -17,5 +19,10 @@ document.addEventListener('DOMContentLoaded', function() {
     inputs.forEach(input => {
 	input.addEventListener('click', toggleQuizzesVisibility);
     });
-    document.getElementById('published').click();
+
+    if (view === 'unpublished') {
+	document.getElementById('unpublished').click();
+    } else {
+	document.getElementById('published').click();
+    }
 });

@@ -113,3 +113,17 @@ func (m *AttemptModel) GetAttempts(quizID, profileID int) ([]AttemptMetadata, er
 
 	return attempts, nil
 }
+
+func (m *AttemptModel) DeleteAttemptsByQuizID(quizID int, tx *sql.Tx) error {
+	stmt, err := tx.Prepare(`UPDATE attempt a 
+	SET a.deleted = UTC_TIMESTAMP()
+	WHERE a.quiz_id = ?`)
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(quizID)
+	return err
+}

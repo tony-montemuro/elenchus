@@ -13,6 +13,7 @@ type QuizModelInterface interface {
 	InsertQuiz(QuizJSONSchema, int, *sql.Tx) (int, error)
 	GetPublishedQuizzesByProfile(*int) ([]QuizMetadata, error)
 	GetUnpublishedQuizzesByProfile(*int) ([]QuizMetadata, error)
+	UnpublishQuizByID(int, *sql.Tx) error
 }
 
 type Quiz struct {
@@ -219,11 +220,16 @@ func (m *QuizModel) getProfileQuizzes(profileID *int, isPublished bool) ([]QuizM
 		whereClause = `NOT (` + whereClause + `)`
 	}
 
+	orderClause := `q.published DESC`
+	if !isPublished {
+		orderClause = `q.unpublished DESC, ` + orderClause
+	}
+
 	stmt := fmt.Sprintf(`SELECT q.id, p.id, p.first_name, p.last_name, p.deleted, q.title, q.description, (SELECT count(id) FROM question WHERE quiz_id = q.id) AS question_count, (SELECT SUM(points) FROM question WHERE quiz_id = q.id) AS points_count, q.published, q.unpublished
 	FROM quiz q
 	JOIN profile p ON q.profile_id = p.id
 	WHERE %s AND p.id = ? 
-	ORDER BY q.published DESC`, whereClause)
+	ORDER BY %s`, whereClause, orderClause)
 
 	rows, err := m.DB.Query(stmt, *profileID)
 	if err != nil {
@@ -268,7 +274,7 @@ func (m *QuizModel) UpdateQuiz(quiz QuizPublic, tx *sql.Tx) error {
 
 func (m *QuizModel) PublishQuizById(id int, tx *sql.Tx) error {
 	stmt, err := tx.Prepare(`UPDATE quiz q
-	SET q.published = UTC_TIMESTAMP(), updated = UTC_TIMESTAMP()
+	SET q.published = UTC_TIMESTAMP(), q.updated = UTC_TIMESTAMP()
 	WHERE q.id = ?`)
 	if err != nil {
 		return err
@@ -277,6 +283,20 @@ func (m *QuizModel) PublishQuizById(id int, tx *sql.Tx) error {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(id)
+	return err
+}
+
+func (m *QuizModel) UnpublishQuizByID(quizID int, tx *sql.Tx) error {
+	stmt, err := tx.Prepare(`UPDATE quiz q 
+	SET q.unpublished = UTC_TIMESTAMP(), q.updated = UTC_TIMESTAMP()
+	WHERE q.id = ?`)
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(quizID)
 	return err
 }
 

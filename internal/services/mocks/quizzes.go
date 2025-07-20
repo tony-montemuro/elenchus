@@ -19,3 +19,7 @@ func (s *QuizService) SaveAndPublishQuiz(oldQuiz, newQuiz models.QuizPublic) err
 func (s *QuizService) SaveQuiz(oldQuiz, newQuiz models.QuizPublic) error {
 	return nil
 }
+
+func (s *QuizService) UnpublishQuizByID(id int) error {
+	return nil
+}

@@ -27,3 +27,7 @@ func (m *QuizModel) GetPublishedQuizzesByProfile(profileID *int) ([]models.QuizM
 func (m *QuizModel) GetUnpublishedQuizzesByProfile(profileID *int) ([]models.QuizMetadata, error) {
 	return []models.QuizMetadata{}, nil
 }
+
+func (m *QuizModel) UnpublishQuizByID(quizID int, tx *sql.Tx) error {
+	return nil
+}

@@ -12,14 +12,17 @@ type QuizServiceInterface interface {
 	GetQuizByID(int, *int) (models.QuizPublic, error)
 	SaveQuiz(models.QuizPublic, models.QuizPublic) error
 	SaveAndPublishQuiz(models.QuizPublic, models.QuizPublic) error
+	UnpublishQuizByID(int) error
 }
 
 type QuizService struct {
-	DB                *sql.DB
-	QuizModel         *models.QuizModel
-	QuestionModel     *models.QuestionModel
-	AnswerModel       *models.AnswerModel
-	QuestionTypeModel *models.QuestionTypeModel
+	DB                         *sql.DB
+	QuizModel                  *models.QuizModel
+	QuestionModel              *models.QuestionModel
+	AnswerModel                *models.AnswerModel
+	AttemptModel               *models.AttemptModel
+	MultipleChoiceAttemptModel *models.MultipleChoiceAttemptModel
+	QuestionTypeModel          *models.QuestionTypeModel
 }
 
 func (s *QuizService) UploadQuiz(quiz models.QuizJSONSchema, profileID int) (int, error) {
@@ -90,6 +93,36 @@ func (s *QuizService) SaveQuiz(oldQuiz, newQuiz models.QuizPublic) error {
 
 func (s *QuizService) SaveAndPublishQuiz(oldQuiz, newQuiz models.QuizPublic) error {
 	return s.saveQuiz(oldQuiz, newQuiz, true)
+}
+
+func (s *QuizService) UnpublishQuizByID(id int) error {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	err = s.MultipleChoiceAttemptModel.DeleteAttemptsByQuizID(id, tx)
+	if err != nil {
+		return err
+	}
+
+	err = s.AttemptModel.DeleteAttemptsByQuizID(id, tx)
+	if err != nil {
+		return err
+	}
+
+	err = s.QuizModel.UnpublishQuizByID(id, tx)
+	if err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+
 }
 
 func (s *QuizService) updateAnswers(oldAnswers []models.AnswerPublic, newAnswers []models.AnswerPublic, tx *sql.Tx) error {

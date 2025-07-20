@@ -230,9 +230,8 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) quiz(w http.ResponseWriter, r *http.Request) {
 	var attempts []models.AttemptMetadata
-	quizID, err := strconv.Atoi(r.PathValue("quizID"))
+	quizID, err := app.getQuizIDParam(w, r)
 	if err != nil {
-		app.redirectNotFound(w, r, "user attempted to access a quiz that does not exist", err)
 		return
 	}
 
@@ -339,19 +338,21 @@ func (app *application) attempt(w http.ResponseWriter, r *http.Request) {
 	var attempt models.AttemptPublic
 	var err error
 
-	quizID, err := strconv.Atoi(r.PathValue("quizID"))
+	quizID, err := app.getQuizIDParam(w, r)
 	if err != nil {
-		app.clientError(w, http.StatusNotFound)
+		return
 	}
 
 	attemptID, err := strconv.Atoi(r.PathValue("attemptID"))
 	if err != nil {
 		app.clientError(w, http.StatusNotFound)
+		return
 	}
 
 	profileID, err := app.getProfileID(r)
 	if err != nil {
 		app.redirectNotFound(w, r, "unauthorized user attempted to access attempt", err)
+		return
 	}
 
 	attempt, err = app.getAttemptFromSession(r)
@@ -410,9 +411,8 @@ func (app *application) profile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) edit(w http.ResponseWriter, r *http.Request) {
-	quizID, err := strconv.Atoi(r.PathValue("quizID"))
+	quizID, err := app.getQuizIDParam(w, r)
 	if err != nil {
-		app.redirectNotFound(w, r, "user attempted to edit a quiz that does not exist", err)
 		return
 	}
 
@@ -439,9 +439,8 @@ func (app *application) edit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) editPost(w http.ResponseWriter, r *http.Request) {
-	quizID, err := strconv.Atoi(r.PathValue("quizID"))
+	quizID, err := app.getQuizIDParam(w, r)
 	if err != nil {
-		app.redirectNotFound(w, r, "user attempted to edit a quiz that does not exist", err)
 		return
 	}
 
@@ -524,5 +523,36 @@ func (app *application) editPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) unpublish(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Unpublishing..."))
+	quizID, err := app.getQuizIDParam(w, r)
+	if err != nil {
+		return
+	}
+
+	profileID, err := app.getProfileID(r)
+	if err != nil {
+		app.redirectNotFound(w, r, "user attempted to unpublish a quiz without proper authorization!", err)
+		return
+	}
+
+	quiz, err := app.quizzes.GetQuizByID(quizID, profileID)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.clientError(w, http.StatusNotFound)
+		} else {
+			app.serverError(w, r, err)
+		}
+	}
+
+	if quiz.Editable {
+		app.clientError(w, http.StatusNotFound)
+		return
+	}
+
+	err = app.quizzesService.UnpublishQuizByID(quizID)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	http.Redirect(w, r, "/profile?view=unpublished", http.StatusSeeOther)
 }
