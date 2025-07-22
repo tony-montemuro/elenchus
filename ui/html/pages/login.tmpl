@@ -1,10 +1,10 @@
-{{define "title"}}Login{{end}}
+{{define "title"}}Log In{{end}}
 
 {{define "main"}}
-<form action="/login" method="post">
+<form class="auth-form center" action="/login" method="post">
 	{{template "csrf-token" .CSRFToken}}
-	<div class="flex-col auth-form">
-		<h1>Login</h1>
+	<div class="flex-col auth-form-body">
+		<h1>Log In</h1>
 		<div class="flex-col auth-input">
 			<input id="email" type="email" name="email" placeholder="Email" title="Email" {{template "input-ranges"
 				.RangeRules.email}} value="{{ .Form.Email }}" autocomplete="email">
@@ -21,7 +21,8 @@
 		{{template "error" .}}
 		{{end}}
 
-		<button type="submit">Login</button>
+		<button type="submit">Log In</button>
+		<span>Don't have an account? <a href="/signup">Sign Up</a></span>
 	</div>
 </form>
 {{end}}

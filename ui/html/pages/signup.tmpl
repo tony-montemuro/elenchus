@@ -1,9 +1,9 @@
 {{define "title"}}Sign Up{{end}}
 
 {{define "main"}}
-<form action="/signup" method="post">
+<form class="auth-form center" action="/signup" method="post">
 	{{template "csrf-token" .CSRFToken}}
-	<div class="flex-col auth-form">
+	<div class="flex-col auth-form-body">
 		<h1>Sign Up</h1>
 		<div class="flex-col auth-input">
 			<input id="first-name" type="text" name="first-name" placeholder="First Name" title="First Name"
@@ -38,6 +38,7 @@
 		</div>
 
 		<button class="btn" type="submit">Sign Up</button>
+		<span>Already have an account? <a href="/login">Log In</a></span>
 	</div>
 
 </form>
