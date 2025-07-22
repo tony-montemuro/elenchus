@@ -2,14 +2,15 @@
 	--body-height: 100vh;
 	--nav-height: 4rem;
 	--footer-height: 4rem;
-	--app-padding: 0.5rem;
+	--app-padding: 0.75rem;
 	--app-min-height: calc(var(--body-height) - var(--nav-height) - var(--footer-height));
-	--app-color-primary: 249 115 22;
-	--app-color-backgroud: 27 27 27;
-	--app-color-container: 40, 40, 40;
+	--app-color-primary: 249, 115, 22;
+	--app-color-background: 27, 27, 27;
+	--app-color-container: 40, 40, 40, 0.7;
 	--app-color-text: 250, 249, 246;
 	--app-color-success: 92, 184, 92;
 	--app-color-error: 255, 0, 51;
+	--app-color-input: 79, 79, 79;
 }
 
 *,
@@ -75,7 +76,7 @@ nav button {
 main {
 	min-height: var(--app-min-height);
 	padding: var(--app-padding);
-	background-color: rgb(var(--app-color-backgroud));
+	background-color: rgb(var(--app-color-background));
 	color: rgb(var(--app-color-text));
 }
 
@@ -91,10 +92,19 @@ footer {
 button {
 	width: fit-content;
 	padding: 0.25rem;
+	background-color: rgb(var(--app-color-primary));
+	color: rgb(var(--app-color-text));
+	border: 1px solid transparent;
+	border-radius: 0.25rem;
+	padding: 0.5rem;
+	transition-property: border-color;
+	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	transition-duration: 200ms;
 }
 
 button:hover {
 	cursor: pointer;
+	border: 1px solid rgb(var(--app-color-text));
 }
 
 h1 {
@@ -102,7 +112,7 @@ h1 {
 }
 
 h2 {
-	font-size: 1.5em;
+	font-size: 1.75em;
 }
 
 textarea:focus,
@@ -120,6 +130,19 @@ em {
 
 summary {
 	cursor: pointer;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+	background-color: rgb(var(--app-color-input));
+	padding: 0.25rem;
+	border-radius: 0.25rem;
+	color: rgb(var(--app-color-text));
+}
+
+.container {
+	background-color: rgba(var(--app-color-container));
 }
 
 .nav-items {
@@ -152,32 +175,12 @@ summary {
 	padding: 2rem;
 	width: 26rem;
 	height: 30rem;
-	background-color: rgba(var(--app-color-container), 0.7);
 	border-radius: 1rem;
 }
 
-.auth-form-body input {
-	padding: 0.25rem;
-	background-color: #4f4f4f;
-	border-radius: 0.25rem;
-	color: rgb(var(--app-color-text));
-}
-
 .auth-form-body button {
-	background-color: rgb(var(--app-color-primary));
-	color: rgb(var(--app-color-text));
-	border: 1px solid transparent;
-	border-radius: 0.25rem;
-	padding: 0.5rem;
-	transition-property: border-color;
-	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-	transition-duration: 200ms;
 	width: 100%;
 	text-align: center;
-}
-
-.auth-form button:hover {
-	border: 1px solid rgb(var(--app-color-text));
 }
 
 .auth-input {
@@ -297,13 +300,13 @@ summary {
 	border-collapse: collapse;
 }
 
-
 .profile-form {
 	gap: 0.5rem;
 }
 
 .profile-input {
 	gap: 0.25rem;
+	width: 26rem;
 }
 
 .flash {
@@ -337,4 +340,17 @@ summary {
 
 .transition-hover {
 	transition: all .2s ease-in-out;
+}
+
+#logout:hover {
+	border: none;
+}
+
+.my-profile {
+	gap: 0.6rem;
+}
+
+.my-profile-container {
+	padding: 0.5rem;
+	border-radius: 0.5rem;
 }

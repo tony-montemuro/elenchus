@@ -31,10 +31,10 @@
 			</div>
 			<div class="nav-items">
 				{{if .IsAuthenticated}}
-				<a href='/profile'>Profile</a>
+				<a href='/profile'>My Profile</a>
 				<form action='/logout' method='POST'>
 					{{template "csrf-token" .CSRFToken}}
-					<button type="submit">Logout</button>
+					<button id="logout" type="submit">Logout</button>
 				</form>
 				{{else}}
 				<a href='/login'>Login</a>
