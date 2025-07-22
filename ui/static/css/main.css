@@ -4,6 +4,7 @@
 	--footer-height: 4rem;
 	--app-padding: 0.5rem;
 	--app-color-primary: 249 115 22;
+	--app-color-backgroud: 27 27 27;
 	--app-color-text: 250, 249, 246;
 	--app-color-success: 92, 184, 92;
 	--app-color-error: 255, 0, 51;
@@ -64,7 +65,7 @@ nav button {
 main {
 	min-height: calc(var(--body-height) - var(--nav-height) - var(--footer-height));
 	padding: var(--app-padding);
-	background-color: #181818;
+	background-color: rgb(var(--app-color-backgroud));
 	color: rgb(var(--app-color-text));
 }
 
@@ -87,7 +88,7 @@ button:hover {
 }
 
 h1 {
-	font-size: 2em;
+	font-size: 2.5em;
 }
 
 h2 {
@@ -161,15 +162,29 @@ summary {
 	color: red;
 }
 
+.quiz-list {
+	gap: 0.5rem;
+}
+
 .quiz-option {
-	border: 1px solid white;
-	padding: 0.25rem;
+	border: 2px solid rgb(var(--app-color-text));
+	border-radius: 0.25rem;
+	padding: 0.4rem;
 	justify-content: space-between;
 }
 
 .quiz-option a {
 	text-decoration: none;
 	color: inherit;
+}
+
+.quiz-option:hover {
+	background-color: rgba(var(--app-color-text), 0.2);
+}
+
+.text-sm {
+	font-size: 0.875rem;
+	line-height: calc(1.25 / 0.875);
 }
 
 .quiz-info {
@@ -292,4 +307,8 @@ summary {
 
 .flash-error {
 	background-color: rgb(var(--app-color-error));
+}
+
+.transition-hover {
+	transition: all .2s ease-in-out;
 }

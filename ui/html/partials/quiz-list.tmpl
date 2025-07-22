@@ -1,21 +1,25 @@
 {{define "quiz-list"}}
 <div class="quiz-list flex-col">
 	{{ range . }}
-	<div class="quiz-option flex-row" title="{{ .Title }}">
+	<div class="quiz-option flex-row transition-hover" title="{{ .Title }}">
 		<a href="/quizzes/{{.ID}}" class="flex-col quiz-info">
 			<h2>{{ .Title }}</h2>
 			<span>{{ .Description }}</span>
-			<span>{{ .PointsCount }} {{ pluralize "point" .PointsCount }} | {{ .QuestionCount }} {{ pluralize "question"
+			<span class="text-sm">{{ .PointsCount }} {{ pluralize "point" .PointsCount }} | {{ .QuestionCount }} {{ pluralize
+				"question"
 				.QuestionCount }}</span>
-			<span>Created by {{ .Profile.FirstName }} {{ .Profile.LastName }}</span>
+			<span class="text-sm">Created by {{ .Profile.FirstName }} {{ .Profile.LastName }}</span>
+
 			{{if and (not .Editable) (.Published)}}
-			<span title="{{humanDate .Published}}">Published {{timeAgo .Published}}</span>
+			<span class="text-sm" title="{{humanDate .Published}}">Published {{timeAgo .Published}}</span>
 			{{end}}
+
 			{{if and (.Editable) (.Unpublished)}}
-			<span>Unpublished {{timeAgo .Unpublished}}</span>
+			<span class="text-sm">Unpublished {{timeAgo .Unpublished}}</span>
 			{{end}}
+
 			{{if and (.Editable) (not .Unpublished)}}
-			<span>Never Published</span>
+			<span class="text-sm">Never Published</span>
 			{{end}}
 		</a>
 
