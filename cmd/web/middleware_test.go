@@ -24,7 +24,7 @@ type LogOutput struct {
 func TestCommonHeaders(t *testing.T) {
 	rs := executeMiddleware(t, commonHeaders, http.HandlerFunc(ping))
 
-	expectedValue := "default-src 'self'"
+	expectedValue := "default-src 'self'; font-src fonts.gstatic.com; style-src 'self' fonts.googleapis.com"
 	assert.Equal(t, rs.Header.Get("Content-Security-Policy"), expectedValue)
 
 	expectedValue = "origin-when-cross-origin"
