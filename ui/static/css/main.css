@@ -3,8 +3,10 @@
 	--nav-height: 4rem;
 	--footer-height: 4rem;
 	--app-padding: 0.5rem;
-	--app-color-primary: rgb(249 115 22);
-	--app-color-text: rgb(250, 249, 246);
+	--app-color-primary: 249 115 22;
+	--app-color-text: 250, 249, 246;
+	--app-color-success: 92, 184, 92;
+	--app-color-error: 255, 0, 51;
 }
 
 *,
@@ -39,12 +41,12 @@ nav {
 	position: -webkit-sticky;
 	position: sticky;
 	top: 0;
-	background-color: var(--app-color-primary);
+	background-color: rgb(var(--app-color-primary));
 	padding: 0 var(--app-padding);
 }
 
 nav a {
-	color: var(--app-color-text);
+	color: rgb(var(--app-color-text));
 	text-decoration: none;
 }
 
@@ -52,23 +54,23 @@ nav button {
 	background-color: transparent;
 	padding: 0;
 	border: none;
-	color: var(--app-color-text);
+	color: rgb(var(--app-color-text));
 }
 
 main {
 	min-height: calc(var(--body-height) - var(--nav-height) - var(--footer-height));
 	padding: var(--app-padding);
 	background-color: #181818;
-	color: var(--app-color-text);
+	color: rgb(var(--app-color-text));
 }
 
 footer {
 	display: flex;
 	align-items: center;
 	height: var(--footer-height);
-	background-color: var(--app-color-primary);
+	background-color: rgb(var(--app-color-primary));
 	padding: 0 var(--app-padding);
-	color: var(--app-color-text);
+	color: rgb(var(--app-color-text));
 }
 
 button {
@@ -129,12 +131,12 @@ summary {
 	padding: 0.25rem;
 	background-color: #4f4f4f;
 	border-radius: 0.25rem;
-	color: var(--app-color-text);
+	color: rgb(var(--app-color-text));
 }
 
 .auth-form button {
-	background-color: var(--app-color-primary);
-	color: var(--app-color-text);
+	background-color: rgb(var(--app-color-primary));
+	color: rgb(var(--app-color-text));
 	border: 1px solid transparent;
 	border-radius: 0.25rem;
 	padding: 0.5rem;
@@ -144,7 +146,7 @@ summary {
 }
 
 .auth-form button:hover {
-	border: 1px solid var(--app-color-text);
+	border: 1px solid rgb(var(--app-color-text));
 }
 
 .auth-input {
@@ -257,4 +259,33 @@ summary {
 
 .profile-input {
 	gap: 0.25rem;
+}
+
+.flash {
+	padding: 0.25rem 0.5rem;
+	border: 1px solid rgba(var(--app-color-text), 0.6);
+	width: 100%;
+	justify-content: space-between;
+	align-items: center;
+	border-radius: 0.25rem;
+}
+
+.flash button {
+	background: transparent;
+	border-color: rgba(var(--app-color-text), 0.4);
+	padding: 0;
+}
+
+.flash button svg {
+	width: 24px;
+	height: 24px;
+	stroke: rgb(var(--app-color-text));
+}
+
+.flash-success {
+	background-color: rgb(var(--app-color-success));
+}
+
+.flash-error {
+	background-color: rgb(var(--app-color-error));
 }

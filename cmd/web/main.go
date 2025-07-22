@@ -18,6 +18,7 @@ import (
 	"github.com/tony-montemuro/elenchus/internal/config"
 	"github.com/tony-montemuro/elenchus/internal/models"
 	"github.com/tony-montemuro/elenchus/internal/services"
+	"github.com/tony-montemuro/elenchus/internal/ui"
 )
 
 type application struct {
@@ -36,6 +37,7 @@ type application struct {
 func init() {
 	gob.Register(models.AttemptPublic{})
 	gob.Register(profileForm{})
+	gob.Register(&ui.Flash{})
 }
 
 func main() {

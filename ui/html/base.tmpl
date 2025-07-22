@@ -9,6 +9,9 @@
 	{{if .Script}}
 	<script src="/static/js/{{.Script}}" defer></script>
 	{{end}}
+	{{if .Flash}}
+	<script src="/static/js/flash.js" defer></script>
+	{{end}}
 </head>
 
 <body>
@@ -37,7 +40,7 @@
 	</header>
 	<main>
 		{{with .Flash}}
-		<div class='flash'>{{.}}</div>
+		{{template "flash" .}}
 		{{end}}
 		{{template "main" .}}
 	</main>

@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/tony-montemuro/elenchus/internal/models"
+	"github.com/tony-montemuro/elenchus/internal/ui"
 	"github.com/tony-montemuro/elenchus/internal/validator"
 )
 
@@ -81,8 +82,7 @@ func (app *application) signupPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.sessionManager.Put(r.Context(), "flash", "Your signup was successful! Please log in.")
-
+	app.addSuccessFlashToSession("Your signup was successful! Please log in.", r)
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
@@ -136,7 +136,8 @@ func (app *application) loginPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.sessionManager.Put(r.Context(), authenticatedUserIdKey, profile.ID)
-	app.sessionManager.Put(r.Context(), "flash", fmt.Sprintf("Login successful! Welcome, %s!", profile.FirstName))
+	loginMsg := fmt.Sprintf("Login successful! Welcome, %s!", profile.FirstName)
+	app.addSuccessFlashToSession(loginMsg, r)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
@@ -148,7 +149,7 @@ func (app *application) logoutPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.sessionManager.Remove(r.Context(), authenticatedUserIdKey)
-	app.sessionManager.Put(r.Context(), "flash", "You've been logged out successfully!")
+	app.addSuccessFlashToSession("You've been logged out successfully!", r)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
@@ -223,8 +224,7 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data.Flash = "Quiz created!"
-
+	data.Flash = ui.GetSuccessFlash("Quiz created!")
 	http.Redirect(w, r, fmt.Sprintf("/quizzes/%d", id), http.StatusSeeOther)
 }
 
@@ -459,9 +459,9 @@ func (app *application) myProfilePost(w http.ResponseWriter, r *http.Request) {
 		err = app.profiles.UpdateProfileNames(form.FirstName, form.LastName, *profileID)
 
 		if err != nil {
-			app.sessionManager.Put(r.Context(), "flash", "Profile information could not be saved at this time.")
+			app.addErrorFlashToSession("Profile information action could not be saved at this time.", r)
 		} else {
-			app.sessionManager.Put(r.Context(), "flash", "Profile information saved!")
+			app.addSuccessFlashToSession("Profile information saved!", r)
 		}
 	}
 
@@ -566,7 +566,7 @@ func (app *application) editPost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		app.sessionManager.Put(r.Context(), "flash", "Quiz saved and published!")
+		app.addSuccessFlashToSession("Quiz saved and published!", r)
 		http.Redirect(w, r, fmt.Sprintf("/quizzes/%d", newQuiz.ID), http.StatusSeeOther)
 		return
 	}
@@ -577,7 +577,7 @@ func (app *application) editPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data.Flash = "Quiz saved!"
+	data.Flash = ui.GetSuccessFlash("Quiz saved!")
 	app.render(w, r, http.StatusOK, "edit.tmpl", data)
 }
 

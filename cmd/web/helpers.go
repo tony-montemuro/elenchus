@@ -64,7 +64,7 @@ func (app *application) redirectNotFound(w http.ResponseWriter, r *http.Request,
 }
 
 func (app *application) redirectHome(w http.ResponseWriter, r *http.Request, message, logMessage string, err error) {
-	app.sessionManager.Put(r.Context(), "flash", message)
+	app.addErrorFlashToSession(message, r)
 	app.logger.Warn(logMessage, slog.String("error", err.Error()))
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

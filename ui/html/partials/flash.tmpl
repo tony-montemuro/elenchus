@@ -1,0 +1,6 @@
+{{define "flash"}}
+<div class="flex-row flash flash-{{.GetStyleString}}">
+	<span>{{.Message}}</span>
+	<button type="button" id="close-flash">{{template "incorrect" .}}</button>
+</div>
+{{end}}

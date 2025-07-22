@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/justinas/nosurf"
+	uicomponents "github.com/tony-montemuro/elenchus/internal/ui"
 	"github.com/tony-montemuro/elenchus/internal/validator"
 	"github.com/tony-montemuro/elenchus/ui"
 )
@@ -15,7 +16,7 @@ import (
 type templateData struct {
 	Form            any
 	RangeRules      validator.FormRangeRules
-	Flash           string
+	Flash           *uicomponents.Flash
 	IsAuthenticated bool
 	CSRFToken       string
 	Script          string
@@ -57,8 +58,17 @@ func newTemplateCache() (map[string]*template.Template, error) {
 }
 
 func (app *application) newTemplateData(r *http.Request) templateData {
+	var flash *uicomponents.Flash
+
+	f, ok := app.sessionManager.Pop(r.Context(), "flash").(*uicomponents.Flash)
+	if ok {
+		flash = f
+	} else {
+		flash = nil
+	}
+
 	return templateData{
-		Flash:           app.sessionManager.PopString(r.Context(), "flash"),
+		Flash:           flash,
 		IsAuthenticated: app.isAuthenticated(r),
 		CSRFToken:       nosurf.Token(r),
 	}
