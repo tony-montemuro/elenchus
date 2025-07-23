@@ -7,7 +7,7 @@
 	--app-color-primary: 249, 115, 22;
 	--app-color-background: 27, 27, 27;
 	--app-color-background-secondary: 40, 40, 40;
-	--app-color-container: rgba(--var(--app-color-background-secondary), 0.7);
+	--app-color-container: rgba(var(--app-color-background-secondary), 0.7);
 	--app-color-text: 250, 249, 246;
 	--app-color-success: 92, 184, 92;
 	--app-color-error: 255, 0, 51;
@@ -162,7 +162,7 @@ strong {
 }
 
 .container {
-	background-color: rgba(var(--app-color-container));
+	background-color: var(--app-color-container);
 }
 
 .nav-items {
