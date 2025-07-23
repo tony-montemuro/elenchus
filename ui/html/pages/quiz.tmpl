@@ -43,7 +43,7 @@
 					<tr>
 						{{$href := printf "%d/attempt/%d" $quiz.ID .ID}}
 						<td><a href="{{$href}}">Attempt {{.Sequence}}</a></td>
-						<td>{{.PointsEarned}} / {{$quiz.PointsCount}}</td>
+						<td>{{percentage .PointsEarned $quiz.PointsCount}} ({{.PointsEarned}}/{{$quiz.PointsCount}})</td>
 						<td><span title="{{humanDate .Created}}">{{timeAgo .Created}}</span></td>
 					</tr>
 					{{end}}

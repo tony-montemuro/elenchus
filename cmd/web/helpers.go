@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"math"
 	"net/http"
 	"runtime/debug"
 	"slices"
@@ -88,4 +89,10 @@ func sortedKeys[K cmp.Ordered, V any](m map[K]V) []K {
 
 	slices.Sort(keys)
 	return keys
+}
+
+func percentage(a, b int) string {
+	x := float64(a) / float64(b)
+	x = math.Round(x * 100)
+	return fmt.Sprintf("%.2f%%", x)
 }

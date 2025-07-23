@@ -13,7 +13,8 @@
 			<a href="/quizzes/{{ $quiz.ID }}/edit">Edit</a>
 			{{end}}
 		</div>
-		<h2>Score: {{$attempt.PointsEarned}} / {{$quiz.PointsCount}}</h2>
+		<h2>Score: {{percentage $attempt.PointsEarned $quiz.PointsCount}}
+			({{$attempt.PointsEarned}}/{{$quiz.PointsCount}})</h2>
 		{{if $attempt.Created}}
 		<span title="{{humanDate $attempt.Created}}">Attempted {{timeAgo $attempt.Created}}</span>
 		{{end}}
