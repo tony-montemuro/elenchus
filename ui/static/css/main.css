@@ -125,6 +125,12 @@ input[type="radio"]:hover:not(:disabled) {
 	cursor: pointer;
 }
 
+input[type="radio"]:disabled:checked {
+	opacity: 0.8;
+	outline: 1px solid rgb(var(--app-color-primary));
+	outline-offset: 1px;
+}
+
 em {
 	font-style: italic;
 }
@@ -149,6 +155,10 @@ input[type="radio"] {
 
 label {
 	cursor: inherit;
+}
+
+strong {
+	font-weight: bolder;
 }
 
 .container {
@@ -255,6 +265,11 @@ label {
 
 .question em {
 	opacity: 0.75;
+}
+
+.question .points {
+	text-wrap: nowrap;
+	text-decoration: underline;
 }
 
 .answers {
@@ -393,4 +408,16 @@ label {
 .my-profile-container {
 	padding: 0.5rem;
 	border-radius: 0.5rem;
+}
+
+.attempt .answer {
+	cursor: default;
+}
+
+.answer .correct {
+	stroke: rgb(var(--app-color-success));
+}
+
+.answer .incorrect {
+	stroke: rgb(var(--app-color-error));
 }

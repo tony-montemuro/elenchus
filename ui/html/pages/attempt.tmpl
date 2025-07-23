@@ -1,7 +1,7 @@
 {{define "title"}}Attempt{{end}}
 
 {{define "main"}}
-<div class="flex-col" id="quiz">
+<div class="flex-col attempt" id="quiz">
 	<div class="flex-col">
 		{{$attempt := .Data.Attempt}}
 		{{$quiz := $attempt.Quiz}}
@@ -37,8 +37,8 @@
 
 				<div class="flex-row question">
 					<span>{{.Content}}</span>
-					<span>{{if $isCorrect}}{{.Points}}{{else}}0{{end}}/{{.Points}}
-						points</span>
+					<strong class="points">{{if $isCorrect}}{{.Points}}{{else}}0{{end}}/{{.Points}}
+						points</strong>
 				</div>
 
 				<div class="answers">
