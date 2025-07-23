@@ -68,7 +68,7 @@
 					{{$questionID := .ID}}
 
 					{{range $i, $answer := .Answers}}
-					<div>
+					<div class="answer flex-row">
 						{{$id := printf "question_%d_%d" $questionID $i }}
 						<input type="radio" id="{{$id}}" name="question[{{$questionID}}][answer]" value="{{$answer.ID}}" required />
 						<label for="{{$id}}">{{$answer.Content}}</span>
