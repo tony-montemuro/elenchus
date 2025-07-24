@@ -75,13 +75,23 @@ func TestTimeAgo(t *testing.T) {
 		},
 		{
 			name:      "1 month",
-			timestamp: time.Now().Add(-1 * 24 * 28 * time.Hour),
+			timestamp: time.Now().Add(-1 * 24 * 30 * time.Hour),
 			expected:  "1 month ago",
 		},
 		{
 			name:      "1 year",
 			timestamp: time.Now().Add(-1 * 24 * 365 * time.Hour),
 			expected:  "1 year ago",
+		},
+		{
+			name:      "About 1 month",
+			timestamp: time.Now().Add(-1 * 24 * 29 * time.Hour),
+			expected:  "1 month ago",
+		},
+		{
+			name:      "About 1 year ago",
+			timestamp: time.Now().Add(-1 * 24 * 363 * time.Hour),
+			expected:  "12 months ago",
 		},
 	}
 

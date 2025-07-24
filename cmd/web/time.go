@@ -39,7 +39,7 @@ func timeAgo(pastTime time.Time) string {
 		return fmt.Sprintf(ago, weeks, pluralize("week", weeks))
 	}
 
-	months := days / 28
+	months := min(12, max(1, days/30))
 	if days < 365 {
 		return fmt.Sprintf(ago, months, pluralize("month", months))
 	}
