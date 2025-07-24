@@ -5,18 +5,19 @@
 {{$form := .Form}}
 {{$rangeRules := .RangeRules}}
 <div class="flex-col" id="quiz">
-	<form method="post" class="flex-col">
+	<form method="post" class="flex-col edit-form">
+		<h1>Edit</h1>
 		{{template "csrf-token" .CSRFToken}}
-		<div class="flex-row edit-input">
-			<label for="title">Title: </label>
+		<div class="flex-col edit-input">
+			<label for="title">Title</label>
 			<div class="flex-col">
 				<input type="text" name="title" id="title" value="{{$quiz.Title}}" {{template "input-ranges"
 					.RangeRules.title}} />
 				{{template "error" $form.FieldErrors.title}}
 			</div>
 		</div>
-		<div class="flex-row edit-input">
-			<label for="description">Description: </label>
+		<div class="flex-col edit-input">
+			<label for="description">Description</label>
 			<div class="flex-col">
 				<textarea name="description" id="description" rows="7" cols="100" maxlength="1024" {{template "input-ranges"
 					.RangeRules.description}}>{{$quiz.Description}}</textarea>
@@ -25,21 +26,24 @@
 		</div>
 		<div>
 			<span>Questions</span>
-			<ol class="flex-col questions">
+			<ol class="flex-col edit-questions">
 				{{range $quiz.Questions}}
 				{{$questionID := .ID}}
 				<li>
 					{{$name := printf "question[%v][content]" $questionID}}
-					<div class="flex-col edit-input">
-						<input type="text" name="{{$name}}" value="{{.Content}}" {{template "input-ranges" $rangeRules.question}} />
+					<div class="flex-col">
+						<label for="{{$name}}" class="text-xs">Question</label>
+						<input type="text" id="{{$name}}" name="{{$name}}" value="{{.Content}}" {{template "input-ranges"
+							$rangeRules.question}} />
 						{{template "error" index $form.FieldErrors $name}}
 					</div>
 					{{$name := printf "question[%v][points]" $questionID}}
-					<div class="flex-col edit-input">
-						<input type="number" name="{{$name}}" value="{{.Points}}" required min="1" max="1000" />
+					<div class="flex-col">
+						<label for="{{$name}}" class="text-xs">Points</label>
+						<input type="number" id="{{$name}}" name="{{$name}}" value="{{.Points}}" required min="1" max="1000" />
 						{{template "error" index $form.FieldErrors $name}}
 					</div>
-					<table class="answers">
+					<table class="edit-answers">
 						<thead>
 							<tr>
 								<th>Correct</th>

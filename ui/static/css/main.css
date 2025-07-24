@@ -142,7 +142,8 @@ summary {
 input[type="text"],
 input[type="email"],
 input[type="password"],
-input[type="number"] {
+input[type="number"],
+textarea {
 	background-color: rgb(var(--app-color-input));
 	padding: 0.25rem;
 	border-radius: 0.25rem;
@@ -272,17 +273,33 @@ strong {
 	text-decoration: underline;
 }
 
-.answers {
+.edit-answers {
 	width: 100%;
+	border-collapse: collapse;
 }
 
-.answers thead {
-	font-size: 0.75em;
+.edit-answers thead {
+	font-size: 0.6em;
 }
 
-.answers tbody td:first-of-type {
+.edit-answers tbody td:first-of-type {
 	text-align: center;
 	width: 0;
+}
+
+.edit-answers td,
+.edit-answers th {
+	padding: 0.125rem;
+}
+
+.edit-answers td:first-child,
+.edit-answers th:first-child {
+	padding-left: 0
+}
+
+.edit-answers td:last-child,
+.edit-answers th:last-child {
+	padding-right: 0;
 }
 
 .answer {
@@ -420,4 +437,22 @@ strong {
 
 .answer .incorrect {
 	stroke: rgb(var(--app-color-error));
+}
+
+.edit-form {
+	gap: 0.25rem;
+	font-size: 1.25em;
+}
+
+.edit-questions {
+	padding-left: 1rem;
+	gap: 0.5rem;
+}
+
+.edit-questions input[type="text"] {
+	width: 100%;
+}
+
+.text-xs {
+	font-size: 0.6em;
 }
