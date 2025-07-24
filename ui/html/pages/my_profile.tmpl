@@ -28,13 +28,13 @@
 		</form>
 	</div>
 
-	<div class="my-profile-container container">
+	<div class="my-profile-container container quizzes flex-col">
 		<h2>Your Quizzes</h2>
-		<div>
-			<label for="published">Published</label>
+		<div class="published-radios flex-row">
 			<input id="published" type="radio" name="status" checked />
-			<label for="unpublished">Unpublished</label>
+			<label for="published">Published</label>
 			<input id="unpublished" type="radio" name="status" />
+			<label for="unpublished">Unpublished</label>
 		</div>
 		<div id="published-list" class="hidden">
 			{{if gt (len .Data.Published) 0}}

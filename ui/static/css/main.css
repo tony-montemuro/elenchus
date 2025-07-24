@@ -121,6 +121,11 @@ input:focus {
 	outline: none;
 }
 
+input[type="radio"] {
+	transform: scale(1.5);
+	accent-color: rgb(var(--app-color-primary));
+}
+
 input[type="radio"]:hover:not(:disabled) {
 	cursor: pointer;
 }
@@ -150,9 +155,6 @@ textarea {
 	color: rgb(var(--app-color-text));
 }
 
-input[type="radio"] {
-	accent-color: rgb(var(--app-color-primary));
-}
 
 label {
 	cursor: inherit;
@@ -308,10 +310,6 @@ strong {
 	cursor: pointer;
 }
 
-.answer input[type="radio"] {
-	transform: scale(1.5);
-}
-
 #quiz {
 	gap: 1rem;
 }
@@ -455,4 +453,13 @@ strong {
 
 .text-xs {
 	font-size: 0.6em;
+}
+
+.published-radios {
+	gap: 0.5rem;
+	cursor: pointer;
+}
+
+.my-profile-container.quizzes {
+	gap: 0.25rem;
 }
