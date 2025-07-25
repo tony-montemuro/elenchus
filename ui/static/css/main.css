@@ -4,6 +4,7 @@
 	--footer-height: 4rem;
 	--app-padding: 0.75rem;
 	--app-min-height: calc(var(--body-height) - var(--nav-height) - var(--footer-height));
+	--app-fullscreen-height: calc(var(--app-min-height) - 2 * var(--app-padding));
 	--app-color-primary: 249, 115, 22;
 	--app-color-background: 27, 27, 27;
 	--app-color-background-secondary: 40, 40, 40;
@@ -190,7 +191,7 @@ strong {
 }
 
 .auth-form {
-	height: calc(var(--app-min-height) - 2 * var(--app-padding));
+	height: var(--app-fullscreen-height);
 }
 
 .auth-form-body {
@@ -462,4 +463,12 @@ strong {
 
 .my-profile-container.quizzes {
 	gap: 0.25rem;
+}
+
+.home {
+	height: var(--app-fullscreen-height);
+}
+
+.home h1 {
+	font-size: 5em;
 }
