@@ -3,6 +3,25 @@
 {{define "main"}}
 <div class="home flex-col center">
 	<h1>elenchus</h1>
-	<span>Learn by questioning.</span>
+	<div class="flex-col home-body">
+		<span>Learn by questioning.</span>
+		<div class="flex-row home-btns">
+			{{if .IsAuthenticated}}
+			<a href="/create" class="a-btn flex-row home-btn center">
+				<div class="home-icon">{{template "ai" .}}</div>
+				<span>Create Quiz</span>
+			</a>
+			{{else}}
+			<a href="/login" class="a-btn flex-row home-btn center">
+				<div class="home-icon">{{template "login" .}}</div>
+				<span>Get Started</span>
+			</a>
+			{{end}}
+			<a href="/quizzes" class="a-btn flex-row home-btn center">
+				<div class="home-icon">{{template "list" .}}</div>
+				<span>Browse Quizzes</span>
+			</a>
+		</div>
+	</div>
 </div>
 {{end}}

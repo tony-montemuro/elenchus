@@ -93,7 +93,6 @@ footer {
 
 button {
 	width: fit-content;
-	padding: 0.25rem;
 	background-color: rgb(var(--app-color-primary));
 	color: rgb(var(--app-color-text));
 	border: 1px solid transparent;
@@ -467,8 +466,56 @@ strong {
 
 .home {
 	height: var(--app-fullscreen-height);
+	animation-duration: 0.75s;
+	animation-name: float-in;
 }
 
 .home h1 {
 	font-size: 5em;
+}
+
+.home-body {
+	text-align: center;
+	gap: 1.5rem;
+}
+
+.home-btns {
+	gap: 0.5rem;
+}
+
+.a-btn {
+	padding: 0.5rem;
+	background-color: rgb(var(--app-color-primary));
+	color: rgb(var(--app-color-text));
+	border: 1px solid transparent;
+	border-radius: 0.25rem;
+	transition-property: border-color;
+	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	transition-duration: 200ms;
+	text-decoration: none;
+}
+
+.a-btn:hover {
+	border: 1px solid rgb(var(--app-color-text));
+}
+
+.home-btn {
+	gap: 0.25rem;
+}
+
+.home-icon {
+	width: 24px;
+	height: 24px;
+}
+
+@keyframes float-in {
+	from {
+		opacity: 0;
+		transform: translateY(1%);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0%);
+	}
 }
