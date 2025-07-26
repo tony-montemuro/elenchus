@@ -55,7 +55,7 @@ type QuizPublic struct {
 type QuizJSONSchema struct {
 	Title       string               `json:"title" jsonschema:"The ideal name of the quiz, based on the user input"`
 	Description string               `json:"description" jsonschema:"A description of what the quiz is trying to teach, between 140 and 280 characters"`
-	Questions   []QuestionJSONSchema `json:"questions" jsonschema:"Up to 5 questions based on the input provided by the user -- can be less if user input is short"`
+	Questions   []QuestionJSONSchema `json:"questions" jsonschema:"Between 5 to 15 questions based on the input provided by the user -- can be less if user input is short"`
 }
 
 type QuizModel struct {

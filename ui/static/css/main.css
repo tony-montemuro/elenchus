@@ -168,8 +168,14 @@ strong {
 	background-color: var(--app-color-container);
 }
 
+.create {
+	gap: 0.75rem;
+}
+
 .create-form {
 	gap: 0.75rem;
+	padding: 1rem;
+	border-radius: 0.75rem;
 }
 
 .nav-items {

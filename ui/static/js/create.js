@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	document.getElementById('file-radio').click();
     }
 
-    document.getElementById('create').addEventListener('submit', function (e) {
+    document.getElementById('create-form').addEventListener('submit', function (e) {
 	e.preventDefault();
 
 	const type = document.querySelector('input[name="type"]:checked').value;

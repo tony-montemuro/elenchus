@@ -1,30 +1,34 @@
 {{define "title"}}Create Quiz{{end}}
 
 {{define "main"}}
-<div class="flex-col">
-	<h1>Create</h1>
-</div>
-<form id="create" action="/create" method="post" class="flex-col create-form" enctype="multipart/form-data">
-	{{template "csrf-token" .CSRFToken}}
+<div class="flex-col create">
 	<div class="flex-col">
-		<div class="flex-row radios">
-			<input type="radio" id="file-radio" name="type" value="file" checked />
-			<label for="file-radio">Upload a PDF</label>
-			<input type="radio" id="text-radio" name="type" value="text" />
-			<label for="text-radio">Enter notes manually</label>
+		<h1>Create</h1>
+		<span>Upload your notes to create a quiz!</span>
+	</div>
+	<form id="create-form" action="/create" method="post" class="flex-col create-form container"
+		enctype="multipart/form-data">
+		{{template "csrf-token" .CSRFToken}}
+		<div class="flex-col">
+			<div class="flex-row radios">
+				<input type="radio" id="file-radio" name="type" value="file" checked />
+				<label for="file-radio">Upload a PDF</label>
+				<input type="radio" id="text-radio" name="type" value="text" />
+				<label for="text-radio">Enter notes manually</label>
+			</div>
+			{{template "error" .Form.FieldErrors.type}}
 		</div>
-		{{template "error" .Form.FieldErrors.type}}
-	</div>
-	<div id="file-input" class="hidden flex-col">
-		<label for="file">Upload your notes:</label>
-		<input type="file" id="file" name="file" accept=".pdf" />
-		{{template "error" .Form.FieldErrors.file}}
-	</div>
-	<div id="text-input" class="hidden flex-col">
-		<label for="text">Enter your notes here:</label>
-		<textarea id="text" name="text" rows="25" {{template "input-ranges" .RangeRules.text}}>{{.Form.Text}}</textarea>
-		{{template "error" .Form.FieldErrors.text}}
-	</div>
-	<button type="submit">Submit</button>
-</form>
+		<div id="file-input" class="hidden flex-col">
+			<label for="file">Upload your notes:</label>
+			<input type="file" id="file" name="file" accept=".pdf" />
+			{{template "error" .Form.FieldErrors.file}}
+		</div>
+		<div id="text-input" class="hidden flex-col">
+			<label for="text">Enter your notes here:</label>
+			<textarea id="text" name="text" rows="22" {{template "input-ranges" .RangeRules.text}}>{{.Form.Text}}</textarea>
+			{{template "error" .Form.FieldErrors.text}}
+		</div>
+		<button type="submit">Submit</button>
+	</form>
+</div>
 {{end}}
