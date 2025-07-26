@@ -518,6 +518,20 @@ strong {
 	height: 24px;
 }
 
+.footer {
+	justify-content: space-between;
+}
+
+.footer-icons {
+	gap: 0.5rem;
+}
+
+.footer-icon {
+	color: rgb(var(--app-color-text));
+	width: 24px;
+	height: 24px;
+}
+
 @keyframes float-in {
 	from {
 		opacity: 0;

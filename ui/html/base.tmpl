@@ -49,8 +49,19 @@
 		{{end}}
 		{{template "main" .}}
 	</main>
-	<footer>
-		<div>© 2025 Tony Montemuro</div>
+	<footer class="flex-row footer">
+		<span>© 2025 Tony Montemuro</span>
+		<div class="flex-row footer-icons">
+			<a href="https://github.com/tony-montemuro" target="_blank" class="footer-icon" title="My GitHub">
+				{{template "github" .}}
+			</a>
+			<a href="https://www.linkedin.com/in/tony-montemuro/" target="_blank" class="footer-icon" title="My LinkedIn">
+				{{template "linkedin" .}}
+			</a>
+			<a href="https://tonymontemuro.com/" class="footer-icon" target="_blank" class="My Website">
+				{{template "website" .}}
+			</a>
+		</div>
 	</footer>
 </body>
 
