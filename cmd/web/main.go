@@ -37,6 +37,7 @@ type application struct {
 func init() {
 	gob.Register(models.AttemptPublic{})
 	gob.Register(profileForm{})
+	gob.Register(createForm{})
 	gob.Register(&ui.Flash{})
 }
 

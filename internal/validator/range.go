@@ -32,7 +32,7 @@ var RangeRules = map[string]FormRangeRules{
 		"password": {MinLength: 8, MaxLength: 72},
 	},
 	CreateForm: {
-		"notes": {MinLength: 250, MaxLength: 60000},
+		"text": {MinLength: 250, MaxLength: 60000},
 	},
 	EditForm: {
 		"title":       {MinLength: 1, MaxLength: 255},

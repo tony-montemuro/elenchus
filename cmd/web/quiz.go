@@ -40,7 +40,30 @@ var QuizResponseSchema = generateSchema[models.QuizJSONSchema]()
 var ErrGenerationRefusal = errors.New("Quiz creation unavailable: The submitted content doesn't meet our safety standards for educational content.")
 var ErrNotEditable = errors.New("Quiz edit unavailable: user attempted to edit a quiz that cannot be edited")
 
-func (app *application) generateQuiz(notes string, ctx context.Context) (models.QuizJSONSchema, error) {
+func (app *application) generateQuizByForm(form createForm, ctx context.Context) (models.QuizJSONSchema, error) {
+	var message openai.ChatCompletionMessageParamUnion
+
+	if form.Type == "text" {
+		message = openai.UserMessage(form.Text)
+	} else {
+		message = openai.UserMessage(
+			[]openai.ChatCompletionContentPartUnionParam{
+				{
+					OfFile: &openai.ChatCompletionContentPartFileParam{
+						File: openai.ChatCompletionContentPartFileFileParam{
+							Filename: openai.String("input.pdf"),
+							FileData: openai.String("data:application/pdf;base64," + string(form.File)),
+						},
+					},
+				},
+			},
+		)
+	}
+
+	return app.generateQuiz(message, ctx)
+}
+
+func (app *application) generateQuiz(userMessage openai.ChatCompletionMessageParamUnion, ctx context.Context) (models.QuizJSONSchema, error) {
 	max_attempts := 3
 	var quiz models.QuizJSONSchema
 	var err error
@@ -58,7 +81,8 @@ func (app *application) generateQuiz(notes string, ctx context.Context) (models.
 			ctx,
 			openai.ChatCompletionNewParams{
 				Messages: []openai.ChatCompletionMessageParamUnion{
-					openai.UserMessage(notes),
+					openai.SystemMessage("You are a educational tool used to generate quizzes according to the response format. The expected user input is some educational material: notes, a lecture, textbook pages, etc. It is absolutely necessary that your response matches the JSON response format, no matter what the user's input is. As you generate questions, try very hard to stick to the material provided by the user. When coming up with answers, slow down, and think hard about what the answer should be to each question that you generate. Ensure that the correct answer is 'randomly' ordered, so that the user is unable to think of a pattern to cheese the quiz (you could imagine them doing this, by guessing the same sequential answer, for each question). If a user's quiz seemingly has no meaning, just do your best and respond with something that matches the response format!"),
+					userMessage,
 				},
 				ResponseFormat: openai.ChatCompletionNewParamsResponseFormatUnion{
 					OfJSONSchema: &openai.ResponseFormatJSONSchemaParam{JSONSchema: schemaParam},
