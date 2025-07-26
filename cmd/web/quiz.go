@@ -40,7 +40,30 @@ var QuizResponseSchema = generateSchema[models.QuizJSONSchema]()
 var ErrGenerationRefusal = errors.New("Quiz creation unavailable: The submitted content doesn't meet our safety standards for educational content.")
 var ErrNotEditable = errors.New("Quiz edit unavailable: user attempted to edit a quiz that cannot be edited")
 
-func (app *application) generateQuiz(notes string, ctx context.Context) (models.QuizJSONSchema, error) {
+func (app *application) generateQuizByForm(form createForm, ctx context.Context) (models.QuizJSONSchema, error) {
+	var message openai.ChatCompletionMessageParamUnion
+
+	if form.Type == "text" {
+		message = openai.UserMessage(form.Text)
+	} else {
+		message = openai.UserMessage(
+			[]openai.ChatCompletionContentPartUnionParam{
+				{
+					OfFile: &openai.ChatCompletionContentPartFileParam{
+						File: openai.ChatCompletionContentPartFileFileParam{
+							Filename: openai.String("input.pdf"),
+							FileData: openai.String("data:application/pdf;base64," + string(form.File)),
+						},
+					},
+				},
+			},
+		)
+	}
+
+	return app.generateQuiz(message, ctx)
+}
+
+func (app *application) generateQuiz(message openai.ChatCompletionMessageParamUnion, ctx context.Context) (models.QuizJSONSchema, error) {
 	max_attempts := 3
 	var quiz models.QuizJSONSchema
 	var err error
@@ -58,7 +81,7 @@ func (app *application) generateQuiz(notes string, ctx context.Context) (models.
 			ctx,
 			openai.ChatCompletionNewParams{
 				Messages: []openai.ChatCompletionMessageParamUnion{
-					openai.UserMessage(notes),
+					message,
 				},
 				ResponseFormat: openai.ChatCompletionNewParamsResponseFormatUnion{
 					OfJSONSchema: &openai.ResponseFormatJSONSchemaParam{JSONSchema: schemaParam},

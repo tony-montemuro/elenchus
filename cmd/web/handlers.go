@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -168,46 +170,88 @@ func (app *application) quizList(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) create(w http.ResponseWriter, r *http.Request) {
+	var form createForm
+	form, err := app.getCreateFormFromSession(r)
+	if err != nil {
+		if errors.Is(err, ErrNoCreateForm) {
+			form = createForm{}
+		} else {
+			app.serverError(w, r, err)
+			return
+		}
+	}
+
 	data := app.newTemplateData(r)
-	data.Form = createForm{}
+	data.Form = form
 	data.RangeRules = validator.RangeRules[validator.CreateForm]
 	data.Script = "create.js"
 	app.render(w, r, http.StatusOK, "create.tmpl", data)
 }
 
 func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
+	const (
+		maxFileSizeMB = 5
+		maxFormSizeMB = 32
+	)
+
+	err := r.ParseMultipartForm(maxFormSizeMB << 20) // 32 << 20 = 32 MB in bytes
 	if err != nil {
-		app.clientError(w, http.StatusBadRequest)
+		app.serverError(w, r, err)
 		return
 	}
 
 	form := createForm{
-		Notes: r.PostForm.Get("notes"),
+		Type: r.PostForm.Get("type"),
+		Text: r.PostForm.Get("text"),
 	}
 
+	// form validation
 	formName := validator.CreateForm
-	errs := validator.GetRangeErrors(form, formName)
-	for _, err := range errs {
-		form.AddFieldError(err.Key, err.Error())
+	form.CheckField(validator.PermittedValue(form.Type, "file", "text"), "type", "This field must equal 'file' or 'text'.")
+	if form.Type == "text" {
+		errs := validator.GetRangeErrors(form, formName)
+		for _, err := range errs {
+			form.AddFieldError(err.Key, err.Error())
+		}
 	}
 
-	rangeRules := validator.RangeRules[formName]
-	data := app.newTemplateData(r)
-	data.Form = form
-	data.RangeRules = rangeRules
+	file, handler, err := r.FormFile("file")
+	if err != nil {
+		if errors.Is(err, http.ErrMissingFile) && form.Type == "file" {
+			form.AddFieldError(form.Type, "File is required.")
+		}
+
+		if !errors.Is(err, http.ErrMissingFile) {
+			app.serverError(w, r, err)
+			return
+		}
+	}
+
+	if file != nil {
+		fileContent, err := io.ReadAll(file)
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
+
+		if handler.Size <= maxFileSizeMB<<20 {
+			form.File = base64.StdEncoding.EncodeToString(fileContent)
+		} else {
+			form.AddFieldError("file", fmt.Sprintf("File too large. Max size: %d MB.", maxFileSizeMB))
+		}
+	}
 
 	if !form.Valid() {
-		app.render(w, r, http.StatusUnprocessableEntity, "create.tmpl", data)
+		app.redirectToCreate(w, r, form)
 		return
 	}
 
-	quiz, err := app.generateQuiz(form.Notes, r.Context())
+	quiz, err := app.generateQuizByForm(form, r.Context())
 	if err != nil {
 		if errors.Is(err, ErrGenerationRefusal) {
-			form.AddFieldError("notes", err.Error())
-			data.Form = form
-			app.render(w, r, http.StatusUnprocessableEntity, "create.tmpl", data)
+			form.AddFieldError(form.Type, err.Error())
+			app.redirectToCreate(w, r, form)
+			return
 		} else {
 			app.serverError(w, r, err)
 		}
@@ -225,7 +269,6 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data.Flash = ui.GetSuccessFlash("Quiz created!")
 	http.Redirect(w, r, fmt.Sprintf("/quizzes/%d", id), http.StatusSeeOther)
 }
 
