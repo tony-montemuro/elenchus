@@ -269,6 +269,7 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	app.addSuccessFlashToSession("Quiz created! Please edit / review quiz before publishing.", r)
 	http.Redirect(w, r, fmt.Sprintf("/quizzes/%d", id), http.StatusSeeOther)
 }
 
