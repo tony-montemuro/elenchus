@@ -1,12 +1,26 @@
 {{define "title"}}Create Quiz{{end}}
 
 {{define "main"}}
-<h1>Create</h1>
-<form action="/create" method="post" class="flex-col">
+<div class="flex-col">
+	<h1>Create</h1>
+</div>
+<form action="/create" method="post" class="flex-col create-form">
 	{{template "csrf-token" .CSRFToken}}
-	<label for="notes">Paste your notes here:</label>
-	<textarea id="notes" name="notes" rows="20" {{template "input-ranges" .RangeRules.notes}}></textarea>
-	{{template "error" .Form.FieldErrors.notes}}
+	<div class="flex-row radios">
+		<input type="radio" id="pdf" name="type" value="pdf" checked />
+		<label for="pdf">Upload a PDF</label>
+		<input type="radio" id="text" name="type" value="pdf" />
+		<label for="text">Enter text manually</label>
+	</div>
+	<div id="pdf-input" class="hidden flex-col">
+		<label for="file">Upload your notes:</label>
+		<input type="file" id="file" name="file" accept=".pdf" />
+	</div>
+	<div id="text-input" class="hidden flex-col">
+		<label for="notes">Enter your notes here:</label>
+		<textarea id="notes" name="notes" rows="20" {{template "input-ranges" .RangeRules.notes}}></textarea>
+		{{template "error" .Form.FieldErrors.notes}}
+	</div>
 	<button type="submit">Submit</button>
 </form>
 {{end}}

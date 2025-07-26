@@ -171,6 +171,7 @@ func (app *application) create(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Form = createForm{}
 	data.RangeRules = validator.RangeRules[validator.CreateForm]
+	data.Script = "create.js"
 	app.render(w, r, http.StatusOK, "create.tmpl", data)
 }
 
@@ -405,7 +406,7 @@ func (app *application) myProfile(w http.ResponseWriter, r *http.Request) {
 		Published:   published,
 		Unpublished: unpublished,
 	}
-	data.Script = "profile.js"
+	data.Script = "my_profile.js"
 
 	form, err := app.getProfileFormFromSession(r)
 	if err != nil {
