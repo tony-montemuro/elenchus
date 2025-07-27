@@ -8,6 +8,7 @@ elenchus is an AI-powered education platform. Users are able to:
 - Attempt quizzes published by other users, and view past attempts
 - Create quizzes easily: just upload your notes
 - Edit and publish the generated quizzes, so that they can be easily corrected and shared
+- And more!
 
 ## Goals
 
@@ -20,7 +21,7 @@ elenchus is an AI-powered education platform. Users are able to:
    - API design
    - Remote API calls
 - Advance my understanding of frontend fundamentals: vanilla HTML, CSS, and JavaScript.
-- Introduce myself to formal testing.
+- Introduction to formal testing.
 
 ## Project Status
 
