@@ -1,5 +1,39 @@
 # elenchus
 
+[Demo video here](https://i.imgur.com/INzdA8Q.mp4)
+
+elenchus is an AI-powered education platform. Users are able to:
+
+- Signup and login to the platform 
+- Attempt quizzes published by other users, and view past attempts
+- Create quizzes easily: just upload your notes
+- Edit and publish the generated quizzes, so that they can be easily corrected and shared
+
+## Goals
+
+- Often we hear about the negative effects AI has on cognitive abilities. This application is to designed as an educational AI application that can actually enhance the learning process.
+- Advance my understanding of the Go programming language.
+- Advance my understanding of backend concepts: 
+   - Databases 
+   - Session management 
+   - Middleware 
+   - API design
+   - Remote API calls
+- Advance my understanding of frontend fundamentals: vanilla HTML, CSS, and JavaScript.
+- Introduce myself to formal testing.
+
+## Project Status
+
+This project is still a **work in progress**. Many of the core features are complete, but there is much work to be done before this application is production ready. Some examples of missing features include:
+
+- [ ] Quiz search / filtration
+- [ ] Quiz deletion
+- [ ] More advanced error handling
+- [ ] More advanced quiz edits (reordering, adding, deleting, etc.)
+- [ ] Manual quiz creation
+- [ ] More advanced authentication (2FA / OAuth)
+- [ ] Stripe intergartion
+
 ## Developing
 
 1. Clone the repository onto your machine:
@@ -34,6 +68,14 @@
     - Create a test database
     - Create a test database user for testing
     - Create a self-signed TLS certificate for HTTPS locally
+
+3. Export your OpenAI API key:
+
+   ```bash
+   export OPENAI_API_KEY="<YOUR_API_KEY>"
+   ```
+
+   This key is **required** to enable quiz creation. If you don't have one yet, you can create an API key at [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys).
 
 ## Running
 
