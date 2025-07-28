@@ -2,9 +2,9 @@
 
 elenchus is an AI-powered education platform. The following demos showcase some of the functionality:
 
-https://github.com/user-attachments/assets/8b9d2e0c-7109-449e-a153-daad43cb155e
+https://github.com/user-attachments/assets/b6aceea2-a9e9-4719-a1d0-a520f34f49d2
 
-https://github.com/user-attachments/assets/d04a3849-c021-4c27-a3aa-7e8719f66ac3
+https://github.com/user-attachments/assets/6e43b954-b30f-4873-b9dd-40aec7bd292f
 
 https://github.com/user-attachments/assets/f5869a68-1355-40c8-af69-20c4ece2065d
 
