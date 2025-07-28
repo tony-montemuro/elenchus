@@ -1,14 +1,11 @@
 # elenchus
 
-[Demo video here](https://i.imgur.com/INzdA8Q.mp4)
+elenchus is an AI-powered education platform. The following demos showcase some of the functionality:
 
-elenchus is an AI-powered education platform. Users are able to:
-
-- Signup and login to the platform 
-- Attempt quizzes published by other users, and view past attempts
-- Create quizzes easily: just upload your notes
-- Edit and publish the generated quizzes, so that they can be easily corrected and shared
-- And more!
+![Elenchus - Signup and Log In](https://github.com/user-attachments/assets/8b9d2e0c-7109-449e-a153-daad43cb155e)
+![Elenchus - Attempting a Quiz](https://github.com/user-attachments/assets/d04a3849-c021-4c27-a3aa-7e8719f66ac3)
+![Elenchus - Quiz Create](https://github.com/user-attachments/assets/f5869a68-1355-40c8-af69-20c4ece2065d)
+![Elenchus - Quiz Edit + Publish](https://github.com/user-attachments/assets/82fe0091-de2a-4aae-b3cf-8edad6969989)
 
 ## Goals
 
